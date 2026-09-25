@@ -1,0 +1,91 @@
+@* The attributes after @attributes win, so a caller can add aria-describedby or a title but cannot
+   override the classes, type or disabled state. *@
+<button @attributes="AdditionalAttributes"
+        type="@Type"
+        class="@Css.Join("d1-btn", "d1-btn--" + Css.Modifier(Variant), "d1-btn--" + Css.Modifier(Size), FullWidth ? "d1-btn--block" : null, Class)"
+        disabled="@Disabled"
+        aria-disabled="@(AriaDisabled ? "true" : null)"
+        @onclick="HandleClickAsync">
+    @if (IconLeft is { } left)
+    {
+        <span class="d1-btn__icon"><Icon Name="left" Size="IconSize" /></span>
+    }
+    <span>@ChildContent</span>
+    @if (IconRight is { } right)
+    {
+        <span class="d1-btn__icon"><Icon Name="right" Size="IconSize" /></span>
+    }
+</button>
+
+@code {
+    /// <summary>The label: one or two words.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>The look.</summary>
+    [Parameter]
+    public ButtonVariant Variant { get; set; } = ButtonVariant.Primary;
+
+    /// <summary>The height.</summary>
+    [Parameter]
+    public ControlSize Size { get; set; } = ControlSize.Md;
+
+    /// <summary>Whether it fills its container's width.</summary>
+    [Parameter]
+    public bool FullWidth { get; set; }
+
+    /// <summary>A glyph before the label.</summary>
+    [Parameter]
+    public IconName? IconLeft { get; set; }
+
+    /// <summary>A glyph after the label.</summary>
+    [Parameter]
+    public IconName? IconRight { get; set; }
+
+    /// <summary>The button type; <c>button</c> unless it submits a form.</summary>
+    [Parameter]
+    public string Type { get; set; } = "button";
+
+    /// <summary>
+    /// Whether it is natively disabled. A focused button that becomes disabled drops keyboard focus to the page, so
+    /// prefer <see cref="AriaDisabled"/> for a button whose state changes while it may have focus.
+    /// </summary>
+    [Parameter]
+    public bool Disabled { get; set; }
+
+    /// <summary>
+    /// Whether it is unavailable while keeping focus: it sets <c>aria-disabled="true"</c> and ignores clicks, but stays
+    /// focusable (WCAG 2.4.3). The Ask/Stop button uses this for Stopping and for an unavailable Ask.
+    /// </summary>
+    [Parameter]
+    public bool AriaDisabled { get; set; }
+
+    /// <summary>Called on a click, unless the button is disabled either way.</summary>
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    /// <summary>Extra classes.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>Any other attribute, such as <c>aria-describedby</c>.</summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private int IconSize => Size switch
+    {
+        ControlSize.Sm => 13,
+        ControlSize.Lg => 16,
+        _ => 14,
+    };
+
+    private async Task HandleClickAsync(MouseEventArgs args)
+    {
+        if (Disabled || AriaDisabled)
+        {
+            return;
+        }
+
+        await OnClick.InvokeAsync(args);
+    }
+}

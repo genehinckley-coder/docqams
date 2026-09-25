@@ -1,0 +1,93 @@
+TITLE 41: FIRE PROTECTION
+CHAPTER I: OFFICE OF THE STATE FIRE MARSHAL
+PART 177 COMPLIANCE CERTIFICATION FOR UNDERGROUND STORAGE TANKS
+
+Section 177.100 Definitions
+
+Section 177.105 Deposit Prohibited
+
+Section 177.110 Inspection of UST Facilities
+
+Section 177.115 Evidence of Compliance Status for UST Facilities
+
+Section 177.120 Certificate of Exemption (Repealed)
+
+Section 177.125 Missing, Damaged or Destroyed Evidence of Compliance Status
+
+Section 177.130 Expiration of Certificates
+
+Section 177.APPENDIX A Derivation Table (Repealed)
+
+AUTHORITY: Implementing the Gasoline Storage Act [430 ILCS 15] and authorized by Sections 2 and 3.5 of the Gasoline Storage Act [430 ILCS 15/2 and 3.5].
+
+SOURCE: Adopted at 34 Ill. Reg. 13531, effective September 2, 2010; amended at 42 Ill. Reg. 10670, effective October 13, 2018; amended at 47 Ill. Reg. 6972, effective May 2, 2023.
+
+Section 177.100 Definitions
+
+"Deposit" means the act of placing in or filling of a UST or directing the act of placing in or filling of a UST with a regulated substance.
+
+"Evidence of Compliance Status" means a tag or decal issued by OSFM that is visible to persons making delivery of petroleum, petroleum product, hazardous substances or regulated substances under to this Part.
+
+"Non-Motor Fuel Dispensing Facility" means a location where petroleum or petroleum-based product other than motor fuel is dispensed from a UST.
+
+All other terms shall have the meanings ascribed to them in 41 Ill. Adm. Code 174.100.
+
+(Source: Amended at 42 Ill. Reg. 10670, effective October 13, 2018)
+
+Section 177.105 Deposit Prohibited
+
+a) Effect of Green Decal. Beginning December 22, 1998, no person shall deposit or arrange for or allow another person to deposit petroleum, petroleum product, hazardous substances or regulated substances into any UST unless evidence is displayed that the UST is in compliance with 41 Ill. Adm. Code 174, 175 and 176, except as provided in this Part.
+
+b) Effect of Red Tag. Beginning December 22, 1998, no person shall deposit or arrange for or allow another person to deposit petroleum, petroleum product, hazardous substances or regulated substances into any UST that displays evidence that the UST is not in compliance with the applicable rules of OSFM. A depositor may make one deposit of a regulated substance to a newly installed or newly lined tank to provide ballast, or to conduct tank or line precision testing if approved by OSFM. That regulated substance shall not be sold or dispensed until the required decal is obtained.
+
+(Source: Amended at 42 Ill. Reg. 10670, effective October 13, 2018)
+
+Section 177.110 Inspection of UST Facilities
+
+OSFM shall inspect UST facilities for compliance with 41 Ill. Adm. Code 174, 175 and 176 and this Part and issue an evidence of compliance status.
+
+Section 177.115 Evidence of Compliance Status for UST Facilities
+
+a) Evidence of compliance status for UST facilities shall consist of a tag or decal issued by OSFM. The tag or decal shall be either:
+
+1) Red: indicating non-compliance; or
+
+2) Green: indicating compliance.
+
+b) Evidence of compliance status (green decal) shall be affixed as follows:
+
+1) for motor fuel dispensing facilities, to the window closest to the main entry of the motor fuel dispensing facility or, if such a window is not available, to the inside window of the dispenser cabinet;
+
+2) for non-motor fuel dispensing facilities, near the fill pipe at a location agreed to by the representative of OSFM.
+
+c) If more than one UST is located at the facility, and some but not all USTs are in compliance, OSFM, in its discretion, may issue a green decal that shall be affixed as provided in subsection (b) and will issue individual red tags for each of the non-compliant USTs that shall be affixed directly onto the fill pipe of the non-compliant UST or near the fill pipe of the non-compliant UST at a location approved by OSFM. When an NOV for one or more violations of OSFM UST rules under 41 Ill. Adm. Code 172, 174, 175, 176 and this Part is not corrected after 60 days, another NOV will be written to require the application of red tags to all USTs at the facility (pursuant to Sections 3.5(b) and 3.5 (c) of the Gasoline Storage Act [430 ILCS 15/3.5(b) and (c)]).
+
+d) Evidence of compliance status may also be a notice or letter issued by OSFM indicating the facility status. The letter or notice shall be valid for 30 days from the date of the notice or letter.
+
+e) No decal or tag shall be removed by anyone other than an employee of OSFM. Upon reaching full compliance with the requirements of 41 Ill. Adm. Code 172, 174, 175 and 176 and this Part, OSFM shall issue a green decal to a facility as soon as practicable. Upon reaching full compliance for a particular tank, OSFM shall remove any red tag prohibiting deposit into a particular UST as soon as practicable. Any request to fill a UST with a required minimal amount of fuel necessary to perform precision testing must be submitted electronically at the UST contractor portal (https://webapps.sfm.illinois.gov/USTPortal/Home/ Login?ReturnUrl=%2fUSTPortal) and approved by OSFM in advance. A depositor may make one deposit of a regulated substance to a newly installed or newly lined tank to provide ballast. That regulated substance shall not be sold or dispensed until the required decal is obtained.
+
+(Source: Amended at 47 Ill. Reg. 6972, effective May 2, 2023)
+
+Section 177.120 Certificate of Exemption (Repealed)
+
+(Source: Repealed at 47 Ill. Reg. 6972, effective May 2, 2023)
+
+Section 177.125 Missing, Damaged or Destroyed Evidence of Compliance Status
+
+a) The owner or operator of a UST may temporarily use a notice or letter issued pursuant to Section 177.115(d) by OSFM to establish evidence of compliance status when the green decal is missing, damaged or destroyed.
+
+b) If the person depositing the petroleum, petroleum product, hazardous substance or regulated substance has knowledge that the facility or UST has been issued a green decal, and the decal is missing, damaged or destroyed, the person delivering the substance should attempt to make reasonable inquiry to the owner or operator of the compliance status of the facility and UST. After making inquiry and receiving no information as to the non-compliance of the facility and UST, the person may deposit the substance but must notify OSFM, in writing, of the delivery on the next business day and make inquiry into the status of the UST receiving the delivery. Knowledge may be relied on under this subsection (b) by stating in writing that the depositor has observed a prior green decal and has no knowledge of the revocation of that decal. Examples include:
+
+1) A green decal was displayed at the time of a recent, prior delivery and a red tag was not affixed to the UST receiving the current delivery; or
+
+2) Other personal knowledge sufficient to satisfy this subsection (b), including possession of a copy of an inspection form issued by OSFM.
+
+c) Owners or operators of a UST shall report all missing, damaged or destroyed tags and decals on the next business day, in writing, following the discovery and shall return to OSFM the damaged tag or decal. OSFM will replace missing or damaged tags and decals as soon as practicable.
+
+Section 177.130 Expiration of Certificates
+
+Green decals shall be issued for a two-year period. Tanks not in compliance with 41 Ill. Adm. Code 174, 175 and 176 and this Part shall be issued red tags.
+
+Section 177.APPENDIX A Derivation Table (Repealed)
+
+(Source: Repealed at 42 Ill. Reg. 10670, effective October 13, 2018)

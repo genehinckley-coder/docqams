@@ -1,0 +1,41 @@
+@* The wrapper takes focus, so the tooltip appears on keyboard focus as well as hover, and Escape dismisses it
+   (WCAG 1.4.13). Wrap only non-interactive content: an interactive child would add a second tab stop. *@
+<span class="@Css.Join("d1-tooltip", Class)" tabindex="0" aria-describedby="@_bubbleId"
+      @onmouseenter="Show" @onmouseleave="Hide" @onfocusin="Show" @onfocusout="Hide" @onkeydown="HandleKeyDown">
+    @ChildContent
+    <span id="@_bubbleId" role="tooltip"
+          class="@Css.Join("d1-tooltip__bubble", "d1-tooltip__bubble--" + Css.Modifier(Placement), _open ? "d1-tooltip__bubble--visible" : null)">@Label</span>
+</span>
+
+@code {
+    private readonly string _bubbleId = Css.NewId("d1-tooltip");
+    private bool _open;
+
+    /// <summary>The tooltip's text.</summary>
+    [Parameter, EditorRequired]
+    public string Label { get; set; } = "";
+
+    /// <summary>Which side it appears on.</summary>
+    [Parameter]
+    public TooltipPlacement Placement { get; set; } = TooltipPlacement.Top;
+
+    /// <summary>The trigger: non-interactive content.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Extra classes on the wrapper.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    private void Show() => _open = true;
+
+    private void Hide() => _open = false;
+
+    private void HandleKeyDown(KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape")
+        {
+            _open = false;
+        }
+    }
+}

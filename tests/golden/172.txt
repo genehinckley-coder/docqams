@@ -1,0 +1,378 @@
+TITLE 41: FIRE PROTECTION
+CHAPTER I: OFFICE OF THE STATE FIRE MARSHAL
+PART 172 PETROLEUM EQUIPMENT CONTRACTOR LICENSING
+
+Section 172.10 Purpose
+
+Section 172.20 Three Year Phase-In (Repealed)
+
+Section 172.30 Definitions
+
+Section 172.40 Licensure Requirements
+
+Section 172.50 Licensed Contractor's Employee Certifications
+
+Section 172.60 Possession of OSHA Identification Cards
+
+Section 172.70 Fees
+
+Section 172.80 Licensure of Out-of-State Contractors (Repealed)
+
+Section 172.90 Issuance of License; Renewal; Restoration; Replacement
+
+Section 172.100 Reporting
+
+Section 172.110 Disciplinary Actions Related to Contractor Notice of Violations (CNOV)
+
+Section 172.120 Contractor Notice of Violation Citations and Penalty Process
+
+Section 172.130 Review Panel (Repealed)
+
+Section 172.140 Procedures for Administrative Citations and Administrative Citation Appeals
+
+Section 172.150 Status of Licensed Contractor During Appeal of Administrative Citation
+
+Section 172.160 Hearing Procedures for Formal Charges
+
+Section 172.APPENDIX A Contractor Violations (Repealed)
+
+AUTHORITY: Implementing the Petroleum Equipment Contractors Licensing Act [225 ILCS 729] and authorized by Sections 25 and 73 of the Petroleum Equipment Contractors Licensing Act [225 ILCS 729/25 and 73].
+
+SOURCE: Adopted at 27 Ill. Reg. 15346, effective September 16, 2003; amended at 47 Ill. Reg. 6755, effective May 2, 2023; amended at 48 Ill. Reg. 12822, effective August 7, 2024.
+
+Section 172.10 Purpose
+
+The Illinois Petroleum Equipment Contractors Licensing Act (PECLA) [225 ILCS 729] is designed to ensure the quality of petroleum or hazardous substance Underground Storage Tank (UST) work in Illinois meets the highest standards, as well as all applicable statutory and regulatory requirements. Meeting those standards and requirements will assure the owners/operators of USTs and the citizens of Illinois that the environment, citizen safety and the owner’s/operator’s businesses are getting the best service and protection possible.
+
+(Source: Amended at 47 Ill. Reg. 6755, effective May 2, 2023)
+
+Section 172.20 Three Year Phase-In (Repealed)
+
+(Source: Repealed at 47 Ill. Reg. 6755, effective May 2, 2023)
+
+Section 172.30 Definitions
+
+Unless otherwise provided by the definitions within this Section, all terms in this Part shall be as defined in 41 Ill. Adm. Code 174.100.
+
+"Certified employee" is an individual who performs UST activity for an OSFM-licensed contractor and has successfully completed and filed proof with OSFM of completion of ICC or other OSFM approved exams for the module in which the employee is conducting UST activity or meets requirements under Section 172.40(b).
+
+"Contractor Notice of Violation" (CNOV) is a notice to an OSFM-licensed contractor identifying specific violations of the UST rules (41 Ill. Adm. Code 172, 174, 175, 176, and 177).
+
+"License restoration" is the process of an OSFM-licensed contractor renewing a license after it has expired.
+
+"Managerial or administrative control" means having authority to conduct the affairs of the organization and direct others in the conduct of the affairs or business of the organization.
+
+"Non-certified employee" means the employee of a licensed contractor who possesses the OSHA training and certification required by Section 172.60 and is working under the supervision of a certified employee.
+
+"Officer" means:
+
+If the organization is a sole proprietorship, the owner of the organization or any person exercising managerial control.
+
+If the organization is a partnership, any partner who has at least 10% ownership interest or any partner who exercises managerial control.
+
+If the organization is a corporation or other business entity, any officer, director or managing member of the corporation or other business entity or any person who has at least 10% ownership interest in such corporation or other business entity or who exercises managerial control.
+
+"Organization" means a business or other entity, including, but not limited to, a sole proprietorship, partnership, corporation, limited liability company or association and includes units of local government, the State of Illinois and the Federal Government.
+
+"PECLA" means Petroleum Equipment Contractor Licensing Act [225 ILCS 729].
+
+"Penalty process" means the process by which a contractor may be issued a civil monetary penalty or other sanctions including, but not limited to, license suspension or license revocation. This process starts with an inspection and the issuance of a CNOV and then can lead to either a citation imposing a civil penalty or a formal hearing seeking a license revocation, suspension, or other action.
+
+"Person" is a natural person or any company, corporation or other business entity.
+
+(Source: Amended at 47 Ill. Reg. 6755, effective May 2, 2023)
+
+Section 172.40 Licensure Requirements
+
+a) No person shall engage in any UST activity without first applying for and obtaining a license from the OSFM. All contractors performing UST activity in Illinois must hold the license required under PECLA and this Part for each module in which work is performed and shall be required to meet the standards for that work module established by 41 Ill. Adm. Code 172, 174, 175, 176 and 177 and the requirements of 29 CFR 1910.120. Licensure is for a 2-year period. Applicants for a license to become a contractor must comply with the Petroleum Equipment Contractors Licensing Act [225 ILCS 729] as evidenced by the licensure submissions required by this Section.
+
+b) An application for a new contractor license shall be made on-line at the UST Applications and Forms page for OSFM's Division of Petroleum and Chemical Safety (DPCS) at the following link: https://webapps.sfm.illinois.gov/USTPortal/Contractor/Application. Renewal of licenses shall be applied for at the UST Portal after the licensee logs in to their secure account at the UST Applications and Forms page for DPCS at https://webapps.sfm.illinois.gov/USTPortal/Home/Login?ReturnUrl=%2fUSTPortal. The licensure application shall include the following submissions:
+
+1) If seeking a license as a contractor:
+
+A) the State license application and licensing fee required by Section 172.70;
+
+B) the names of all of the contractor's certified employees, on the OSFM prescribed form, stating any UST module in which the employee is certified. Contractors are required to be certified if a sole proprietor, or have a certified employee, for each UST module for which they are applying to be licensed;
+
+C) an original annual certificate of general liability insurance in a minimum of $1,000,000 for each occurrence, with the OSFM as certified holder;
+
+D) evidence of a passing score on the required OSFM approved exam for the module for which licensure is being sought. The evidence must be an original certification that includes a photo of the individual taking the exam, supplied by the exam provider, or other copy of the certification as approved by OSFM;
+
+E) proof of successful completion of initial 40-hour OSHA training and subsequent 8-hour refresher course; and
+
+F) evidence of current registration and proof of status of good standing with the Illinois Secretary of State, as applicable for the form of business entity applying for licensure, or if a sole proprietor, evidence of compliance with the Assumed Business Name Act [805 ILCS 405].
+
+2) If seeking a license as a tank or line precision tester, in lieu of a passing score on the required OSFM approved exam for the tank or line precision testing module, the certified employee may designate the testing methods for which a license is sought and provide proof that he/she, or any certified employee conducting testing, is certified by the manufacturer of the testing equipment. Such proof shall be submitted at the time of license application and shall reflect certification for the license period and the equipment being used, or that the applicant has passed an OSFM approved exam.
+
+3) If seeking a license in the module that authorizes lining or internal inspections of tank linings, the applicant additionally shall provide proof that the applicant has designated at least one certified employee conducting lining activity, that is approved by the manufacturer of the lining material as qualified and trained in the application of the material and has adequate equipment to perform the interior lining safely. The applicant must also possess licensure in the decommissioning module. The certified employees designated by the applicant shall possess the qualifications required for both the lining and the decommissioning modules. Such proof shall be submitted at the time of license application and reflect certification for the license period and the equipment being used.
+
+4) If seeking a license in the module that authorizes inspection and testing of UST equipment, the applicant shall designate the testing methods for which a license is sought and provide proof that the certified employee has passed the required OSFM-approved exam for the installation/retrofitting module or has the credentials and training as required by the manufacturer's recommended procedures and instructions. The employing licensed contractor may certify the employee has the requisite credentials and training. Such proof shall be submitted at the time of license application and shall reflect certification for the license period and the equipment being inspected or tested.
+
+(Source: Amended at 48 Ill. Reg. 12822, effective August 7, 2024)
+
+Section 172.50 Licensed Contractor's Employee Certifications
+
+a) A certified employee is an individual who performs a UST activity for a licensed contractor and has successfully completed OSFM prescribed exams for the module in which the employee is conducting the UST activity, or meets other requirements under Section 172.40(b).
+
+b) A contractor shall have at least one employee certified for the permitted UST activity, unless the contractor itself is an individual contractor who is so certified.
+
+c) A contractor shall have at least one employee certified in the UST activity for which the permit was issued actively supervising the UST activity being performed on the job site, unless the contractor itself is an individual who is so certified and supervises the work. At all times during UST operations, there shall be a certified employee or certified individual contractor on the job site; subcontractors are not employees.
+
+d) Certified employees of licensed contractors shall possess a wallet card or proof of certification verifying successful passage of OSFM approved exams, or for precision testing or inspection and testing of UST equipment, proof of certification by the manufacturer. The wallet card or proof of certification must be carried by the certified employee on UST job sites at all times and shall be available upon request by any OSFM representative.
+
+e) Licensed contractors and any of their employees performing a UST activity shall possess OSHA Identification Cards or proof of certification, described in Section 172.60, on UST job sites at all times that shall be made available upon request by any OSFM representative.
+
+f) Licensed contractors in all UST activity modules are required to follow the scheduling requirements for date certain and/or time certain schedules established by DPCS. For all permitted inspections, scheduling with OSFM shall be done in advance by the contractor on-line via the UST contractor portal, located at the UST Applications and Forms page for the DPCS at https://webapps.sfm.illinois.gov/USTPortal/Home/Login?ReturnUrl=%2FUSTPortal. Submission of any completed testing forms required by OSFM rule shall also be submitted on-line at the UST portal.
+
+g) UST activities may be shut down by any OSFM DPCS manager, supervisor, or Storage Tank Safety Specialist (STSS) if individual contractors or their employees are not in compliance with subsections (a) through (f). Such work shall not resume until approval is granted by the OSFM.
+
+(Source: Amended at 48 Ill. Reg. 12822, effective August 7, 2024)
+
+Section 172.60 Possession of OSHA Identification Cards
+
+a) Licensed contractors, their certified employees and non-certified workers working in a UST activity, and subcontract excavation operators (involved in UST related operations) shall possess, on UST jobsites at all times, 40-hour General Site Worker Program Identification Cards and any valid Refresher Cards that comply with OSHA standards. Cards shall be produced upon request by any OSFM DPCS manager, supervisor, or STSS. The card requirement is applicable only to UST installations, upgrades, repairs, lining, removals, abandonments-in-place and physical interior inspections. All workers in the UST excavation zone shall carry both the 8 hour and 40 hour OSHA cards or certificates or other proof of certification. If a person is unable to produce proof of both cards, that person will be required to leave the excavation zone immediately.
+
+b) Electricians, truck drivers, concrete masons, canopy erectors, crane operators, or underground tank manufacturers or their authorized representatives working in activities that involve their area of specialty only are not required to have the Site Worker Program Identification Card but must comply with the standards established by the OSHA General Site Worker Program (29 CFR 1910.120, incorporated by reference in Section 174.210).
+
+c) When permitted UST activity is being conducted, compliance with the OSHA standards will be accomplished by direct (line of sight) supervision by the permit holding licensed contractor or the contractor's certified employee for those people entering the work area.
+
+d) UST activities may be shut down by any OSFM DPCS manager, supervisor, or STSS, if individual contractors or their employees are not in compliance with this Section. Such work shall not resume until approval is granted by the OSFM.
+
+(Source: Amended at 47 Ill. Reg. 6755, effective May 2, 2023)
+
+Section 172.70 Fees
+
+a) All fees are payable at the time of submission of the relevant application. The payment is to be by check or money order payable to "Office of the State Fire Marshal", or by electronic payment via the UST contractor portal (located at the UST Applications and Forms page for the DPCS at http://webapps.sfm.illinois.gov/USTPortal/Home/Login?Returnurl=%2fUSTPortal, and is to be from the licensed contractor obtaining the permit. New contractors applying for a license for the first time shall utilize the application for a new contractor license, located at the DPCS UST Applications and Forms page at https://webapps.sfm.illinois.gov/USTPortal/Contractor/Application. All licensure fees will be deposited in the Fire Prevention Fund.
+
+b) Fee Schedule:
+
+Type of Fee: | Fee:
+Biennial licensing | $1000 per UST module
+UST activity permit | $200 each
+License restoration | $50 plus $1000 per module
+Multiple location license | $50 each location
+Change of name if no FEIN change | $0
+Change of name with new FEIN or ownership (new license) | $1,000 per UST module
+
+c) All fees paid pursuant to this Part are non-refundable. This shall not preclude the OSFM from refunding accidental overpayment of fees.
+
+(Source: Amended at 47 Ill. Reg. 6755, effective May 2, 2023)
+
+Section 172.80 Licensure of Out-of-State Contractors (Repealed)
+
+(Source: Repealed at 47 Ill. Reg. 6755, effective May 2, 2023)
+
+Section 172.90 Issuance of License; Renewal; Restoration; Replacement
+
+a) The OSFM shall, upon the applicant’s satisfactory completion of the requirements of this Part, and upon receipt of the fees required by Section 172.70, issue the appropriate license showing the name and business location of the licensee, the module for which the applicant is being licensed, and the date of issuance and of expiration. Each licensee shall prominently display the license at each place from which the UST activity is being performed.
+
+b) Each licensee may apply for biennial renewal of the relevant license upon completion of the license renewal application demonstrating compliance with the licensing requirements in this Part and payment of the fee set forth in Section 172.70. Renewal and restoration fees shall be waived for persons who did not renew while on active duty in the military and who file for renewal or restoration within one year after discharge from the service. An expired license may not be restored except upon passing an examination to determine fitness to have the license restored and by paying the restoration fee specified in Section 172.70.
+
+c) All licenses will be issued for a two-year period. The OSFM shall notify license holders in writing 2 months in advance of their license expiration date at the UST contractor portal (available at the website cited in Section 172.40(b)). However, failure of a licensee to receive advance notification from OSFM does not relieve the licensee from responsibility for timely license renewal.
+
+d) If a licensee wishes to change the name appearing on the license, the OSFM shall issue licenses in the new name, upon satisfactory proof that the change of name was done in accordance with law and upon payment of the fee established in Section 172.70. Any change in ownership or Federal Employer Identification Number (FEIN) requires a new license application and payment of the license fee.
+
+(Source: Amended at 47 Ill. Reg. 6755, effective May 2, 2023)
+
+Section 172.100 Reporting
+
+a) As a condition of renewal of a license, the OSFM may require the licensee to report information pertaining to the licensee's practice (e.g., history of CNOVs in last 2 years, verification of work with firms, history of OSHA violations, etc.) that the OSFM determines to be in the interest of public safety.
+
+b) A licensee shall report a change in home or office address and UST employee status within 10 days after the change.
+
+c) Licensees shall submit notification at the UST contractor portal cited in Section 172.40(b) of:
+
+1) Termination of employment of a certified employee;
+
+2) Re-certification to perform a UST module by an employee;
+
+3) Certification to perform a UST module by an employee not previously certified or not previously certified to perform that module; or
+
+4) Any other change to the contractor's qualifications for, or authorizations provided by, the contractors OSFM-issued license, including which module the contractor or certified employee is authorized to perform UST activity under.
+
+d) These notifications shall be submitted to the OSFM within 30 days after the occurrence.
+
+(Source: Amended at 47 Ill. Reg. 6755, effective May 2, 2023)
+
+Section 172.110 Disciplinary Actions Related to Contractor Notice of Violations (CNOV)
+
+Disciplinary actions and administrative citations result from the issuance of a CNOV. The CNOV is issued by an STSS and copies are provided to the licensed contractor. CNOVs result from violations in one or both of two categories:
+
+a) Administrative or quality control violations are minor when taken individually, but have a major impact when recurring within the preceding 12 months.
+
+1) Administrative violations include, but are not limited to, a failure to abide by the regulatory requirements found at 41 Ill. Adm. Code 172, 174, 175, 176, and 177 in regards to permitting, scheduling, licensing, technical oversight, or submission of documentation. Examples include:
+
+A) the failure to have an active permit authorizing the specific permitted activity, or other violations of permit conditions, terms, or permitting requirements;
+
+B) the failure to be ready for a date certain/time certain activity or final inspection, or other violations of scheduling requirements;
+
+C) the failure to have an employee certified in the specific required module on site actively supervising the work, or other violations of licensing requirements or related administrative requirements;
+
+D) the failure to submit a completed OSFM like-for-like replacement form following a like-for-like replacement, the failure to submit a completed OSFM test results form where required, or other violations of requirements for submission of completed OSFM forms by the licensed contractor; and
+
+E) the failure to comply with any OSFM rule governing the work being done by a licensed contractor.
+
+2) Quality control violations include, but are not limited to, a failure to abide by the technical requirements found at 41 Ill. Adm. Code 174, 175, 176, and 177 for a UST design, construction, installation, repair, upgrade, inspection, removal or abandonment in place. Examples include:
+
+A) The failure to comply with motor fuel dispensing facility requirements for a UST system. Examples include: a failure to install a sufficient number of E-stops or the failure to install E-stops within the correct distances.
+
+B) The failure to comply with requirements for UST design, installation and construction. Examples include:
+
+i) a failure to have pipe trenches wide enough or deep enough or sloped to tanks properly, or to have pipes spaced properly;
+
+ii) a failure to test the UST tank prior to installation, or other violations of requirements for construction and installation of a UST;
+
+iii) the failure to use appropriate backfill material for UST installation; or
+
+iv) the failure to have electrical equipment installed in accordance with NFPA 70.
+
+C) The failure to comply with requirements for corrosion protection for a UST system. Examples include: a licensed contractor's failure to di-electrically protect all steel risers, vents, and fill pipes in contact with the ground, backfill, or water.
+
+D) The failure to comply with requirements for release detection for a UST system. Examples include: a failure to have a release detection system installed and calibrated according to manufacturer specifications and instructions.
+
+E) The failure to comply with requirements for repairs for a UST system or defective UST equipment. Examples include: a failure to repair or replace system components using correct equipment or materials or to conduct repairs in accordance with manufacturers recommended procedures and specifications.
+
+F) The failure to comply with requirements for permanent closure for a UST system, including removal, abandonment-in-place and change in service.
+
+G) The failure to comply with compliance certification requirements for a UST. Examples include the removal of a red tag by any licensed contractor to fill a UST for testing or other reasons.
+
+H) The failure to comply with containment requirements. Examples include a failure to install required containment under dispensers or perform testing on containment prior to backfilling.
+
+I) The failure to comply with requirements for piping, venting, and pumps. Examples include installation of vents and pipes at unapproved locations.
+
+J) The failure to comply with an applicable technical code or any OSFM administrative rule governing the work being done by a licensed contractor.
+
+b) Safety violations pose a potential or imminent grave danger to the environment and the health and safety of the citizens of Illinois and are of such a grave nature as to result in the immediate shut-down of the job site, issuance of an administrative citation and possible suspension of contractor activity in any or all OSFM-licensure modules. OSFM may also consider property damage or personal injury caused by a violation of regulatory requirements, found at 41 Ill. Adm. Code 174, 175, and 176, in categorizing a violation as being a safety violation. Examples include the following:
+
+1) Licensed contractor failed to provide excavation sloping, benching, stepping, or shoring sides or to abide by 29 CFR 1926.
+
+2) Licensed contractor failed to have sufficient equipment, for example, with sufficient lifting capacity for the intended UST activity.
+
+3) Licensed contractor failed to maintain the required exclusion zone while working on the UST system.
+
+4) Licensed contractor failed to comply with UST tank entry procedures outlined in API 2015.
+
+5) Licensed contractor failed to follow API 1604, including the failure to remove all petroleum or hazardous substance from the tank or connecting lines prior to the removal or abandonment-in-place process.
+
+6) Licensed contractor failed to install anchoring and the tank or tanks floated.
+
+7) Licensed contractor failed to vapor free in accordance with API 1631.
+
+8) The licensed contractor excavated along the side or end of a tank prior to vapor freeing or inerting the tank itself, or without having STSS on site.
+
+9) The licensed contractor did not use explosion-proof pumps to remove liquids from the tank or tanks prior to a UST removal, abandonment-in-place or lining inspection process.
+
+10) The failure to comply with any OSFM administrative rule, causing the work being done by a licensed contractor to jeopardize public health or safety.
+
+c) The failure to comply with the Act or this Part by any licensee may subject the licensee to administrative action, including, but not limited to, suspension, revocation or refusal to issue or renew a license and the assessment of fines.
+
+(Source: Amended at 47 Ill. Reg. 6755, effective May 2, 2023)
+
+Section 172.120 Contractor Notice of Violation Citations and Penalty Process
+
+Pursuant to Section 172.110, violations may be categorized as administrative, quality control, or safety. Penalties will be applied to CNOVs based on the following criteria:
+
+a) All CNOVs will remain in the licensed contractor’s file. The penalty process will be based on active CNOVs. Active CNOVs for purposes of the penalty process will be those that occurred in the 12 months prior to the date of CNOV issuance. Only those CNOVs issued after May 2, 2023 can be considered active for purposes of this Section.
+
+b) Penalty assessment for CNOVs will be calculated utilizing the following method:
+
+1) Licensed contractors may receive CNOVs for three administrative or quality control violations that occurred in the 12 months prior to the date of CNOV issuance without incurring a fine. Upon receipt of a CNOV for a fourth or subsequent administrative or quality control violation within the 12 months prior to the date of CNOV issuance, DPCS shall issue an administrative citation imposing a civil fine under the following penalty structure:
+
+Fourth violation: | $250
+Fifth violation: | $500
+Sixth violation: | $750
+Seventh violation: | $1,000
+Eighth and each subsequent administrative or quality control violation: | $1,250
+
+2) Upon receipt of a CNOV for a safety violation, DPCS may issue an administrative citation imposing a civil fine under the following penalty structure:
+
+First violation with no property damage or no personal injury: | $1,000
+First violation with property damage but no personal injury: | $2,500
+First violation with personal injury: | $5,000 and a review for a possible license suspension or revocation in any or all modules held by the licensee.
+Second and each subsequent safety violation: | all penalties double and a review for a possible license suspension or revocation in any or all modules held by the licensee.
+
+(Source: Amended at 47 Ill. Reg. 6755, effective May 2, 2023)
+
+Section 172.130 Review Panel (Repealed)
+
+(Source: Repealed at 47 Ill. Reg. 6755, effective May 2, 2023)
+
+Section 172.140 Procedures for Administrative Citations and Administrative Citation Appeals
+
+Except as otherwise may be required under the Illinois Administrative Procedures Act [5 ILCS 100], this Section provides the procedures for administrative citations and administrative citation appeals under Section 73 of the Petroleum Equipment Contractors Licensing Act [225 ILCS 729/73].
+
+a) Enforcement action that results in the issuance of an administrative citation shall begin with the issuance of a CNOV by OSFM. A copy of the CNOV shall be left with any licensed contractor's certified employee, officer, managing member, or other agent of the contractor at the UST facility or other location where the contractor is working at the time of inspection or may be mailed or served by other legal process.
+
+b) Issuance of an Administrative Citation
+
+1) The OSFM may issue an administrative citation pursuant to Section 73 of the Petroleum Equipment Contractors Licensing Act [225 ILCS 729/73] and serve the administrative citation by personal service or certified mail to the licensee at the licensee's last known address as listed with the OSFM. The citation shall be issued to the licensee and shall contain the licensee's name and address, the licensee's license number, a brief factual statement, the Sections of the law or rules allegedly violated, and the penalty imposed in accordance with Section 172.120. The citation must clearly state that the licensee may choose, in lieu of accepting the citation, to request a hearing to appeal the citation. If the licensee does not file a written appeal of the citation with the Office of the State Fire Marshal within 15 days after the citation is served, then the citation shall become a final order imposing a monetary penalty. A written appeal will be deemed to be timely if it is postmarked no later than the time period allowed. Failure to timely satisfy the penalty assessed may result in a censure or suspension or other disciplinary action on the license for the violations noted. (See also 225 ILCS 729/80(a)(3))
+
+2) Payment of the administrative citation penalty does not absolve the outstanding violations related to its licensing or other regulatory obligations. Administrative citations and penalties issued under this Section shall not limit the authority of the OSFM under other sections of law to issue orders, revoke permits, stop work on construction, or take any other appropriate enforcement action.
+
+c) In the event of a timely written appeal, the OSFM shall conduct an administrative hearing governed by this Section and the Illinois Administrative Procedure Act [5 ILCS 100]. Notice of the time and place for any hearing shall be given to any party concerned at least 30 days prior to the hearing date. If an attorney, through written communication, is known to represent any party to a hearing, then notice is to be given to that attorney. A corporation, limited liability company, professional limited liability company, or partnership must appear by legal counsel, licensed to practice in the State of Illinois or appearing pro hac vice, who must file an appearance with the OSFM. Notice sent to the last known address by U.S. Mail, registered or certified, addressed to all parties or their agents appointed to receive service of process, or their attorneys when applicable, is sufficient.
+
+1) The notice of hearing shall include the following:
+
+A) The date, time, place and nature of the hearing.
+
+B) A statement of the legal authority and jurisdiction under which the hearing is to be held.
+
+C) A reference to the particular Sections of the substantive and procedural statutes and rules involved.
+
+D) A short and plain statement of the matters asserted, the consequences of a failure to respond, and the case number or file number.
+
+E) To the extent such information is available, the names, phone numbers, email addresses, and mailing addresses of the parties and designated agency contact, and if known, of any assigned hearing officer.
+
+2) Document Exchange. At any pre-hearing conference, or if none, prior to the start of the hearing, the parties shall exchange a list of those witnesses who may testify at hearing and any exhibits or documents that may be identified at hearing.
+
+3) Continuances. A hearing officer may, for good cause, grant a continuance at the request of a party or a continuance on the hearing officer's own motion.
+
+4) Default. Failure of a party to appear on the date set for hearing or failure to proceed as ordered by the OSFM shall constitute a default and the administrative citation appealed from shall become final. Appeals, petitions, motions or other requests for relief that are not prosecuted diligently may be dismissed for want of prosecution.
+
+5) At the close of the evidence, or upon receiving the recommended decision of the hearing officer with findings of fact and conclusions of law, the OSFM shall enter an order to sustain, modify, or revoke the administrative citation. Any appeal from such OSFM final order shall be to the circuit court of the county in which the violation took place and shall be governed by the Administrative Review Law [735 ILCS 5/Art. III] [225 ILCS 729/73(a)].
+
+6) Nothing in this Section shall prohibit the informal disposition of an administrative citation by stipulation, agreed settlement, or consent order. Informal disposition may proceed with clear and simple documentation without complete adherence to this Section.
+
+(Source: Amended at 47 Ill. Reg. 6755, effective May 2, 2023)
+
+Section 172.150 Status of Licensed Contractor During Appeal of Administrative Citation
+
+During the time an administrative citation is under appeal, the licensed contractor may continue to work in Illinois unless, in the opinion of the OSFM, continued work by this contractor poses a significant threat to the environment or the health and safety of citizens of Illinois.
+
+(Source: Amended at 47 Ill. Reg. 6755, effective May 2, 2023)
+
+Section 172.160 Hearing Procedures for Formal Charges
+
+a) The procedures of this Section shall govern any appeal of formal charges seeking to impose disciplinary action under Section 80(a) of the Petroleum Equipment Contractors Licensing Act [225 ILCS 729/80(a)].
+
+b) Each licensee whose conduct is the subject of a formal charge that seeks to impose disciplinary action against the licensee shall be served notice of the formal charge at least 30 calendar days before the date of the hearing. The hearing shall be presided over by a hearing officer authorized by the OSFM in compliance with the Illinois Administrative Procedure Act. Service shall be considered to have been given if the notice was personally received by the licensee or if the notice was mailed certified, return receipt requested, to the licensee at the licensee’s last known address as listed with the OSFM.
+
+c) The notice of a formal charge shall consist, at a minimum, of the following information:
+
+1) The time, place, and date of the hearing.
+
+2) A statement that the licensee shall appear personally at the hearing and may be represented by counsel.
+
+3) A statement that the licensee has the right to produce witnesses and evidence and the right to cross-examine witnesses and object to evidence.
+
+4) A statement that the hearing can result in disciplinary action being taken against the license.
+
+5) A statement of where the individual can procure the rules for the conduct of these hearings.
+
+6) A statement that the hearing officer authorized by the OSFM will preside at the hearing and, following the conclusion of the hearing, shall make findings of fact, conclusions of law and recommendations, separately stated, to the State Fire Marshal as to what disciplinary action, if any, should be imposed on the licensee.
+
+7) The OSFM may continue the hearing.
+
+d) The hearing officer shall conduct the hearing. After the conclusion of a hearing, the hearing officer shall make findings of fact, conclusions of law and recommendations, separately stated, and submit them to the State Fire Marshal and to all parties to the proceeding. Submission to the licensee shall be considered as having been made, if accomplished in a similar fashion as service of the notice of formal charges (see subsection (c)). Within 20 days after such service, any party to the proceeding may present to the State Fire Marshal a motion, in writing, for a rehearing that specifies the grounds for rehearing.
+
+e) Following the time allowed for filing a motion for rehearing, the State Fire Marshal shall review the hearing officer’s findings of fact, conclusions of law, recommendations and any motion for rehearing. After reviewing this information, the State Fire Marshal may hear oral arguments, prior to issuing an order. The report of findings of fact, conclusions of law and recommendations of the hearing officer shall be the basis for the State Fire Marshal’s order, in which the State Fire Marshal may accept or reject the recommendations of the hearing officer.
+
+f) If the State Fire Marshal finds that substantial justice was not done, he or she may issue an order in contravention to the findings of fact, conclusions of law, and recommendations of the hearing officer. The finding is not admissible in evidence against the person in a criminal prosecution brought for violation of this Act or this Part. [225 ILCS 729/75(e)]
+
+g) The execution of a written Order of the State Fire Marshal will become effective immediately and will constitute a final administrative decision subject to the Administrative Review Law [735 ILCS 5].
+
+(Source: Amended at 47 Ill. Reg. 6755, effective May 2, 2023)
+
+Section 172.APPENDIX A Contractor Violations (Repealed)
+
+(Source: Repealed at 47 Ill. Reg. 6755, effective May 2, 2023)

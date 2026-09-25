@@ -1,0 +1,167 @@
+@implements IDisposable
+@inject IConversationStore Store
+
+@* One persistent button whose label and handler change: Ask, then Stop, then Stopping…, then Ask again. It is the
+   same Button, and so the same <button> element, throughout, and it is never natively disabled, so keyboard focus
+   stays on it (WCAG 2.4.3). Its state comes from the store's snapshot, not from this page, so a tab opened or
+   refreshed mid-answer shows Stop, and a Stop clicked in another tab shows Stopping… here. *@
+<Button @attributes="AdditionalAttributes"
+        Variant="@(_mode == AskStopMode.Ask ? ButtonVariant.Primary : ButtonVariant.Secondary)"
+        Size="ControlSize.Lg"
+        IconLeft="@(_mode == AskStopMode.Ask ? null : IconName.X)"
+        AriaDisabled="@(_mode == AskStopMode.Stopping || (_mode == AskStopMode.Ask && !CanAsk))"
+        OnClick="HandleClickAsync"
+        Class="@Class">@Label</Button>
+@* The screen's one always-present live region for answers: it announces each answer's end, once. *@
+<LiveRegion Message="@_announcement" />
+
+@code {
+    // A live region reads only a change, so a repeated announcement differs from the last by this.
+    private const char NoBreakSpace = (char)0xA0;
+
+    private AskStopMode _mode;
+    private Guid? _shownId;
+    private string? _announcement;
+    private bool _asking;
+    private bool _disposed;
+
+    /// <summary>The conversation whose answer this button starts and stops; <see langword="null"/> when there is none yet.</summary>
+    [Parameter]
+    public Guid? ConversationId { get; set; }
+
+    /// <summary>
+    /// Whether a question can be asked now: there is a question to send and the corpus is ready. When it cannot, Ask
+    /// stays focusable but ignores clicks; pass <c>aria-describedby</c> pointing at the reason.
+    /// </summary>
+    [Parameter]
+    public bool CanAsk { get; set; }
+
+    /// <summary>
+    /// Called when Ask is clicked and a question can be asked. The page sends its question to the store. Further Ask
+    /// clicks are ignored until it returns.
+    /// </summary>
+    [Parameter]
+    public EventCallback OnAsk { get; set; }
+
+    /// <summary>Extra classes on the button.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>Any other attribute of the button, such as <c>aria-describedby</c>.</summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private enum AskStopMode
+    {
+        Ask,
+        Stop,
+        Stopping,
+    }
+
+    private string Label => _mode switch
+    {
+        AskStopMode.Stop => "Stop",
+        AskStopMode.Stopping => "Stopping…",
+        _ => "Ask",
+    };
+
+    /// <inheritdoc/>
+    protected override void OnInitialized() => Store.Changed += OnStoreChanged;
+
+    /// <inheritdoc/>
+    protected override void OnParametersSet() => Refresh();
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        _disposed = true;
+        Store.Changed -= OnStoreChanged;
+    }
+
+    private void Refresh()
+    {
+        ConversationSnapshot? snapshot = ConversationId is { } id ? Store.Get(id) : null;
+        AskStopMode mode = snapshot?.InProgress switch
+        {
+            null => AskStopMode.Ask,
+            { IsStopping: true } => AskStopMode.Stopping,
+            _ => AskStopMode.Stop,
+        };
+
+        // Announce an answer's end only when this button saw it happen in the same conversation: not on a fresh
+        // render, which would repeat an old outcome, and not on a switch to another conversation.
+        if (ConversationId == _shownId && _mode != AskStopMode.Ask && mode == AskStopMode.Ask
+            && snapshot?.LastOutcome is { } outcome)
+        {
+            Announce(outcome);
+        }
+
+        _shownId = ConversationId;
+        _mode = mode;
+    }
+
+    private void Announce(TurnOutcome outcome)
+    {
+        string message = outcome switch
+        {
+            TurnOutcome.Completed => "Answer complete",
+            TurnOutcome.Stopped => "Answer stopped",
+            TurnOutcome.Failed => "Answer failed",
+            TurnOutcome.NotReplayable => "Answer not added to the conversation",
+            _ => "Answer ended",
+        };
+        _announcement = message == _announcement ? message + NoBreakSpace : message;
+    }
+
+    // Raised on whichever thread changed the store, so the refresh is marshalled onto this circuit. Every streamed
+    // fragment raises one, so the button renders only when its label or announcement changes. A notification already
+    // queued when the component is disposed does nothing.
+    private void OnStoreChanged(Guid id)
+    {
+        if (id != ConversationId)
+        {
+            return;
+        }
+
+        _ = InvokeAsync(() =>
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            AskStopMode mode = _mode;
+            string? announcement = _announcement;
+            Refresh();
+            if (_mode != mode || _announcement != announcement)
+            {
+                StateHasChanged();
+            }
+        });
+    }
+
+    // The click acts on what the button showed, not on a state newer than the render. A Stop clicked just as the
+    // answer finished calls Store.Stop, which is then a no-op: it never turns into an Ask.
+    private async Task HandleClickAsync(MouseEventArgs args)
+    {
+        switch (_mode)
+        {
+            case AskStopMode.Ask when CanAsk && !_asking:
+                _asking = true;
+                try
+                {
+                    await OnAsk.InvokeAsync();
+                }
+                finally
+                {
+                    _asking = false;
+                }
+
+                break;
+            case AskStopMode.Stop when ConversationId is { } id:
+                Store.Stop(id);
+                Refresh();
+                break;
+        }
+    }
+}

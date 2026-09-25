@@ -1,0 +1,25 @@
+/* pre-wrap keeps the answer's own line breaks, as the design and the prototype show them. */
+.answer-text {
+    margin: 0;
+    font-family: var(--font-text);
+    font-size: var(--type-body);
+    line-height: var(--leading-prose);
+    color: var(--text-body);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.answer-text__marker {
+    margin-left: 1px;
+    padding: 0 1px;
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: var(--weight-semibold);
+    color: var(--text-accent);
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+a.answer-text__marker:hover {
+    text-decoration: underline;
+}

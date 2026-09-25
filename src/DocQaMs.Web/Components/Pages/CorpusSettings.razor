@@ -1,0 +1,532 @@
+@page "/settings"
+@implements IDisposable
+@using CorpusSnapshot = DocQaMs.Core.Corpus.Corpus
+@using Microsoft.Extensions.Options
+@inject ICorpusSource CorpusSource
+@inject IConversationStore Store
+@inject CostEstimator Costs
+@inject CacheWarmthTracker Warmth
+@inject TimeProvider Time
+@inject IOptions<DocQaOptions> Options
+
+<PageTitle>Corpus settings · DocQA</PageTitle>
+
+@* The design's four cards, with its editable TTL, ceiling and label inputs replaced by read-only values: each of
+   those is part of the cached request prefix, so an edit would cost a fresh corpus write of about $2 per model and
+   level. Model and level are chosen per conversation on the Conversation screen instead. *@
+<div class="set">
+    <h1 class="set__title">Corpus and cost settings</h1>
+    <p class="set__lede">
+        Read-only. The values that decide what is cached are compiled into the app, because changing one would make the
+        next question on every model and level write the corpus cache again. Model and level are chosen per
+        conversation on the Conversation screen.
+    </p>
+
+    <div class="set__grid">
+        <Card Eyebrow="CORPUS" Title="Corpus health" Class="set__card set__card--corpus">
+            @if (_corpus is { } corpus)
+            {
+                <div class="set__stack">
+                    @foreach (SelectableModel model in CacheAffecting.SelectableModels)
+                    {
+                        <div class="set__gauge" @key="model.Id">
+                            <div class="set__gauge-head">
+                                <span>@model.DisplayName</span>
+                                <span>@TokenText(corpus, model) / @Formatting.Number(Ceiling) ceiling</span>
+                            </div>
+                            <div class="set__gauge-track">
+                                <div class="set__gauge-fill" style="width: @GaugeWidth(corpus, model)"></div>
+                            </div>
+                            <div class="set__gauge-label">@GaugeLabel(corpus, model) OF CEILING</div>
+                        </div>
+                    }
+
+                    <div class="set__divided">
+                        <div class="set__badge-line">
+                            <Badge Tone="FingerprintTone(_check.Status)">@FingerprintLabel(_check.Status)</Badge>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(_checkDescription))
+                        {
+                            @* The description names each change and what a changed corpus costs, one line per change. *@
+                            <p class="set__prose">@_checkDescription</p>
+                        }
+                        <div class="set__mono">SHA-256 @ShortFingerprint(corpus)</div>
+                    </div>
+
+                    <div class="set__divided set__row-between">
+                        <span class="set__note">Checked at @Formatting.Timestamp(_loadedAt, Time.LocalTimeZone)</span>
+                        <Button Variant="ButtonVariant.Secondary" Size="ControlSize.Sm" AriaDisabled="_isReloading"
+                                OnClick="ReloadCorpus">
+                            @(_isReloading ? "Reloading…" : "Reload")
+                        </Button>
+                    </div>
+
+                    @if (_reloadFailure is { } reloadFailure)
+                    {
+                        <div class="set__badge-line">
+                            <Badge Tone="BadgeTone.Warning">RELOAD FAILED</Badge>
+                            <span class="set__note">@reloadFailure The corpus loaded before stays in use.</span>
+                        </div>
+                    }
+                </div>
+            }
+            else if (_corpusState is CorpusState.Failed failed)
+            {
+                <div class="set__stack">
+                    <div class="set__badge-line">
+                        <Badge Tone="BadgeTone.Danger" Dot="true">CORPUS NOT LOADED</Badge>
+                        <span class="set__note">@failed.Reason</span>
+                    </div>
+                    <div class="set__row-between">
+                        <span class="set__note">Failed at @Formatting.Timestamp(failed.FailedAt, Time.LocalTimeZone)</span>
+                        <Button Variant="ButtonVariant.Secondary" Size="ControlSize.Sm" OnClick="ReloadCorpus">Retry</Button>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="set__badge-line">
+                    <Badge Tone="BadgeTone.Info">CORPUS LOADING</Badge>
+                    <span class="set__note">Extracting the pages and counting their tokens.</span>
+                </div>
+            }
+        </Card>
+
+        <Card Eyebrow="REGISTRY" Title="Document labels" Class="set__card set__card--registry">
+            @if (_corpus is { } registry)
+            {
+                <ul class="set__registry">
+                    @foreach (CorpusDocument document in registry.Documents)
+                    {
+                        <li class="set__registry-row" @key="document.FileName">
+                            <div class="set__registry-text">
+                                <div class="set__eyebrow">@document.FileName</div>
+                                <div class="set__registry-label">@document.Label</div>
+                            </div>
+                            <div class="set__mono set__registry-counts">@DocumentCounts(document)</div>
+                        </li>
+                    }
+                </ul>
+                <p class="set__note">
+                    The label is the citation title the model sees. Token counts are approximate, counted on
+                    @DefaultModelName: documents counted separately do not sum to the corpus total.
+                </p>
+            }
+            else
+            {
+                <p class="set__note">The documents appear here once the corpus has loaded.</p>
+            }
+        </Card>
+
+        <Card Eyebrow="COST" Title="Session cost" Class="set__card set__card--cost">
+            @if (_active is { } active)
+            {
+                <div class="set__stack">
+                    <div class="set__badge-line">
+                        <span class="set__note">@active.Title</span>
+                        <Badge Tone="BadgeTone.Neutral">@Formatting.SettingsBadge(active.Settings)</Badge>
+                    </div>
+                    <dl class="set__buckets">
+                        @foreach ((string label, decimal amount) in Buckets(active.Cost.Known))
+                        {
+                            <div class="set__bucket" @key="label">
+                                <dt>@label</dt>
+                                <dd class="set__mono">@Formatting.Money(amount)</dd>
+                            </div>
+                        }
+                    </dl>
+                    <div class="set__total">
+                        <span>TOTAL</span>
+                        <span class="set__mono">@Formatting.Money(active.Cost.Known.Total)</span>
+                    </div>
+                    @foreach (string note in CostNotes(active.Cost))
+                    {
+                        <p class="set__note" @key="note">@note</p>
+                    }
+                    <div class="set__divided set__row-between">
+                        <span class="set__note">All conversations, this run</span>
+                        <span class="set__mono">@Formatting.Money(_total.Known.Total)</span>
+                    </div>
+                    @foreach (string note in CostNotes(_total))
+                    {
+                        <p class="set__note" @key="@("total-" + note)">@note</p>
+                    }
+                </div>
+            }
+            else
+            {
+                <p class="set__note">No conversation is open, so there is nothing spent to break down.</p>
+            }
+        </Card>
+
+        <Card Eyebrow="CACHE" Title="Cache and pricing" Class="set__card set__card--cache set__card--wide">
+            <div class="set__stack">
+                <dl class="set__buckets">
+                    <div class="set__bucket">
+                        <dt>Corpus cache TTL</dt>
+                        <dd class="set__mono">@CacheAffecting.CorpusCacheTtl</dd>
+                    </div>
+                    <div class="set__bucket">
+                        <dt>Conversation cache TTL</dt>
+                        <dd class="set__mono">@CacheAffecting.ConversationCacheTtl</dd>
+                    </div>
+                    <div class="set__bucket">
+                        <dt>Token ceiling</dt>
+                        <dd class="set__mono">@Formatting.Number(Ceiling)</dd>
+                    </div>
+                    <div class="set__bucket">
+                        <dt>Context window</dt>
+                        <dd class="set__mono">@Formatting.Number(Options.Value.ContextWindow)</dd>
+                    </div>
+                </dl>
+
+                <section class="set__section" aria-labelledby="prices-heading">
+                        <h3 id="prices-heading" class="set__heading">Prices, USD per million tokens</h3>
+                    <div class="set__scroll">
+                        <table class="set__table" aria-labelledby="prices-heading">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Model</th>
+                                    <th scope="col">Input</th>
+                                    <th scope="col">5-minute write</th>
+                                    <th scope="col">1-hour write</th>
+                                    <th scope="col">Cache read</th>
+                                    <th scope="col">Output</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (SelectableModel model in CacheAffecting.SelectableModels)
+                                {
+                                    @* Options validation fails start-up on a missing row, so every model has one. *@
+                                    ModelPrices prices = Options.Value.Prices[model.Id];
+                                    <tr @key="model.Id">
+                                        <th scope="row">@model.DisplayName</th>
+                                        <td class="set__mono">@Rate(prices.InputPerMTok)</td>
+                                        <td class="set__mono">@Rate(prices.CacheWrite5mPerMTok)</td>
+                                        <td class="set__mono">@Rate(prices.CacheWrite1hPerMTok)</td>
+                                        <td class="set__mono">@Rate(prices.CacheReadPerMTok)</td>
+                                        <td class="set__mono">@Rate(prices.OutputPerMTok)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="set__note">
+                        Thinking tokens are billed as output. There is no long-context surcharge: both models are billed
+                        at these rates across the whole context window, which matters here because every follow-up
+                        carries more than 200,000 tokens.
+                    </p>
+                </section>
+
+                @if (_rows.Count == 0)
+                {
+                    <p class="set__note">The cost tables appear once the corpus has loaded and been counted.</p>
+                }
+                else
+                {
+                    <section class="set__section" aria-labelledby="per-question-heading">
+                        <h3 id="per-question-heading" class="set__heading">Cost per question</h3>
+                        <div class="set__scroll">
+                            <table class="set__table" aria-labelledby="per-question-heading">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Model and level</th>
+                                        <th scope="col">Cold first question</th>
+                                        <th scope="col">Warm question</th>
+                                        <th scope="col">Basis</th>
+                                        <th scope="col">Corpus cache</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (CostRow row in _rows)
+                                    {
+                                        <tr @key="row.Name" class="@(IsActiveRow(row) ? "set__table-row--current" : null)">
+                                            <th scope="row">@row.Name</th>
+                                            @if (row.Estimate is { } estimate)
+                                            {
+                                                <td class="set__mono">@Formatting.Money(estimate.ColdQuestion)</td>
+                                                <td class="set__mono">@Formatting.Money(estimate.WarmQuestion)</td>
+                                                <td>@CostTables.BasisLabel(estimate.Basis)</td>
+                                                <td>@CostTables.WarmthText(row.Warmth!, Time.LocalTimeZone)</td>
+                                            }
+                                            else
+                                            {
+                                                <td colspan="4">Not offered: @row.ExcludedReason</td>
+                                            }
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="set__note">
+                            A cold question writes the corpus cache; a warm one reads it, and a follow-up also writes a
+                            tail the size of the previous answer. Only Opus 5 at High is measured; every other row's
+                            output length is an estimate or an assumption. Warmth counts only this app's own requests,
+                            so it is always "probably".
+                        </p>
+                        @if (ModelsWithoutOwnCount() is { Count: > 0 } uncounted)
+                        {
+                            <p class="set__note">
+                                @string.Join(" and ", uncounted) has no token count of its own, so its rows are priced on
+                                the largest count in the corpus.
+                            </p>
+                        }
+                    </section>
+
+                    <section class="set__section" aria-labelledby="worst-case-heading">
+                        <h3 id="worst-case-heading" class="set__heading">If an answer runs to its output limit</h3>
+                        <div class="set__scroll">
+                            <table class="set__table" aria-labelledby="worst-case-heading">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Model and level</th>
+                                        <th scope="col">Output limit</th>
+                                        <th scope="col">Cold question</th>
+                                        <th scope="col">Follow-up after a capped answer</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (CostRow row in _rows.Where(row => row.Estimate is not null))
+                                    {
+                                        CostEstimate estimate = row.Estimate!;
+                                        <tr @key="row.Name" class="@(IsActiveRow(row) ? "set__table-row--current" : null)">
+                                            <th scope="row">@row.Name</th>
+                                            <td class="set__mono">@Formatting.Number(estimate.OutputLimit)</td>
+                                            <td class="set__mono">@Formatting.Money(estimate.WorstCaseCold)</td>
+                                            <td class="set__mono">@Formatting.Money(estimate.WorstCaseFollowUp)</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <p class="set__note">
+                            These are totals for the whole question, not amounts added to the table above. They carry no
+                            basis, because an answer capped at its output limit is exact arithmetic on that limit rather
+                            than an estimate of how long an answer runs. Stop ends the wait for an answer; whether it
+                            also reduces the billed output is not verified.
+                        </p>
+                    </section>
+                }
+            </div>
+        </Card>
+    </div>
+</div>
+
+@code {
+    private ITimer _warmthExpiry = null!;
+    private CorpusState _corpusState = new CorpusState.Loading();
+    private CorpusSnapshot? _corpus;
+    private FingerprintCheck _check = new(FingerprintStatus.FirstRun, null, []);
+    private string _checkDescription = "";
+    private DateTimeOffset _loadedAt;
+    private bool _isReloading;
+    private string? _reloadFailure;
+    private ConversationSnapshot? _active;
+    private ConversationCost _total = ConversationCost.Zero;
+    private IReadOnlyList<CostRow> _rows = [];
+    private Shape _shape;
+    private bool _disposed;
+
+    /// <summary>
+    /// The conversation whose cost is broken down, from <c>?c=</c>, which the nav rail carries over from the other
+    /// screens. The newest is used when there is none or it does not exist.
+    /// </summary>
+    [SupplyParameterFromQuery(Name = "c")]
+    public Guid? ConversationId { get; set; }
+
+    private int Ceiling => Options.Value.TokenCeiling;
+
+    /// <inheritdoc/>
+    protected override void OnInitialized()
+    {
+        // A warm prediction turns cold at a known time with nothing else changing, so the screen refreshes then
+        // rather than polling.
+        _warmthExpiry = Time.CreateTimer(_ => RefreshFromEvent(), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        Store.Changed += OnStoreChanged;
+        CorpusSource.StateChanged += OnCorpusChanged;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnParametersSet() => Refresh();
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        _disposed = true;
+        Store.Changed -= OnStoreChanged;
+        CorpusSource.StateChanged -= OnCorpusChanged;
+        _warmthExpiry.Dispose();
+    }
+
+    private void Refresh()
+    {
+        _corpusState = CorpusSource.State;
+        _corpus = (_corpusState as CorpusState.Ready)?.Corpus;
+        if (_corpusState is CorpusState.Ready ready)
+        {
+            _check = ready.Check;
+            _checkDescription = ready.CheckDescription;
+            _loadedAt = ready.LoadedAt;
+            _isReloading = ready.IsReloading;
+            _reloadFailure = ready.ReloadFailure;
+        }
+        else
+        {
+            _isReloading = _corpusState is CorpusState.Loading;
+            _reloadFailure = null;
+        }
+
+        _active = (ConversationId is { } requested ? Store.Get(requested) : null) ?? Store.List().FirstOrDefault();
+        _total = Store.TotalCost;
+        _rows = _corpus is { } corpus ? CostTables.Rows(Costs, Warmth, corpus) : [];
+        ScheduleWarmthExpiry();
+        _shape = CurrentShape();
+    }
+
+    private void ScheduleWarmthExpiry()
+    {
+        TimeSpan due = CostTables.NextExpiry(_rows) is { } expiry
+            ? TimeSpan.FromTicks(Math.Max(0, (expiry - Time.GetUtcNow() + TimeSpan.FromSeconds(1)).Ticks))
+            : Timeout.InfiniteTimeSpan;
+        _warmthExpiry.Change(due, Timeout.InfiniteTimeSpan);
+    }
+
+    private bool IsActiveRow(CostRow row) =>
+        _active is { } active && active.Settings.ModelId == row.ModelId && active.Settings.Effort == row.Effort;
+
+    private static string TokenText(CorpusSnapshot corpus, SelectableModel model) =>
+        corpus.TokenCounts.TryGetValue(model.Id, out long tokens)
+            ? Formatting.Number(tokens) + " tokens"
+            : "tokens not counted";
+
+    private double GaugeFraction(CorpusSnapshot corpus, SelectableModel model) =>
+        corpus.TokenCounts.TryGetValue(model.Id, out long tokens) && Ceiling > 0
+            ? Math.Clamp((double)tokens / Ceiling, 0, 1)
+            : 0;
+
+    // A width built from our own numbers, never from model output or a corpus file.
+    private string GaugeWidth(CorpusSnapshot corpus, SelectableModel model) =>
+        Formatting.Percent(GaugeFraction(corpus, model));
+
+    private string GaugeLabel(CorpusSnapshot corpus, SelectableModel model) =>
+        corpus.TokenCounts.ContainsKey(model.Id) ? Formatting.Percent(GaugeFraction(corpus, model)) : "UNKNOWN SHARE";
+
+    private static string ShortFingerprint(CorpusSnapshot corpus) =>
+        corpus.Fingerprint.Length <= 16 ? corpus.Fingerprint : corpus.Fingerprint[..16] + "…";
+
+    // The loader counts each document alone on the default model; the tokenizers differ slightly, so say which.
+    private static string DefaultModelName { get; } =
+        CacheAffecting.SelectableModels.Single(model => model.Id == CacheAffecting.DefaultModelId).DisplayName;
+
+    private static string DocumentCounts(CorpusDocument document) =>
+        $"{Formatting.Number(document.CharacterCount)} c · "
+        + (document.ApproximateTokens is { } tokens ? $"{Formatting.Number(tokens)} t" : "t not counted");
+
+    private static string Rate(decimal perMillionTokens) => Formatting.Money(perMillionTokens);
+
+    // The estimator prices a model with no count of its own on the corpus's largest count, which the health gauge
+    // shows as unknown; naming it keeps the two cards from contradicting each other.
+    private IReadOnlyList<string> ModelsWithoutOwnCount() => _corpus is { } corpus
+        ? [.. CacheAffecting.SelectableModels.Where(model => !corpus.TokenCounts.ContainsKey(model.Id)).Select(model => model.DisplayName)]
+        : [];
+
+    private static IReadOnlyList<(string Label, decimal Amount)> Buckets(TurnCost cost) =>
+    [
+        ("Input", cost.Input),
+        ("1-hour cache write", cost.CacheWrite1h),
+        ("5-minute cache write", cost.CacheWrite5m),
+        ("Cache read", cost.CacheRead),
+        ("Output", cost.Output),
+    ];
+
+    // Stopped and failed turns are in the total, with what is not known about them said plainly.
+    private static IReadOnlyList<string> CostNotes(ConversationCost cost)
+    {
+        List<string> notes = [];
+        if (cost.UnknownCostTurns > 0)
+        {
+            notes.Add($"Excludes {Formatting.Count(cost.UnknownCostTurns, "turn")} of unknown cost, stopped or failed before the request was reported.");
+        }
+
+        if (cost.UnreportedOutputTurns > 0)
+        {
+            notes.Add($"Output is not reported for {Formatting.Count(cost.UnreportedOutputTurns, "stopped or failed turn")}, so the total is a lower bound.");
+        }
+
+        return notes;
+    }
+
+    private static BadgeTone FingerprintTone(FingerprintStatus status) => status switch
+    {
+        FingerprintStatus.Unchanged => BadgeTone.Success,
+        FingerprintStatus.Changed => BadgeTone.Warning,
+        FingerprintStatus.Unreadable => BadgeTone.Warning,
+        _ => BadgeTone.Neutral,
+    };
+
+    private static string FingerprintLabel(FingerprintStatus status) => status switch
+    {
+        FingerprintStatus.Unchanged => "FINGERPRINT UNCHANGED",
+        FingerprintStatus.Changed => "CORPUS CHANGED",
+        FingerprintStatus.Unreadable => "FINGERPRINT UNREADABLE",
+        _ => "FIRST RUN",
+    };
+
+    private void ReloadCorpus()
+    {
+        if (_isReloading)
+        {
+            return;
+        }
+
+        try
+        {
+            // It never faults; its outcome arrives as a state change.
+            _ = CorpusSource.ReloadAsync();
+        }
+        catch (ObjectDisposedException)
+        {
+            // The app is shutting down.
+        }
+    }
+
+    // Raised on whichever thread changed the store, once per streamed fragment, so nothing is rendered unless what
+    // this screen shows has actually moved.
+    private void OnStoreChanged(Guid id) => RefreshFromEvent();
+
+    private void OnCorpusChanged() => RefreshFromEvent();
+
+    private void RefreshFromEvent() => _ = InvokeAsync(() =>
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        Shape before = _shape;
+        Refresh();
+        if (_shape != before)
+        {
+            StateHasChanged();
+        }
+    });
+
+    private Shape CurrentShape() => new(
+        _active?.Id,
+        _active?.Title,
+        _active?.Settings.ToString(),
+        _active?.Cost ?? ConversationCost.Zero,
+        _total,
+        _corpusState,
+        CostTables.Signature(_rows));
+
+    /// <summary>What decides whether a change renders this screen.</summary>
+    private readonly record struct Shape(
+        Guid? Conversation,
+        string? Title,
+        string? Settings,
+        ConversationCost ActiveCost,
+        ConversationCost TotalCost,
+        CorpusState CorpusState,
+        string Warmth);
+}

@@ -1,0 +1,1127 @@
+TITLE 41: FIRE PROTECTION
+CHAPTER I: OFFICE OF THE STATE FIRE MARSHAL
+PART 176 ADMINISTRATIVE REQUIREMENTS FOR UNDERGROUND STORAGE TANKS AND THE STORAGE, TRANSPORTATION, SALE AND USE OF PETROLEUM AND OTHER REGULATED SUBSTANCES
+
+SUBPART A: DEFINITIONS
+
+Section 176.100 Incorporation of Definitions
+
+SUBPART B: FINANCIAL ASSURANCE
+
+Section 176.200 Definitions
+
+Section 176.205 Applicability
+
+Section 176.210 Amount
+
+Section 176.215 Mechanisms of Financial Responsibility
+
+Section 176.220 Proof of Financial Responsibility
+
+Section 176.225 Substitution of Financial Responsibility Mechanisms by an Owner or Operator
+
+Section 176.230 Cancellation or Non-Renewal by a Provider of Financial Assurance
+
+Section 176.235 Reporting by Owner or Operator (Repealed)
+
+Section 176.240 Recordkeeping
+
+Section 176.245 Release from the Requirements
+
+Section 176.250 Bankruptcy or Other Incapacity of Owner, Operator or Provider of Financial Assurance
+
+SUBPART C: RELEASE REPORTING AND SITE ASSESSMENT
+
+Section 176.300 Reporting of Suspected Releases
+
+Section 176.310 Release Investigation Reporting and Site Assessment
+
+Section 176.320 Initial Response and Reporting of Confirmed Releases
+
+Section 176.330 Procedures for Site Assessments
+
+Section 176.340 Reporting and Cleanup of Spills and Overfills
+
+Section 176.350 Initial Release Abatement Measures
+
+Section 176.360 Assessing the Site at Removal of, Previously Removed, Abandonment-in-Place or Change-in-Service of USTs
+
+SUBPART D: GENERAL TECHNICAL REQUIREMENTS, INCLUDING REPORTING, RECORDKEEPING AND NOTIFICATION
+
+Section 176.400 Delegation of Authority to Enforce UST Rules and Regulations
+
+Section 176.410 General Requirement to Maintain All Equipment
+
+Section 176.420 Requirement that UST Components Be Third Party Listed
+
+Section 176.430 Reporting and Recordkeeping
+
+Section 176.440 Notification Requirements for Purposes of UST Registration
+
+Section 176.450 UST Registration Fees
+
+Section 176.455 Payment of 1988 Annual UST Fee
+
+Section 176.460 Pre-'74 and Heating Oil USTs
+
+Section 176.470 Requirements for Conducting Precision Testing of Tanks and Piping, Cathodic Protection Testing, and Inspection and Testing of UST Equipment
+
+SUBPART E: HEARINGS AND ENFORCEMENT PROCEDURES
+
+Section 176.500 Definitions
+
+Section 176.505 Enforcement Action
+
+Section 176.510 Grounds and Time for Appeal
+
+Section 176.515 Notice of Hearing
+
+Section 176.520 Continuances
+
+Section 176.525 Appearances
+
+Section 176.530 Service of Papers and Computation of Time
+
+Section 176.535 Stipulations
+
+Section 176.540 Evidence
+
+Section 176.545 Official Notice
+
+Section 176.550 Authority of Hearing Officer
+
+Section 176.555 Default
+
+Section 176.560 Post-Hearing Submissions
+
+Section 176.565 Transcripts
+
+Section 176.570 Final Order
+
+Section 176.575 License Suspension or Revocation and Assessment of Civil Monetary Fines Against a Contractor
+
+Section 176.580 Assessment of Penalties
+
+Section 176.585 Subpoena - Fees and Mileage of Witnesses
+
+Section 176.590 Paper Hearings
+
+SUBPART F: OPERATOR TRAINING
+
+Section 176.600 Purpose
+
+Section 176.605 Scope
+
+Section 176.610 Definitions
+
+Section 176.615 Class A, B and C Operator Classifications
+
+Section 176.620 Training
+
+Section 176.625 Minimum Training Requirements
+
+Section 176.630 Examination Frequency
+
+Section 176.635 Approval of Required Training and Examination Location
+
+Section 176.640 Examination Fees
+
+Section 176.645 Recordkeeping
+
+Section 176.650 Out-of-Compliance Retraining
+
+Section 176.655 Periodic Operation and Maintenance Walkthrough Inspections and Plan; Class A, B and C Operator Responsibilities
+
+Section 176.660 Violations
+
+Section 176.APPENDIX A Derivation Table (Repealed)
+
+AUTHORITY: Implementing the Gasoline Storage Act [430 ILCS 15] and authorized by Section 2 of the Gasoline Storage Act [430 ILCS 15/2].
+
+SOURCE: Adopted at 34 Ill. Reg. 13485, effective September 2, 2010; amended at 36 Ill. Reg. 3187, effective February 15, 2012; amended at 42 Ill. Reg. 10621, effective October 13, 2018; amended at 47 Ill. Reg. 6949, effective May 2, 2023; amended at 48 Ill. Reg. 12876, effective August 7, 2024.
+
+SUBPART A: DEFINITIONS
+
+Section 176.100 Incorporation of Definitions
+
+Unless otherwise provided in this Part, all terms in this Part shall have the definitions provided by 41 Ill. Adm. Code 174.100.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+SUBPART B: FINANCIAL ASSURANCE
+
+Section 176.200 Definitions
+
+"Bodily Injury" means bodily injury, sickness or disease sustained by a person, including death at any time, resulting from a release of petroleum from a UST.
+
+"Occurrence" means an accident, including continuous or repeated exposure to conditions, that results in a release of petroleum into the environment from a UST.
+
+"Property Damage" means physical injury to, destruction of, or contamination of tangible property, including all resulting loss of use of that property; or loss of use of tangible property that is not physically injured, destroyed or contaminated, but has been evacuated, withdrawn from use, or rendered inaccessible because of an occurrence.
+
+"Provider of Financial Assurance" means an entity that provides financial assurance to an owner or operator of a UST through one or more mechanisms listed in Section 176.215, including the fiduciary of a designated savings account.
+
+"Tangible Net Worth" means the tangible assets that remain after deducting total liabilities. These assets do not include intangibles such as goodwill and rights to patents or royalties. For purposes of this definition, "assets" means all existing and all probable future economic benefits obtained or controlled by a particular entity as a result of past transactions.
+
+"Underground Storage Tank Trust Fund" or "UST Fund" means the fund created as a special fund in the Illinois State Treasury at 415 ILCS 5/57.11.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.205 Applicability
+
+a) This Subpart B applies to all owners or operators of USTs in the ground as of April 1, 1995 and implements Section 6.1 of the Gasoline Storage Act [430 ILCS 15/6.1], which imposes a State law financial assurance requirement of $20,000 per owner or operator.
+
+b) All owners or operators of hazardous substance USTs are excluded from regulation under this Subpart B.
+
+c) Although the UST Fund assists certain petroleum UST owners in paying for corrective action or third-party liability (see 415 ILCS 5/57.9), for purposes of this Subpart the UST Fund is not considered a mechanism for the financial responsibility compliance required under Section 6.1 of the Gasoline Storage Act as implemented by this Subpart.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.210 Amount
+
+Each owner or operator shall maintain financial responsibility in the sum of $20,000, regardless of the number of USTs or facilities owned or operated. This $20,000 shall be comprised as follows:
+
+a) $10,000 per occurrence for corrective action; and
+
+b) $10,000 per occurrence for third-party liability for bodily injury or property damage.
+
+Section 176.215 Mechanisms of Financial Responsibility
+
+Under Section 6.1 of the Gasoline Storage Act, only the following may be considered acceptable mechanisms for financial responsibility:
+
+a) Commercial or private insurance, including risk retention groups;
+
+b) Self-insurance, if there is a tangible net worth of at least $200,000;
+
+c) Guarantee;
+
+d) Surety bond;
+
+e) Letter of credit;
+
+f) Certificate of deposit;
+
+g) Designated savings account; or
+
+h) Any combination of the mechanisms listed in this Section.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.220 Proof of Financial Responsibility
+
+a) Proof of financial responsibility for Section 176.215(a), (b), (c), (d) or (e) shall be maintained on the respective OSFM forms, which may be complemented by industry customs and practices so long as the OSFM form language is utilized. The forms are available at https://sfm.illinois.gov/about/divisions/petroleum-chemical-safety/applications-and-forms.html. Any requirement to submit original documents to OSFM on third party instruments shall by governed by ISP 98 Form 11.1 (Model Government Standby Form), incorporated by reference in 41 Ill. Adm. Code 174.210.
+
+b) Proof of financial responsibility for Section 176.215(f) or (g) shall be documented by written proof from the appropriate financial institution that is at all times current, as reflected by copies of the same records on file with the financial institution.
+
+c) The forms referenced in subsection (a) shall be renewed on an annual basis.
+
+d) A completed Certificate of Financial Responsibility indicating the financial responsibility mechanism chosen under Section 176.215 by the owner or operator, on forms provided by OSFM (available at the website cited in subsection (a)) shall be submitted electronically to OSFM on an annual basis, at the forms page for the Division of Petroleum and Chemical Safety at https://sfm.illinois.gov/about/divisions/petroleum-chemical-safety/applications-and-forms.html.
+
+e) If a self-insurance mechanism (under Section 176.215(b)) is chosen, the facility shall submit copies of the required proof to OSFM on an annual basis, which shall include:
+
+1) the annual Certificate of Financial Responsibility under subsection (d), indicating the financial responsibility mechanism chosen;
+
+2) a letter by the owner's/operator's Chief Financial Officer that may include the items specified for this letter as stated in 40 CFR 280.95, but must demonstrate at least a tangible net worth equal to or greater than $200,000;
+
+3) a statement prepared by an independent public accountant that may include the financial criteria and requirements of 40 CFR 280.95, but must demonstrate at least a tangible net worth equal to or greater than $200,000.
+
+f) Facilities that choose a self-insurance mechanism and are owned and operated by the US Government or the State of Illinois shall complete the annual Certificate of Financial Responsibility but shall not be required to provide the documentation described in subsections (e)(2) and (e)(3).
+
+g) The forms referenced in subsections (a), (b) and (c) shall include the name, address and facility identification number for each facility, as applicable.
+
+(Source: Amended at 47 Ill. Reg. 6949, effective May 2, 2023)
+
+Section 176.225 Substitution of Financial Responsibility Mechanisms by an Owner or Operator
+
+a) An owner or operator may substitute any alternative financial responsibility mechanism specified in Section 176.215, provided that at all times the owner or operator maintains an effective financial responsibility mechanism or combination of mechanisms that satisfies the requirements of this Subpart.
+
+b) After replacing a financial responsibility mechanism with a different mechanism specified in Section 176.215, an owner or operator may cancel the replaced financial responsibility mechanism by providing notice to the provider of financial assurance.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.230 Cancellation or Non-Renewal by a Provider of Financial Assurance
+
+a) Except as otherwise provided, a provider of financial assurance may cancel or fail to renew an assurance mechanism by sending notice of termination by certified mail to the owner or operator.
+
+1) Termination of a guarantee, surety bond or letter of credit may not occur until 120 days after the date on which the owner or operator receives the notice of termination as evidenced by the return receipt.
+
+2) Termination of commercial or private insurance or risk retention group coverage may not occur until 60 days after the date on which the owner or operator receives the notice of termination as evidenced by the return receipt.
+
+b) If a provider of financial assurance cancels or fails to renew an assurance mechanism, the owner or operator must obtain replacement coverage, in a mechanism allowed by Section 176.215, within 60 days after receipt of the notice of termination. When the owner or operator fails to obtain replacement coverage within 60 days after receipt of the notice of termination, the owner or operator shall notify OSFM of that failure, in writing, by certified mail, within 10 days. The notification to OSFM shall include:
+
+1) Name and address of the provider of financial assurance;
+
+2) Effective date of termination;
+
+3) Evidence of the financial responsibility mechanism subject to the termination, maintained in accordance with Section 176.240(b); and
+
+4) Name, address and facility identification number for each affected facility.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.235 Reporting by Owner or Operator (Repealed)
+
+(Source: Repealed at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.240 Recordkeeping
+
+a) Owners or operators shall maintain evidence of all financial responsibility mechanisms used to demonstrate financial responsibility (pursuant to this Subpart) for a UST until released from the requirements of this Subpart under Section 176.245. An owner or operator shall maintain that evidence at the UST site or the owner's or operator's principal place of business. Records maintained off-site shall be made available upon written or oral request from OSFM.
+
+b) An owner or operator shall maintain a copy of the following types of evidence of financial responsibility:
+
+1) An owner or operator using a financial responsibility mechanism as specified in Section 176.215 shall maintain a copy of the instrument required under Section 176.220.
+
+2) An owner or operator using a financial test or guarantee shall maintain a copy of the chief financial officer's letter based on year-end financial statements for the most recent completed financial reporting year. This evidence shall be on file no later than 180 days after the close of the financial reporting year. The letter by the Chief Financial Officer shall be accompanied by the documents identified in Section 176.220(e)(1) and (e)(3) and may include the items specified for this letter in 40 CFR 280.95, but must demonstrate at least a tangible net worth equal to or greater than $200,000.
+
+3) An owner or operator using a commercial or private insurance policy or risk retention group coverage shall maintain a copy of the signed insurance policy or risk retention group coverage policy, with the endorsement or certificate of insurance and any amendments to the agreement.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.245 Release from the Requirements
+
+An owner or operator is no longer required to maintain financial responsibility pursuant to this Subpart for a UST after the UST has been removed or abandoned-in-place, in accordance with 41 Ill. Adm. Code 175.830 and 175.840.
+
+Section 176.250 Bankruptcy or Other Incapacity of Owner, Operator or Provider of Financial Assurance
+
+a) Within 10 days after commencement of a voluntary or involuntary proceeding for relief under the United States Bankruptcy Code (11 USC 101 et seq.) naming an owner or operator as debtor, the owner or operator must notify OSFM by certified mail of that commencement and submit the appropriate forms listed in Section 176.240(b), documenting current financial responsibility.
+
+b) Within 10 days after commencement of a voluntary or involuntary proceeding for relief under the United States Bankruptcy Code naming a guarantor providing financial assurance as debtor, the guarantor must notify the owner or operator by certified mail of that commencement.
+
+c) An owner or operator who obtains financial assurance by a mechanism other than the financial test of self-insurance will be deemed to be without the required financial responsibility in the event of a bankruptcy or incapacity of its provider of financial assurance or a suspension or revocation of the authority of the provider of financial assurance to issue a guarantee, commercial or private insurance policy, risk retention group coverage policy, surety bond, letter of credit or certificate of deposit or act as fiduciary of a designated savings account. The owner or operator must obtain alternative financial assurance as specified in Section 176.215 within 30 days after receiving notice of such an event.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+SUBPART C: RELEASE REPORTING AND SITE ASSESSMENT
+
+Section 176.300 Reporting of Suspected Releases
+
+a) Owners or operators of USTs shall immediately report to IEMA (from Illinois, 1-800-782-7860; from outside Illinois, 217/782-7860) and follow the procedures in Sections 176.310, 176.320(b) and (c) and 176.350 in any of the following situations:
+
+1) The discovery by owners, operators, product delivery drivers or others of released regulated substances at the UST site or in the surrounding area (such as the presence of free product or vapors in soils, basements, sewer or utility lines or nearby surface water);
+
+2) Unusual operating conditions observed by owners or operators (such as the erratic behavior of product dispensing equipment, the sudden loss of product from the UST or an unexplained presence of water in the tank, or liquid in the interstitial space of any secondarily contained systems), unless:
+
+A) The system equipment or component is found not to be releasing regulated substances to the environment;
+
+B) Any defective system equipment or component is immediately repaired or replaced; and
+
+C) For secondarily contained systems, except as provided for in 41 Ill. Adm. Code 175.630(f)(1)(B)(iv), any liquid in the interstitial space not used as part of the interstitial monitoring method (for example, brine filled) is immediately removed;
+
+3) Monitoring results, including investigation of an alarm, from a release detection method required under 41 Ill. Adm. Code 175.620, 175.630 or 175.640 that indicate a release may have occurred, unless one or more of the following exists:
+
+A) The monitoring device is found to be defective and is immediately repaired, recalibrated or replaced, and additional monitoring does not confirm the initial result;
+
+B) The leak is contained in the secondary containment and:
+
+i) Except as provided for in 41 Ill. Adm. Code 175.630(f)(1)(B)(iv), any liquid in the interstitial space not used as part of the interstitial monitoring method (for example, brine filled) is immediately removed; and
+
+ii) Any defective system equipment or component is immediately repaired or replaced;
+
+C) In the case of monthly inventory control, described in 41 Ill. Adm. Code 175.Subpart I, a second month of data does not confirm the initial result or the investigation determines that no release has occurred; or
+
+D) The alarm was investigated and determined to be a nonrelease event (for example, from a power surge or caused by filling the tank during release detection testing).
+
+b) In addition to IEMA, the 911 call center shall immediately be called when a suspected release presents a hazard to life, for example, when observations demonstrate the presence of petroleum or hazardous substance vapors in sewers or basements or free product near utility lines, or where a sheen is present on a body of water.
+
+c) Once a release has been confirmed under the procedures of Section 176.310, the reporting procedures of Section 176.320 shall apply.
+
+d) Notification of Suspected Release at the Direction of the storage tank safety specialist (STSS) employed by OSFM. The owner, operator or designated representative of the UST must notify IEMA and any other entities required to be notified under Section 176.320 of a suspected release, when directed to do so by the STSS. This is to be done at the time of discovery and the incident number shall be given to the STSS prior to leaving the site.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.310 Release Investigation Reporting and Site Assessment
+
+a) Investigation Due to Off-Site Impact. When required in writing by OSFM, owners or operators of USTs shall follow the procedures in Subpart C to determine if the UST is the source of off-site impacts. These impacts include the discovery of regulated substances, such as the presence of free product or vapors in soils, basements, sewer or utility lines or nearby surface or drinking water that have been observed by OSFM or brought to its attention by another party.
+
+b) Release Investigations and Confirmation Steps. Unless corrective action is initiated in accordance with 35 Ill. Adm. Code 734, owners or operators shall immediately investigate and within 7 days shall confirm the presence or absence of all suspected releases of regulated substances requiring reporting, using the following procedures:
+
+1) System Test. Owners and operators must conduct tests (according to the requirements for precision testing in 41 Ill. Adm. Code 175.630(b) and 175.640(a)(4) or, as appropriate, secondary containment testing described in 41 Ill. Adm. Code 175.700(d).)
+
+A) The test must determine whether:
+
+i) A leak exists in that portion of the tank that routinely contains product, or the attached delivery piping; or
+
+ii) A breach of either wall of the secondary containment has occurred.
+
+B) If the system test confirms a leak into the interstice or a release, owners and operators shall repair, replace, upgrade or decommission the UST. In addition, owners and operators shall begin corrective action pursuant to 35 Ill. Adm. Code 734 if the test results for the system, tank or delivery piping indicate that a release exists;
+
+2) Further investigation is not required if the test results for the tank system and delivery piping do not indicate that a release exists and if environmental contamination is not the basis for suspecting a release; and
+
+3) Owners or operators shall conduct a site assessment (utilizing the requirements of Section 176.330) if environmental contamination is the basis for suspecting a release. In the event lab results are not forthcoming within 7 days, the owner/operator shall have such reasonable additional time as is necessary to receive the results, but the total time period to confirm the presence or absence of a release and report any confirmed release shall not in any event exceed 45 days.
+
+c) Initial Site Assessment. An initial site assessment shall follow the procedures and requirements identified in Section 176.330.
+
+1) If the site assessment results for the excavation zone or the UST site indicate that a release has occurred, owners or operators shall begin initial response and initial abatement procedures under Sections 176.350 and 176.320(b) and (c), and begin corrective action pursuant to 35 Ill. Adm. Code 734.
+
+2) If the site assessment results for the excavation zone or the UST site do not indicate that a release has occurred, further investigation is not required.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.320 Initial Response and Reporting of Confirmed Releases
+
+Initial Response. Upon confirmation of a release of a regulated substance, owners or operators shall perform the following initial response actions:
+
+a) Immediately report the release.
+
+1) The release shall be reported by calling the 911 call center and then IEMA in the following situations:
+
+A) Spills and overfills of petroleum products over 25 gallons and spills and overfills of hazardous substances over a reportable quantity as defined in 41 Ill. Adm. Code 174.100.
+
+B) Spills, overfills or confirmed releases that present a hazard to life, for example, when observations demonstrate the presence of petroleum or hazardous substance vapors in sewers or basements or free product near utility lines, or where a sheen is present on a body of water.
+
+2) All other confirmed releases shall be reported to the local authority having jurisdiction and to IEMA. A call to the fire department in whose jurisdiction the release occurred may be done in the absence of an available 911 emergency telephone number. IEMA may be reached at 1-800-782-7860 (from inside Illinois) or 217-782-7860 (from outside Illinois). If known, the caller shall inform IEMA whether the same release had previously been called in as a suspected release.
+
+3) A release of a hazardous substance equal to or in excess of the reportable quantity shall be reported to the following entities in addition to those identified in subsection (a)(1):
+
+A) to the Local Emergency Planning Committee (LEPC) that is likely to be affected by the release (found at www.illinois.gov/iema/ Preparedness/SERC/Documents/LEPC_ReleaseReportingContactList.pdf; and
+
+B) the National Response Center (800-424-8802);
+
+b) Take immediate action to prevent any further release of the regulated substance into the environment; and
+
+c) Immediately identify and mitigate fire, explosion and vapor hazards.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.330 Procedures for Site Assessments
+
+a) All site assessments and related reports must be conducted or prepared under the supervision of a Licensed Professional Engineer or Licensed Professional Geologist. All site assessment work shall meet accepted engineering standards or accepted standards for the practice of professional geology and be conducted according to the best professional judgment and diligence of the supervising Licensed Professional Engineer or Licensed Professional Geologist, as the case may be.
+
+b) Owners or operators shall measure for the presence of a release where contamination is most likely to be present at the UST site by conducting sampling in the same manner and following the same procedures as required under the Illinois Pollution Control Board's Petroleum Underground Storage Tanks rules at 35 Ill. Adm. Code 734.210(h)(1) and (2). Samples must be analyzed for the same applicable indicator contaminants as required under 35 Ill. Adm. Code 734.405. All sampling must meet the same data quality and certification requirements as set forth in 35 Ill. Adm. Code 734.415 and 734.420. If soil borings are involved the owner or operator must follow the same requirements as set forth in 35 Ill. Adm. Code 734.425 and 734.435. For all UST removals, samples shall be taken in native soil with the excavation for the removal still open and prior to backfill and with the STSS still on site. For abandonment-in-place, samples may be taken prior to or on the day of abandonment-in-place and shall meet the requirements of this Section. In selecting sample types, sample locations and sample measurement methods, owners or operators shall also consider the nature of the stored substance, the type of initial alarm or cause for suspicion, if any, the method of tank removal or abandonment-in-place, the types of backfill, the depth of groundwater and other factors appropriate for identifying the presence and source of a release. Packaging for shipping or delivery should be done in a manner that will preserve the sample and prevent deterioration or dilution, as for example, putting samples in sealed containers in ice.
+
+c) Within 45 days after receipt of lab results from a full site assessment pursuant to subsection (b), owners or operators must designate and electronically submit to OSFM, on OSFM electronic forms (titled "Site Assessment Results" form and available at https://sfm.illinois.gov/about/divisions/petroleum-chemical-safety/applications-and-forms.html), a "contamination" or "no contamination" result indicating whether a release has occurred, along with associated lab results. This determination shall be based upon an evaluation of lab results to determine whether any contamination has been found. The determination must be certified by a Licensed Professional Engineer or Licensed Professional Geologist. Even if "no contamination" is being reported, the analytical report with tables and a site map showing sampling/boring locations shall be submitted to OSFM. In the event a suspected release was previously called into IEMA and is being confirmed by site assessment, the "contamination" or "no contamination" result on the Site Assessment Results form shall be provided to IEPA in addition to OSFM.
+
+d) In the event that sampling or other site observations disclose evidence of a release or site assessment lab results show site contamination, the owner or operator shall immediately notify IEMA and any other required entities of a suspected release, as required by Section 176.320, and begin corrective action pursuant to 35 Ill. Adm. Code 734.
+
+e) Records generated from site assessments and related activity shall be kept at the site (or available within 30 minutes or before OSFM completes its inspection, whichever is later) and may not be discarded or destroyed unless and until a No Further Remediation (NFR) letter is issued by IEPA or until the site permanently ceases the activity involved in using the USTs and any site assessments required under this Part are completed and show no evidence of contamination. Owners or operators claiming that required records were destroyed, discarded or lost prior to September 1, 2010 or by a prior owner of the subject UST property shall conduct a new site assessment when the assessment is required by OSFM rules for continued or future use of the USTs.
+
+(Source: Amended at 47 Ill. Reg. 6949, effective May 2, 2023)
+
+Section 176.340 Reporting and Cleanup of Spills and Overfills
+
+a) Owners or operators of USTs shall contain and immediately clean up a spill or overfill, immediately report either release to the 911 call center and then to IEMA, begin initial response and initial abatement in accordance with Sections 176.310, 176.320 and 176.350, and begin corrective action pursuant to 35 Ill. Adm. Code 734, in the following situations:
+
+1) Spill or overfill of petroleum that results in a release to the environment that exceeds 25 gallons or that causes a sheen on a nearby body of water; or
+
+2) Spill or overfill of a hazardous substance that results in a release to the environment that equals or exceeds the reportable quantity (see 41 Ill. Adm. Code 174.100). Under Section 176.320, this kind of release shall also be immediately reported to the Local Emergency Planning Committee and to the National Response Center.
+
+b) Owners or operators of USTs shall contain and immediately clean up a spill or overfill of petroleum that is 25 gallons or less and a spill or overfill of a hazardous substance that is less than the reportable quantity. In doing so, the owner or operator shall comply with procedures specified in Section 176.350. If cleanup cannot be accomplished within 24 hours, owners or operators shall immediately notify IEMA and the local authority having jurisdiction of the release.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.350 Initial Release Abatement Measures
+
+Unless directed in writing to do otherwise by OSFM, owners or operators shall perform the following release abatement measures:
+
+a) Remove as much of the regulated substance from the UST as is necessary to prevent further release to the environment;
+
+b) Visually inspect any aboveground release or exposed belowground release and prevent further migration of the released substance into surrounding soils and groundwater;
+
+c) Continue to monitor and mitigate any additional fire and safety hazards posed by vapors or free product that have migrated from the UST excavation zone and entered into subsurface structures (such as sewers or basements); and
+
+d) Remedy hazards posed by contaminated soils that are excavated or exposed as a result of release confirmation, site investigation, abatement or corrective action activities. If these remedies include treatment or disposal of soils, the owner or operator shall comply with applicable State and local requirements.
+
+Section 176.360 Assessing the Site at Removal of, Previously Removed, Abandonment-in-Place or Change-in-Service of USTs
+
+a) Before the STSS leaves the site for the day and while the excavation for a removal is still open (prior to any backfill placed back into the excavation), prior to submitting a permit for abandonment-in-place or up through the day of the abandonment-in-place, or prior to a change in service from a regulated product to an unregulated product, the following procedures shall be conducted:
+
+1) The owner or operator shall perform a site assessment using the procedures and requirements of Section 176.330;
+
+2) The owner or operator, or the owner or operator's designated representative, shall immediately report a release or suspected release, based upon a visual observation by STSS or upon a site assessment showing the existence of a release, to IEMA and any other entities required under Section 176.320 and secure an incident number. If confirmation of the release is via a visual observation by STSS or otherwise confirmed while STSS is still on site, the incident number shall be provided to STSS at the conclusion of the removal or abandonment-in-place and prior to the departure of STSS.
+
+3) If contaminated soils, contaminated groundwater or free product as a liquid or vapor, resulting from a UST release is discovered, the owner or operator shall begin initial response and initial abatement procedures in accordance with Sections 176.310, 176.320 and 176.350 and begin corrective action pursuant to 35 Ill. Adm. Code 734.
+
+b) When directed in writing by OSFM, the owner or operator of a UST previously removed shall assess the excavation zone (including, if so ordered, re-excavating and assessing the site where the tank had been located) in accordance with Section 176.330. The owner of the UST may also be required to submit a completed Notification for Underground Storage Tanks form in accordance with Section 176.440.
+
+(Source: Amended at 47 Ill. Reg. 6949, effective May 2, 2023)
+
+SUBPART D: GENERAL TECHNICAL REQUIREMENTS, INCLUDING REPORTING, RECORDKEEPING AND NOTIFICATION
+
+Section 176.400 Delegation of Authority to Enforce UST Rules and Regulations
+
+Pursuant to 430 ILCS 15/2, OSFM is authorized to delegate enforcement of its UST rules and regulations to any municipality having a population over 500,000. Subject to the terms of the delegation agreement, such delegation may include permitting, inspections, the completion and issuance of inspection forms and notices and enforcement activities regarding UST activities within the jurisdiction of that municipality, including assessing and collecting permit fees for the municipality's own use that would otherwise have been assessed and collected by OSFM.
+
+a) OSFM will maintain oversight concerning delegated enforcement.
+
+b) Subject to the terms of a delegation agreement, when OSFM is expressly authorized to initiate enforcement action, that municipality has concurrent authority under Section 2(1)(a) of the Gasoline Storage Act [430 ILCS 15/2(1)(a)].
+
+c) The rules and regulations of that municipality regarding UST activities within the jurisdiction of that municipality shall be identical to the OSFM rules found at 41 Ill. Adm. Code 172 through 177.
+
+(Source: Amended at 48 Ill. Reg. 12876, effective August 7, 2024)
+
+Section 176.410 General Requirement to Maintain All Equipment
+
+All equipment and other items shall be maintained in accordance with 41 Ill. Adm. Code 174 through 176 and manufacturer's instructions and otherwise shall be kept in good operating condition at all times.
+
+Section 176.420 Requirement that UST Components Be Third Party Listed
+
+a) All installed UST components and ancillary equipment shall be third party listed (see 41 Ill. Adm. Code 174.100) for their performance in the intended use, as well as installed and maintained according to the manufacturer's instructions. Replaceable subcomponents shall be of a type recommended by the manufacturer.
+
+b) In addition to the requirement that all UST components be third party listed for their performance in the intended use, all UST components must also be third party listed or certified by the manufacturer as compatible with the product to be stored under 41 Ill. Adm. Code 175.415. This would include third party listing requirements for components used with alternative or blended fuels and product compatibility requirements for hazardous substance USTs, see 41 Ill. Adm. Code 175.415 and 175.620.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.430 Reporting and Recordkeeping
+
+a) Reporting. Owners and operators must submit the following information to OSFM:
+
+1) Notification for all USTs (Section 176.440), which includes notification when any person assumes ownership of a UST system (Section 176.440(g));
+
+2) Notification prior to UST systems switching to certain regulated substances (41 Ill. Adm. Code 175.415(b));
+
+3) Certification of installation for USTs (Section 176.430(f));
+
+4) Reports of all releases, including suspected releases (Section 176.300), spills and overfills (Section 176.340), and confirmed releases (Section 176.320);
+
+5) Initial response, including leak abatement, site characterization, and fire and explosion mitigation (40 CFR 280, subpart F, incorporated by reference in 41 Ill. Adm. Code 174.210) when requested by OSFM;
+
+6) A notification related to change-in-service (41 Ill. Adm. Code 175.820(d));
+
+7) A completed Site Assessment Results form (Section 176.330(c)), to be submitted to OSFM within 45 days after the receipt of laboratory data in connection with a site assessment; and
+
+8) Proof of financial responsibility on an annual basis (Section 176.220).
+
+b) Recordkeeping. Owners and operators must maintain the following information for the life of the UST (unless a shorter or longer period is provided in this subsection (b) or by the applicable Section cited or by other OSFM rule):
+
+1) Documentation of operation of corrosion protection equipment and methods (see 41 Ill. Adm. Code 175.500 and 175.510).
+
+2) Documentation of UST repairs (see 41 Ill. Adm. Code 175.700 and 175.710).
+
+3) All records required to show compliance with release detection requirements (see 41 Ill. Adm. Code 175.600 through 175.650), with all tank and piping precision test results kept for 2 years or at least until the next precision test, whichever is longer.
+
+4) All written performance claims pertaining to any release detection system used, and the manner in which these claims have been justified or tested by the equipment manufacturer or installer.
+
+5) Written documentation of all calibration, maintenance and repair of release detection equipment permanently located on site, including schedules of required calibration and maintenance provided by the release detection equipment manufacturer.
+
+6) Documentation of compliance with testing, inspection and recordkeeping for spill and overfill prevention equipment and containment sumps used for interstitial monitoring of piping (see 41 Ill. Adm. Code 175.405 and 175.410).
+
+7) The results of any sampling, testing or monitoring not specified in subsections (a), (b), (f) and (g).
+
+8) The results of the vapor and groundwater monitoring site assessments conducted pursuant to 41 Ill. Adm. Code 175.650(e)(2)(F).
+
+9) Results of the site assessment conducted at removal, abandonment-in-place or change-in-service (see 41 Ill. Adm. Code 175.800) and copies of the results of any other site assessment conducted pursuant to OSFM rules with all completed Site Assessment Results forms submitted to OSFM pursuant to Section 176.330.
+
+10) Proof of financial responsibility submitted under Section 176.220.
+
+11) Copies of all records submitted to OSFM under subsections (a), (f) and (g).
+
+12) Copies of the records required by Sections 176.645 and 176.655.
+
+13) Tank Installation information, including all paperwork relating to the manufacturer's instructions and warranty, final tank and line precision test results and the contractor's certification of UST installation and the related documentation required by subsection (f).
+
+14) Copies of annual release detection operation tests required by 41 Ill. Adm. Code 175.610(a)(4), including the annual automatic tank gauge (ATG) configuration test results.
+
+15) Documentation of compatibility for UST systems (see 41 Ill. Adm. Code 175.415).
+
+c) Availability and Maintenance of Records. Owners or operators shall keep the records required in subsection (b) at the UST site or available to the OSFM inspector within 30 minutes or before OSFM completes its inspection, whichever is later, via fax, email or other transfer of information. Financial responsibility records may be maintained at the owner or operator's principal place of business and shall be produced within 10 days after OSFM request.
+
+d) Owners or operators of unmanned sites will be given prior notification of certification audit of those sites.
+
+e) Failure to maintain or produce the records required under this Section may result in OSFM's issuance of a red tag or revocation of a green decal for the tank or tanks or facility at issue (see 41 Ill. Adm. Code 177), prohibiting any further operation of the facility or further deposit of regulated substances into a tank subject to a red tag.
+
+f) Certification of UST Installation and Related Documentation
+
+1) Licensed contractors shall certify, on the electronic Notification for Underground Storage Tanks form provided by OSFM at https://sfm.illinois.gov/about/divisions/petroleum-chemical-safety/applications-and-forms.html, that:
+
+A) The installer has been certified or licensed by OSFM. If applicable, the licensed contractor shall also certify that the installer has been certified by the tank and piping manufacturers.
+
+B) The installation has been performed in accordance with 41 Ill. Adm. Code 172 through 176.
+
+C) All work listed in the manufacturer's installation checklist has been completed and submitted in accordance with this subsection (f), 41 Ill. Adm. Code 175.400 and 175.465, Section 176.420 (or compliance with applicable third-party standards or codes cited in OSFM rules as of the date of installation), and Section 176.440(f), if applicable.
+
+2) Licensed contractors shall complete the manufacturer's installation checklist for USTs, which shall be available at the time of final inspection. The owner and operator shall maintain a copy of the checklist on-site for the life of the UST.
+
+3) In lieu of the licensed contractor's certification, an owner or operator may provide OSFM with a certification from a licensed professional engineer with education and experience in UST installation stating that the UST installation was inspected by that engineer and that the UST installation was properly installed in accordance with manufacturer's recommendations and OSFM rules.
+
+4) OSFM shall not issue a green decal pursuant to 41 Ill. Adm. Code 177.115 for the UST until OSFM has received the completed certification of UST installation by the licensed contractor or the certification of proper installation from a licensed professional engineer.
+
+g) Results from tank and piping precision testing, cathodic protection testing, containment sump testing, functionality testing of automatic or mechanical line leak detectors, interstitial sensor testing, automatic tank gauge certification, and overfill equipment inspections shall be handled as follows:
+
+1) All results are to be issued to the facility and owner.
+
+2) Results that fail must be submitted electronically to OSFM by the licensed testing contractor within 3 working days.
+
+3) All results shall be submitted to OSFM. The results must be submitted with an electronic form provided by OSFM. The electronic form is available at the forms page of the OSFM's Division of Petroleum and Chemical Safety at the website cited in subsection (f)(1).
+
+(Source: Amended at 47 Ill. Reg. 6949, effective May 2, 2023)
+
+Section 176.440 Notification Requirements for Purposes of UST Registration
+
+a) For any UST, with the exception of a UST containing heating oil for consumptive use on the premises where stored:
+
+1) Any owner of a UST in operation at any time after January 1, 1974, and in the ground as of September 24, 1987, shall submit immediately a notice of existence of the tank system to OSFM, on the electronic Notification for Underground Storage Tanks form and the accompanying Authorization to Submit provided by OSFM, available at the forms page for the Division of Petroleum and Chemical Safety at https://sfm.illinois.gov/about/divisions/petroleum-chemical-safety/applications-and-forms.html.
+
+2) Any owner of a UST brought into operation on or after April 21, 1989 shall submit, within 30 days before bringing the tank into operation, a notice of existence of the tank system to OSFM, on the electronic Notification for Underground Storage Tanks form provided by OSFM at the website cited in subsection (a)(1). This applies even if the UST was subject to a change-in-service under 41 Ill. Adm. Code 175.820(a) or (b) within the 30-day time period.
+
+3) OSFM shall use the information required to be submitted under this subsection (a) to determine whether a UST must be registered.
+
+b) For a UST containing heating oil for consumptive use on the premises where stored:
+
+1) Any owner of a heating oil UST greater than 1,100 gallons in capacity and in the ground as of July 11, 1990 shall submit immediately a notice of existence of the tank system to OSFM, on the electronic Notification for Underground Storage Tanks form provided by OSFM.
+
+2) Any owner of a heating oil UST greater than 110 gallons and less than or equal to 1,100 gallons in capacity and in the ground as of September 6, 1991 shall submit immediately a notice of existence of the tank system to OSFM, on the electronic Notification for Underground Storage Tanks form provided by OSFM.
+
+3) Any owner of a heating oil UST greater than 110 gallons in capacity installed after September 6, 1991 shall submit, within 30 days after bringing the tank into operation, a notice of existence of the tank system to OSFM, on the electronic Notification for Underground Storage Tanks form provided by OSFM. This applies even if the UST was subject to a change-in-service under 41 Ill. Adm. Code 175.820(a) or (b) within the 30-day time period.
+
+4) A heating oil tank used exclusively for storing heating oil for consumptive use on a farm or residence is not classified as a UST.
+
+5) OSFM shall use the information required to be submitted by this subsection (b) to determine whether a UST must be registered.
+
+c) Owners required to submit notices under subsection (a) or (b) shall provide notice for each tank they own. Owners may provide notice for more than one tank using one notification form, but owners who own tanks located at more than one facility shall file a separate notification form for each separate facility. The owner shall provide the proper street address for the owner and for each facility.
+
+d) Owners shall provide all of the information required in subsections (a) and (b), on the electronic Notification for Underground Storage Tanks forms provided by OSFM, including any certification required of the owner by this Part.
+
+e) Any owner of a UST newly installed on or after April 21, 1989 shall certify compliance with the following requirements (in the electronic Certification of Compliance/Installation Oath and in the electronic Notification for Underground Storage Tanks form found at the website cited in subsection (a)(1)):
+
+1) Installation of tanks under 41 Ill. Adm. Code 175.400, 175.405, 175.410 and 175.465, Sections 176.420 (or compliance with applicable third-party standards or codes as cited in OSFM rules as of the date of installation) and 176.430(f) and installation of piping under 41 Ill. Adm. Code 175.420;
+
+2) Cathodic protection of steel tanks and piping under 41 Ill. Adm. Code 175.400(b), 175.420(a) and 175.510;
+
+3) Release detection under 41 Ill. Adm. Code 175.610, 175.620, 175.630 and 175.640; and
+
+4) Financial responsibility in accordance with Subpart B of this Part. The green decal shall not be issued for a new tank installation until the notification required by this Section has been received by OSFM.
+
+f) Beginning January 1, 1989, all owners and operators of USTs being installed shall ensure that the licensed contractor certifies in the electronic Notification for Underground Storage Tanks form that the methods used to perform the UST activity comply with the requirements of 41 Ill. Adm. Code 172, 174, 175, 176 and 177, and the contractor shall complete the certification. The notification form (found at the website cited in subsection (a)(1)) is to be submitted to OSFM prior to the final installation inspection with OSFM.
+
+g) Any change in information stated in the form as described in subsections (a) and (b) is to be submitted to OSFM on an electronic Notification for Underground Storage Tanks (found at the website cited in subsection (a)(1)) within 30 days, commencing from the date of the change. This includes, but is not limited to out-of-service status. A change in ownership is considered a change in information and each subsequent owner is required to report that change within 30 days after acquisition. The new owner shall electronically complete the Notification for Underground Storage Tanks form, the accompanying Authorization to Submit, and provide the Property Identification Number (PIN) for the facility property when completing these forms. Copies of proof of legal ownership, including, but not limited to the current deed, property tax record, contract or lease, shall be downloaded at the OSFM website cited in subsection (a)(1) above when completing this electronic Notification for Underground Storage Tanks forms.
+
+h) Commencing April 1, 1995, any person who sells a new or re-certified tank intended to be used as a UST shall notify the purchaser of the owner's notification obligations under this Section. The electronic Notification for Underground Storage Tanks form provided by OSFM (found at the website cited in subsection (a)(1)) shall be used to comply with this requirement.
+
+i) Whenever a Notification for Underground Storage Tanks form is required under this Part or Parts 174 or 175, the form shall be completed and submitted electronically, and shall include the completed Authorization to Submit. These forms will require the owner to include the Property Identification Number (PIN) for the facility property.
+
+(Source: Amended at 47 Ill. Reg. 6949, effective May 2, 2023)
+
+Section 176.450 UST Registration Fees
+
+a) For USTs, with the exception of USTs containing heating oil for consumptive use on the premises where stored, the owner of any petroleum or hazardous substance UST required to be registered with OSFM prior to September 24, 1987, and who did not do so, shall register and pay OSFM a registration fee of $500 per tank.. This fee is to be paid by check or money order made payable to Office of the State Fire Marshal, or electronic payment via the electronic Notification for Underground Storage Tanks form, available at the forms page for the Division of Petroleum and Chemical Safety at https://sfm.illinois.gov/about/divisions/petroleum-chemical-safety/applications-and-forms.html. For purposes of this subsection, "owner" refers only to the last owner as of September 23, 1987.
+
+b) For USTs containing heating oil greater than 110 gallons for consumptive use on the premises where stored:
+
+1) The owner of any heating oil UST in the ground as of September 6, 1991 who first registered the tank with OSFM prior to July 2, 1992 shall pay to OSFM a registration fee of $100 per tank. This fee is to be paid by check or money order made payable to Office of the State Fire Marshal, or electronic payment via the electronic Notification for Underground Storage Tanks form, available at the forms page for the Division of Petroleum and Chemical Safety at the website cited in subsection (a) or electronic payment via the electronic Notification for Underground Storage Tanks form, available at the forms page for the Division of Petroleum and Chemical Safety at the website cited in subsection (a).
+
+2) The owner of any heating oil UST in the ground as of September 6, 1991 who first registered the tank with OSFM on or after July 2, 1992 (never having been registered) shall pay to OSFM a registration fee of $500 per tank. This fee is to be paid by check or money order made payable to Office of the State Fire Marshal, or electronic payment via the electronic Notification for Underground Storage Tanks form, available at the forms page for the Division of Petroleum and Chemical Safety at the website cited in subsection (a).
+
+3) The owner who first registers a heating oil UST is responsible for the fee under either subsection (b)(1) or (b)(2), whichever is applicable, but not both.
+
+4) The owner of any heating oil UST in the ground as of July 11, 1990, but removed prior to September 6, 1991, although regulated, is not required to pay a registration fee.
+
+5) The owner of any heating oil UST installed in the ground on or after July 2, 1992, although regulated, is not required to pay a registration fee.
+
+(Source: Amended at 47 Ill. Reg. 6949, effective May 2, 2023)
+
+Section 176.455 Payment of 1988 Annual UST Fee
+
+The owner of any registered underground petroleum storage tank (excluding heating oil USTs for consumptive use on the premises where stored) in the ground at any time in 1988 and in operation at any time after January 1, 1974 shall pay a 1988 annual fee of $100 per tank. This fee is to be paid by check or money order made payable to "Office of the State Fire Marshal", or electronic payment via the electronic Notification for Underground Storage Tanks form, available at the forms page for the Division of Petroleum and Chemical Safety at https://sfm.illinois.gov/about/divisions/petroleum-chemical-safety/applications-and-forms.html.
+
+(Source: Amended at 47 Ill. Reg. 6949, effective May 2, 2023)
+
+Section 176.460 Pre-'74 and Heating Oil USTs
+
+USTs not in operation at any time after January 1, 1974 (commonly referred to as "pre-'74 USTs"), and non-farm and non-residential heating oil USTs for consumptive use on the premises where stored, remain classified as USTs and require a permit to be abandoned-in-place or removed and are subject to all other applicable UST requirements, except for those requirements specifically exempted by this Section or by Section 176.440.
+
+a) Pursuant to Sections 2(3)(f) and 4(b)(1)(A) of the Gasoline Storage Act, pre-'74 USTs are not required to be registered and need not be removed, unless the OSFM has determined that a release from the USTs poses a current or potential threat to human health and the environment.
+
+b) In accordance with Section 57.5(g) of the Illinois Environmental Protection Act [415 ILCS 5/57.5(g)] and Section 4 of the Gasoline Storage Act, a heating oil UST for consumptive use on the premises where stored, regardless of when last in operation, is not required to be removed unless OSFM has determined that a release from the UST poses a current or potential threat to human health and the environment. However, the UST is subject to the notification requirements, as well as compliance with all other applicable Sections of 41 Ill. Adm. Code 175 and this Part.
+
+c) Heating oil USTs installed prior to April 1, 1995 are not required to meet the upgrade requirements for corrosion protection, spill and overfill prevention, and release detection in 41 Ill. Adm. Code 174 and 175 and this Part. Heating oil USTs installed after April 1, 1995 must meet all current upgrade requirements outlined in 41 Ill. Adm. Code 174 and 175 and this Part, including permitting.
+
+d) If any pre-'74 tank, heating oil or otherwise, discovered during any activity is found to be damaged or is damaged at the time of discovery, it shall be removed. No structure shall be erected over pre-'74 tanks, heating oil or otherwise, and they must be removed by an OSFM-licensed contractor. All applicable permits apply.
+
+Section 176.470 Requirements for Conducting Precision Testing of Tanks and Piping, Cathodic Protection Testing, and Inspection and Testing of UST Equipment
+
+Employees of an OSFM-licensed contractor conducting cathodic protection testing shall be ICC certified in the appropriate module and be licensed by OSFM pursuant to 41 Ill. Adm. Code 172. All employees of an OSFM-licensed contractor conducting precision testing of tanks and piping shall be ICC certified in the appropriate module or be certified by the manufacturer of the testing equipment being used. All employees of an OSFM-licensed contractor conducting only inspection and testing of UST equipment shall be ICC certified in the installation/retrofitting module or shall have other documentation as allowed by subsection (b) (see definition of "module" at 41 Ill. Adm. Code 174.100).
+
+a) Tank precision test methods shall be evaluated and listed by an independent third-party. Proof of evaluation and listing shall be demonstrated by the methods being published in the NWGLDE publication "List of Leak Detection Evaluations for Storage Tank Systems", incorporated by reference in 41 Ill. Adm. Code 174.210(a). All tank tightness methods are subject to approval by OSFM.
+
+b) A certified employee of the OSFM-licensed contractor shall be on site and actively supervising the work at all times. For cathodic protection, that employee must be ICC certified in the cathodic protection module exam. For precision testing of tanks and piping, the employee of the OSFM-licensed contractor must be ICC certified in the appropriate module specified at 41 Ill. Adm. Code 172.60(b) or be certified by the manufacturer in the testing of the equipment being evaluated for its operation in accordance with manufacturer's specifications. For inspection and testing of UST equipment, under 41 Ill. Adm. Code 172.40(b)(4) the employee of the OSFM-licensed contractor must have a passing score on the OSFM-approved exam for the installation/retrofitting module or have the credentials and training as required by the manufacturer's recommended procedures and instructions. The employing licensed contractor may certify the employee has the requisite credentials and training.
+
+c) Other UST equipment. Other UST equipment or components or technology that are newly developed and not covered by a specific provision of OSFM rules shall be evaluated and listed under a national code or standard in accordance with Section 176.420. The equipment, components, or technology must also be tested by a certified employee, under 41 Ill. Adm. Code 172.40(b)(4), that has a passing score on the required OSFM-approved exam for the installation/retrofitting module or has the credentials and training as required by the manufacturer's recommended procedures and instructions. The employing licensed contractor may certify the employee has the requisite credentials and training.
+
+d) Each tester shall also abide by any other applicable requirements found in 41 Ill. Adm. Code 172.
+
+(Source: Amended at 48 Ill. Reg. 12876, effective August 7, 2024)
+
+SUBPART E: HEARINGS AND ENFORCEMENT PROCEDURES
+
+Section 176.500 Definitions
+
+"Revocation of the Registration of an Underground Storage Tank System" means termination by OSFM of the registration of a UST.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.505 Enforcement Action
+
+Except in the case of an emergency administrative order, all enforcement action shall begin with the issuance of an NOV by OSFM. The violations cited on the NOV shall be corrected within 60 calendar days after the issuance of the NOV. A copy of the NOV shall be left with any owner, employee or agent of the owner at the facility at the time of inspection or may be mailed or served by other legal process in the case of a closed or unattended facility.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.510 Grounds and Time for Appeal
+
+An Administrative Order issued pursuant to the Gasoline Storage Act or OSFM rules promulgated pursuant to that Act may be appealed in accordance with this Subpart. An appeal of an Administrative Order issued pursuant to this Section may only be requested within 10 days after receipt and must be in writing. (See Section 2(3)(e) of the Gasoline Storage Act.)
+
+(Source: Amended at 47 Ill. Reg. 6949, effective May 2, 2023)
+
+Section 176.515 Notice of Hearing
+
+Notice of the time and place for any hearing shall be given to any party concerned at least 30 days prior to the hearing date. If an attorney, through written communication, is known to represent any party to a hearing, then notice is to be given to that attorney. Notice sent to the last known address by U.S. Mail, registered or certified, addressed to all parties concerned or their attorneys, when applicable, is sufficient.
+
+Section 176.520 Continuances
+
+A hearing officer may, for good cause, grant a continuance at the request of a party or a continuance on the hearing officer's own motion. Good cause may include, but is not limited to, death or hospitalization of a party or assigned counsel, natural disasters prohibiting attendance, and other unforeseen circumstances. Requests by a party for continuances must be preceded by contacting the opposing party and asking for agreement to the continuance. At the direction of the hearing officer, a hearing may be adjourned to permit further testimony or argument when beneficial to the development of a clear and complete record. Scheduling conflicts of an attorney constitute grounds for a continuance only when the conflict is with another judicial body. Any grant by the Hearing Officer of a continuance sought by a party on less than two days notice prior to the assigned hearing date may be conditioned upon that party bearing any court reporting or other recording costs resulting from the continuance.
+
+Section 176.525 Appearances
+
+At hearings before OSFM, parties to a proceeding may represent themselves or may be represented by an attorney licensed to practice law in the State of Illinois. The failure of a party to be represented by an attorney does not constitute grounds for a rehearing; likewise, the choice by parties to be represented by themselves or designated individuals does not constitute such grounds. For each party to the hearing, a written appearance shall be filed at or before the start of the hearing.
+
+Section 176.530 Service of Papers and Computation of Time
+
+a) Persons filing papers with OSFM shall simultaneously serve copies on all parties to the proceeding.
+
+b) If agreed between the parties, parties may serve copies of any filing on each other via email. Email service on the hearing officer is not permitted.
+
+c) Papers required to be filed with OSFM shall be accompanied by proof of service upon all those required to be served.
+
+d) All papers required to be filed with OSFM must be filed at its principal office at 1035 Stevenson Drive, Springfield, Illinois 62703, during business hours, or mailed to its principal office prior to the applicable deadline.
+
+e) If the deadline for a filing falls on a holiday, Saturday or Sunday, the deadline for filing will automatically be extended to the next business day.
+
+Section 176.535 Stipulations
+
+a) It is the policy of OSFM that the parties to a proceeding should, to the fullest extent possible, stipulate all matters that are not, or fairly should not be, in dispute.
+
+b) At the hearing, the parties may file a stipulation setting forth:
+
+1) All pertinent matters that are not in dispute;
+
+2) A list of all exhibits to which there are no objections;
+
+3) Matters that are in dispute.
+
+Section 176.540 Evidence
+
+a) Irrelevant, immaterial or unduly repetitious evidence shall be excluded. The rules of evidence and privilege as applied in civil cases in the circuit courts of Illinois shall be followed. However, evidence not admissible under such rules of evidence may be admitted (except where precluded by statute) if it is of a type commonly relied upon by reasonably prudent persons in the conduct of their affairs. [5 ILCS 100/10-40]
+
+b) When objection is made to the admissibility of evidence, the Hearing Officer shall either receive the disputed evidence subject to ruling at a later time, or may exclude the evidence at that time. A party offering evidence that is ruled inadmissible shall be permitted to make a brief offer of proof.
+
+c) Writings shall be legible and exhibits shall be plainly marked and identified. The hearing record shall reflect the identity of the party offering an exhibit and shall indicate whether it was admitted into evidence.
+
+Section 176.545 Official Notice
+
+The Hearing Officer may take official notice of all facts of which judicial notice may be taken, including facts of a technical nature within the specialized knowledge and experience of OSFM. This notice may include any of the content of any practice, standard or code that is by reference incorporated at 41 Ill. Adm. Code 174.210.
+
+Section 176.550 Authority of Hearing Officer
+
+The Hearing Officer shall have all powers necessary to conduct a hearing, avoid delay, maintain order, and insure the development of a clear and complete record, including the power to:
+
+a) Administer oaths and affirmations;
+
+b) Preside over the hearings, regulate the course of hearings, set the time for filing documents, and provide for the taking of testimony by deposition, when necessary;
+
+c) Set the time and place for the continuance of a hearing once the hearing has commenced (Section 176.520 governs the continuance of a hearing prior to its commencement);
+
+d) Examine witnesses and direct witnesses to testify, limit the number of times any witness may testify, limit repetitious or cumulative testimony, and set reasonable limits on the amount of time each witness may testify and be cross-examined;
+
+e) Receive evidence, rule upon objections to admissibility of evidence, and rule upon offers of proof;
+
+f) Issue subpoenas that require attendance, testimony or the production of papers, books, documentary evidence or other tangible things;
+
+g) Dispose of procedural requests or similar matters;
+
+h) Require prior submission of testimony and exhibits in writing and set any deadlines for the filing of documents;
+
+i) Direct parties to appear and confer for the settlement or simplification of issues, and to otherwise conduct prehearing conferences;
+
+j) Reprimand or exclude from the hearing any person for indecorous or improper conduct committed in the presence of the Hearing Officer;
+
+k) Order the parties to submit briefs on issues of first impression. These briefs shall be limited to 15 pages, including proposed findings of fact and conclusions of law, and shall be submitted after the close of evidence and proofs pursuant to the procedures of Section 176.560;
+
+l) Render findings of fact, conclusions of law, opinions and recommendations for an Order of the State Fire Marshal;
+
+m) Enter any Order that expedites the purpose of this Part; and
+
+n) Generally conduct the hearing and all pre-hearing and post-hearing matters according to this Subpart.
+
+Section 176.555 Default
+
+a) Failure of a party to appear on the date set for hearing or failure to proceed as ordered by the State Fire Marshal shall constitute a default and the administrative order appealed from shall become final. Any court reporting costs incurred because of the failure to appear may be assessed against the party that failed to appear.
+
+b) Appeals, petitions, motions or other requests for relief that are not prosecuted diligently may be dismissed for want of prosecution.
+
+Section 176.560 Post-Hearing Submissions
+
+a) Unless otherwise directed by the Hearing Officer, the parties may submit written proposed findings of fact and conclusions of law (proposed findings) to the Hearing Officer within 14 days after the close of the hearing or such other reasonable time as the Hearing Officer shall determine, consistent with the responsibility of the State Fire Marshal for an expeditious decision. Proposed findings shall not exceed 15 pages in length on regular 8½ by 11 inch paper with 1-inch margins. The proposed findings of fact and conclusions of law shall be separately stated.
+
+b) All parties who wish to submit proposed findings, or are ordered by the Hearing Officer to submit briefs also containing proposed findings, must submit the following by the applicable deadline:
+
+1) one original and two paper copies of the party's proposed findings of fact and conclusions of law. The two paper copies shall be identically compiled and stapled;
+
+2) an electronic text version of the brief, in a format compatible with Microsoft Word, on a disc or other computer file memory storage device that is labeled with the name of the party and that does not have to be returned to that party;
+
+3) a cover letter stating the party on whose behalf the brief is submitted.
+
+Section 176.565 Transcripts
+
+a) The proceedings at hearings shall be recorded electronically by OSFM and transcribed at the request and expense of the requesting party.
+
+b) Any party can request a stenographer or court reporter at that party's expense. Upon agreement of the parties, the stenographer or court reporting costs may be divided equally. Parties who order copies of the transcript shall bear the cost of the copies.
+
+c) Transcripts of a hearing will not be provided by OSFM to any party.
+
+Section 176.570 Final Order
+
+a) The execution of a written Order of OSFM will become effective immediately and will constitute a final administrative decision subject to the Administrative Review Law [735 ILCS 5/Art. III].
+
+b) The parties and their attorneys shall be notified as soon as reasonably possible by sending them a copy of the Order by U.S. Mail, registered or certified, addressed to their last known address.
+
+Section 176.575 License Suspension or Revocation and Assessment of Civil Monetary Fines Against a Contractor
+
+a) The violation by a licensed contractor of a provision of 41 Ill. Adm. Code 172, 174, 175, 176 or 177, including standards incorporated by reference, may result in a suspension, revocation or refusal to issue or renew that contractor's license, in addition to any other discipline authorized under Section 80(a) of the Petroleum Equipment Contractors Licensing Act [225 ILCS 729/80(a)], for the following durations:
+
+1) For the first violation committed, the license of any contractor may be suspended or revoked for up to one year.
+
+2) For the second violation committed, the license of any contractor may be suspended for up to one year or may be revoked for up to two years.
+
+3) For the third violation, and any violation thereafter, the license of any contractor may be suspended for up to one year or revoked permanently.
+
+b) The violation by a contractor of a provision of 41 Ill. Adm. Code 172, including standards incorporated by reference, may result in a suspension or revocation of that contractor's license for the following durations:
+
+1) For the first violation, the license of any contractor may be suspended for up to six months.
+
+2) For the second violation, the license of any contractor may be suspended or revoked for up to one year.
+
+3) For the third violation, the license of any contractor may be suspended for up to one year or revoked for up to two years.
+
+4) For the fourth violation, and any violation thereafter, the license of any contractor may be revoked for up to 5 years.
+
+c) Effects of Suspension or Revocation
+
+1) A contractor whose license was suspended or revoked as a result of a violation involving one or more licensed activities is also prohibited, in a like manner, for a like duration, from performing any other activity the contractor was licensed by OSFM to perform.
+
+2) During the period of a suspension or revocation, the contractor whose license was suspended or revoked may not be licensed to perform any other activity related to USTs.
+
+3) A contractor whose OSFM license is suspended or revoked, may not perform any UST activity requiring an OSFM license under an OSFM permit issued prior to the suspension or revocation. In such a case, the contractor is not entitled to a refund of the permit fee and is not entitled to amend the permit or permit application to list another contractor.
+
+4) A contractor whose license has been suspended or revoked may not continue to perform UST work requiring a license issued by OSFM during the period of suspension or revocation.
+
+5) A contractor whose OSFM license has been suspended or revoked may not be employed as an agent or subcontractor of an OSFM licensed contractor to perform any activity for which an OSFM license is required.
+
+6) Any officer of a corporation having a suspended or revoked license, or any owner or co-owner of any other business entity having a suspended or revoked license, shall not use alternative names or licenses to continue to do UST work requiring an OSFM issued license.
+
+7) Upon conclusion of the revocation period, a contractor whose OSFM license was revoked may perform any UST activity the contractor was licensed by OSFM to perform only by re-licensing (assuming the applicant is not otherwise prohibited from re-licensing).
+
+8) If the period of suspension ends prior to the termination of any license period, the suspended contractor may resume performing the activity the contractor was licensed to perform for the remainder of any license period. If the period of suspension ends subsequent to the termination of any license period, the suspended contractor may not perform the activity the contractor was licensed to perform until the suspension period has ended and the contractor has been re-licensed (assuming the applicant is not otherwise prohibited from re-licensing).
+
+d) The violation by a licensed contractor or an employee of a licensed contractor of a provision of 41 Ill. Adm. Code 172, 174, 175, 176, 177, 160 or 180, including standards incorporated by reference, may result in the issuance of an administrative citation under 41 Ill. Adm. Code 172.110, 172.120 and 172.140 for the assessment of civil monetary fines against that contractor.
+
+(Source: Amended at 47 Ill. Reg. 6949, effective May 2, 2023)
+
+Section 176.580 Assessment of Penalties
+
+Any person who violates any of the provisions of 41 Ill. Adm. Code 172, 174, 175, 176, 177, 160 and 180 shall be subject to penalties or any other remedies as provided by statute or rule.
+
+(Source: Amended at 47 Ill. Reg. 6949, effective May 2, 2023)
+
+Section 176.585 Subpoena − Fees and Mileage of Witnesses
+
+Witness and Mileage Fees. The cost of service and witness and mileage fees shall be borne by the person requesting the subpoena. Witness and mileage fees shall be the same as are paid witnesses in the circuit courts of the State of Illinois.
+
+Section 176.590 Paper Hearings
+
+Parties and staff participating in a proceeding may stipulate to the waiver of any rights they have to a hearing and may stipulate to having all matters in dispute being resolved on the basis of written pleadings and submissions that are verified or supported by affidavit and to OSFM entering a final order in the matter in reliance on those documents.
+
+SUBPART F: OPERATOR TRAINING
+
+Section 176.600 Purpose
+
+The purpose of this Subpart is to set forth procedures for underground storage tank operator training and inspections and to determine when the training and inspections are required.
+
+(Source: Added at 36 Ill. Reg. 3187, effective February 15, 2012)
+
+Section 176.605 Scope
+
+UST operator training is a requirement that applies to all underground storage tank systems regulated under 41 Ill. Adm. Code 174, 175, 176 and 177 and 42 USC 82, subchapter IX, except those excluded from the definition of an underground storage tank system and thereby excluded from regulation by 41 Ill. Adm. Code 174.100.
+
+(Source: Added at 36 Ill. Reg. 3187, effective February 15, 2012)
+
+Section 176.610 Definitions
+
+"Certified Operator" means a Class A, B or C Operator who has completed all the training required under this Subpart for his or her particular operator training classification.
+
+"Class A Operator" is someone who has primary responsibility to operate and maintain a UST in accordance with applicable regulatory requirements. The Class A Operator's responsibilities often include managing resources and personnel, such as establishing work assignments, to achieve and maintain compliance with regulatory requirements.
+
+"Class B Operator" is someone who has day-to-day responsibility for implementing applicable UST regulatory requirements and standards. The Class B Operator typically implements in-field aspects of UST operation, maintenance and recordkeeping at one or more UST facilities.
+
+"Class C Operator" is an employee who is responsible for initially addressing alarms or other indications of emergencies caused by spills or releases from USTs. The Class C Operator typically controls or monitors the dispensing or sale of regulated substances.
+
+"Four-Year Anniversary Date" means the four-year deadline for completion of repeat training in ordinary course, including continuing education, training and a general examination. This deadline is the later of:
+
+Four years after the completion of initial or repeat training (see Section 176.615), as shown by the most recent valid completion certificate; or
+
+Four years after the completion of out-of-compliance retraining (see Section 176.650), as shown by the most recent valid completion certificate.
+
+"Manned Facility" means a UST facility that has a responsible attendant present during all hours of operation.
+
+"Operator Training" means the training required under this Subpart.
+
+"Provider" means an entity that provides online or other approved training and examinations for Class A, B and C Operators and issues the certificate of completion when the candidates taking the examinations have completed the training and passed the examination.
+
+"Training Program" means any program that provides information to and evaluates the knowledge of a Class A, Class B or Class C Operator through a combination of both training and testing approved in advance by OSFM and meeting the requirements of this Subpart F.
+
+"Unmanned Facility" means a UST facility that does not have a responsible attendant present during all hours of operation.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.615 Class A, B and C Operator Classifications
+
+The owner of each UST or group of USTs at a facility must have a Class A, Class B and Class C Operator designated and shall ensure that each is trained in accordance with this Subpart. Separate individuals may be designated for one or more classes of operators, so long as they successfully complete the required training program and examination according to the operator class in which the individual is designated. Each facility must designate one or more individuals for each operator class. In addition, any personnel at the facility that meet the definition of a Class C Operator as defined in Section 176.610 shall complete the Class C Operator training required for those individuals and be on the facility's list of designated Class C Operators.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.620 Training
+
+a) A Class A, Class B or Class C Operator satisfies the training requirements of this Subpart by completing both training and an examination, as determined to be appropriate by OSFM. This may be internet, computer software, live or equivalent training and examination so long as the training and examination is approved by OSFM in advance under Section 176.635.
+
+b) All Class A and Class B Operators shall also complete continuing education and training requirements and a general examination, either:
+
+1) Once every four years, with the deadline for the completion of the training and examination to be no later than the four-year anniversary date or the last retraining in response to an NOV, whichever is later; or
+
+2) Annually, in which case there shall be no retraining in response to an NOV for the Class A or Class B Operator.
+
+c) Class C Operators shall retrain every four years using an OSFM approved Class C Operator training program.
+
+d) Class A or Class B Operators may retrain Class C Operators so long as the training and examination administered to the Class C Operators has been approved in advance by OSFM and otherwise meets the requirements of Section 176.635 and this Part.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.625 Minimum Training Requirements
+
+OSFM will approve a training mechanism for Class A, Class B and Class C Operators to be implemented by OSFM approved providers. Training and related examinations under this Subpart shall cover and test for appropriate knowledge of Illinois UST regulations. Generally, Class A, B and C Operators will be trained in the following:
+
+a) For Class A Operators, subject matter shall include, but not be limited to, financial responsibility documentation requirements, notification requirements, release and suspected release reporting, temporary and permanent closure requirements, operator training requirements, and a general knowledge of USTs requirements, including regulations relating to spill prevention, overfill prevention, release detection, corrosion protection, emergency response, product and equipment compatibility and demonstration, environmental and regulatory consequences of releases, and related reporting, recordkeeping, testing and inspections. Class A operators must have the knowledge and skills to make informed decisions regarding compliance and to determine whether the appropriate individuals are fulfilling the operation, maintenance and recordkeeping requirements for UST systems in accordance with this subsection.
+
+b) For Class B Operators, subject matter shall include, but not be limited to, components of UST systems, materials of UST components, methods of release detection and release prevention applied to UST components, reporting and recordkeeping requirements, operator training requirements, and the operation and maintenance requirements of USTs that relate to spill prevention, overfill prevention, release detection and related reporting, corrosion protection, emergency response and product and equipment compatibility and demonstration, environmental and regulatory consequences of releases, and related reporting, recordkeeping, testing and inspections. Training for the Class B operator must cover the general requirements that encompass all regulatory requirements and typical equipment used at UST facilities or site-specific requirements that address only the regulatory requirements and equipment specific to the facility.
+
+c) For Class C Operators, subject matter shall include, but not be limited to:
+
+1) recommended responses to:
+
+A) emergencies (such as, situations posing an immediate danger or threat to the public or to the environment requiring immediate action);
+
+B) spill alarms; and
+
+C) releases from a UST;
+
+2) the locations and proper operation of emergency stops;
+
+3) the use of other emergency equipment; and
+
+4) notifying the appropriate authorities in response to such emergencies, alarms and releases.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.630 Examination Frequency
+
+The owner of a facility must ensure that Class A and Class B Operators are trained within 30 days after assuming operation and maintenance responsibilities for a UST and that Class C Operators are trained before assuming responsibility involving emergency response. At no time may a UST operate without a validly-trained Class A Operator, Class B Operator and Class C Operator. Continuing education, training and a general examination regarding operator-specific subject matter shall take place once every four years for all Class C Operators. Class A and B Operators may choose to retrain either annually or every four years. Class A and B Operators who choose to retrain every four years may be required by Section 176.650 to retrain before the end of the four-year period. In all cases, evidence of completed retraining shall be available at the facility in accordance with Sections 176.645, 176.650 and 176.655.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.635 Approval of Required Training and Examination Location
+
+All training programs used to meet the operator training requirements must have prior written approval by OSFM. These programs must at least meet the criteria of this Subpart in order to be approved. These programs shall appropriately test the person being trained for knowledge and skills to make informed decisions regarding compliance and to implement regulatory requirements in the field regarding the relevant UST technical requirements for the Class of Operator trained, including those requirements found at 41 Ill. Adm. Code 174, 175, 176 and 177. The provider must also demonstrate its ability to maintain and track test scores and maintain appropriate security. Upon approval, the training can be conducted multiple times at multiple locations. The approved training can include in-class, online, or hands-on training. Submission of an incomplete application may result in the denial of the application. If OSFM has denied a training provider's application 3 times, the applicant shall not re-submit an application for a period of one year from the date of receipt of the third denial.
+
+a) Course approvals shall be valid for a period of 5 years. Applications must be submitted at least 120 days prior to the first scheduled date of training and at least 120 days prior to the expiration of the course approval. Applications for approval of training courses shall be on OSFM forms on 8½ by 11 sheets of paper or via electronic submission and contain:
+
+1) a complete course outline, including:
+
+A) a detailed description of subject matter, order of presentation, and amount of time scheduled for the course presentation, with a breakdown of time spent on each specific area of instruction;
+
+B) a description of all training aids, devices and handouts;
+
+C) a description of the test to be given at the conclusion of each training course, including:
+
+i) procedures for conducting and grading the test (including a description of the hands-on practical demonstration of knowledge at the UST site, if applicable);
+
+ii) the passing score for the training exam and any procedure for review of failing areas and retesting for any Class A, B or C Operator who fails to achieve an initial passing grade;
+
+iii) the number of questions per topic identified in Section 176.625; and
+
+iv) examples or a sampling of test questions;
+
+D) one set of proposed training materials;
+
+E) sample certificates;
+
+F) the methodology for verifying participation and completion;
+
+G) the anticipated number and locations for any classroom, hands-on or webinar course to be offered;
+
+H) the name, address and phone number of the training provider and of the contact person;
+
+I) the credentials of any classroom, hands-on or webinar instructors, including title, affiliation and summary of professional background (i.e., a curriculum vitae); and
+
+J) a certification that the technology or methods to be presented in the training program will satisfy Illinois and federal laws.
+
+b) The minimum required passing score set by the training provider shall be at least 75%. The training provider must supply those individuals who successfully complete a training program with a certificate of training documenting the level of training received. Upon request, the training provider must submit individual test results and documents verifying training completion to OSFM. This information shall include student rosters, student information, test results and other information as may be requested by OSFM.
+
+c) Training providers will be required to apply for and receive written approval from OSFM for any modifications to approved training programs prior to their implementation. All training must reflect the existing State of Illinois requirements for the operation and maintenance of USTs and must be updated for any Illinois statute or rule changes affecting operation and maintenance requirements. OSFM may review and propose revision to the entire training program at the time of any requested modification.
+
+d) Online and software courses shall possess reasonable topic and total course minimum time requirements to insure that trainees read the online materials.
+
+e) OSFM may periodically audit or review any training class, and the trainer shall allow a maximum of 2 OSFM employees to attend any training class on request without charge and without certification.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.640 Examination Fees
+
+The UST facility owner or operator shall pay the approved provider a reasonable fee for online or other approved training and testing for Class A, Class B and Class C Operators.
+
+(Source: Added at 36 Ill. Reg. 3187, effective February 15, 2012)
+
+Section 176.645 Recordkeeping
+
+a) The following records shall be maintained and readily available at each UST facility:
+
+1) A list of the designated current Class A, Class B and Class C Operators for the UST facility (identified by facility number and address), including:
+
+A) For each Class A, B and C Operator, records detailing the name, date each assumed duties, training classification (Class A, B or C or a combination), date of most recent retraining, and date current completion certificate will expire; and
+
+B) For Class A and Class B Operators who are not permanently onsite or who are assigned to more than one facility, telephone numbers to contact the Class A and B Operators;
+
+2) A copy of the current testing certificates showing the name of the trainee, date trained and operator class for all current Class A, B and C Operators. Class A and Class B certificates shall indicate whether the certificate is a one-year certificate or a four-year certificate. These certificates shall also be signed by the trainer and include the company name, address, phone, name of trainer, and, for computer-based programs, the name of the training program and web address where internet-based;
+
+3) A copy of the current Class C Operator instructions or procedures required by subsection (b); and
+
+4) A copy of the written UST facility operation and maintenance plan and all 30-day and annual walkthrough inspection checklists used by the certified operators for the past 2 years pursuant to Section 176.655.
+
+b) The UST owner shall provide all Class C Operators with written instructions that include all of the following:
+
+1) Emergency response procedures, including:
+
+A) procedures for overfill protection during delivery of regulated substances;
+
+B) operation of emergency stops;
+
+C) appropriate responses to all alarms;
+
+D) reporting of leaks, spills and releases; and
+
+E) site-specific emergency procedures, if any.
+
+2) The name and other information needed for contacting appropriate parties if a leak, spill, release or alarm occurs.
+
+c) For unmanned facilities, the records identified in subsections (a) and (b) shall be maintained at the UST facility or available to the OSFM inspector within 30 minutes or before OSFM completes its inspection, whichever is later, via facsimile, e-mail, hand delivery or other transfer of information.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.650 Out-of-Compliance Retraining
+
+a) Appropriate retraining, including both training and testing, is required for both Class A and Class B Operators of USTs who do not retrain annually, when those Operators have been determined by OSFM to be out of compliance by issuing an NOV pertaining to release detection, corrosion protection, spill and overfill, financial responsibility, or failure to complete training and testing as required by this Subpart. The training program or comparable examination must be developed or administered by an independent organization, OSFM, or a recognized authority.
+
+b) Retraining required under this Section shall be completed within 30 days after issuance of the NOV indicating noncompliance.
+
+c) Evidence of completed retraining shall be at the UST facility and available for inspection within 30 days after issuance of the NOV indicating noncompliance. When the NOV pertains to a failure to complete the training and testing required by this Subpart, the owner must have evidence of completed training and testing at the facility and available for inspection within 30 calendar days after receipt of the NOV.
+
+(Source: Amended at 42 Ill. Reg. 10621, effective October 13, 2018)
+
+Section 176.655 Periodic Operation and Maintenance Walkthrough Inspections and Plan; Class A, B and C Operator Responsibilities
+
+a) At a manned facility, a Class A, Class B or Class C Operator must be onsite at all times. For unmanned facilities, emergency contact information for Class A, B and C Operators, including names and telephone numbers, shall be conspicuously posted at the facility unless a toll-free number for 24 hour dispatch to the facility has been prominently displayed at the facility. At both manned and unmanned facilities, the Class C Operator is responsible for responding to alarms or other indications of emergencies caused by spills or releases from USTs and shall be familiar with the written emergency response instructions and procedures for the facility.
+
+b) Periodic Operation and Maintenance Walkthrough Inspections. Each Class A or Class B Operator shall perform walkthrough inspections of each storage tank system for which the Operator is designated and shall record the results of each inspection on a checklist to be maintained with the facility records. At a minimum, walkthrough inspections shall be conducted at least once every 30 days and once per year, with the results recorded on a checklist that details the inspection of the following:
+
+1) At least once every 30 days:
+
+A) Release detection methods, including monitoring systems and all associated sensors shall be maintained by:
+
+i) checking to ensure that the entire system is fully operational;
+
+ii) checking for potential releases and that there are no alarms or any other unusual operating conditions present; and
+
+iii) checking and collecting 30-day Pass reports for ATGs and 30-day Normal reports for sensors and checking that all other required records are reviewed and current;
+
+B) Integrity of spill and overfill prevention and spill containment equipment and manholes shall be maintained by:
+
+i) Visually checking for damage, including cracks, holes or bulges;
+
+ii) removing all liquid and debris;
+
+iii) checking for a release of regulated substances in all areas of the containments, including the interstitial areas of any double-walled spill prevention equipment with interstitial monitoring;
+
+iv) testing the overfill alarm for operation, if present;
+
+v) checking for and removing any obstructions lodged in the fill pipe;
+
+vi) checking to make sure the fill cap is securely on the fill pipe; and
+
+vii) checking for all potential sources of water entry;
+
+C) Visually checking dispensers, hoses, breakaways and hardware for leaks and damage;
+
+D) Verifying that any impressed current cathodic protection system being utilized is operational, checking and recording that the power is on and that the voltage, amps and hour meter have the appropriate readings required under Section 175.510(f), with a log entry that shows date of inspection, initials of inspector, hour, volt and amp readings, and power on verification;
+
+2) At least once per year:
+
+A) All containment sumps shall be maintained by:
+
+i) checking for visual damage to the sumps, covers and lids;
+
+ii) checking for the presence of regulated substances or any indication that a release may have occurred; and
+
+iii) checking that these sumps and the interstitial areas for any double-walled sumps with interstitial monitoring are free of water, product and debris;
+
+B) All UST equipment including emergency stops shall be checked for the presence or absence of visible damage to any UST component;
+
+C) Documentation that the emergency stops have been tested by the owner/operator or a contractor for interconnection and pump shutdown shall be submitted and the testing shall comply with the following:
+
+i) Checking that activation of any single emergency stop results in the shutoff of all switches and pumps; and
+
+ii) Making sure that this is done annually with the OSFM certification form completed (the OSFM form titled "Certification of Operational Testing of Emergency Stops" is available at https://www2.illinois.gov/sites/sfm/About/ Divisions/Petroleum-Chemical-Safety/Pages/Applications-and-Forms.aspx);
+
+D) Documentation that the shear valves have been visually inspected by the owner/operator or a contractor shall be submitted and the inspection shall comply with the following:
+
+i) checking that the shear valves are located ½ inch above or below grade, with grade being the surface upon which the dispenser is mounted;
+
+ii) checking that the shear valves are securely mounted using a listed rigid anchor device;
+
+iii) checking that the link arm operates when tripped, ensuring the poppet valve closes easily; and
+
+iv) Making sure that this is done annually with the OSFM certification form completed (the OSFM form titled "Certification of Annual Inspection of All Dispenser Shear Valves" is available at the website cited in subsection (b)(2)(C));
+
+E) All required signs are fully visible and all communication systems in place and operational;
+
+F) All other daily, 30-day, monthly and annual inspections, testing, reporting and records are maintained as required under 41 Ill. Adm. Code 174, 175 and 176; and
+
+G) If applicable, the tank gauge stick or groundwater bailers shall be checked for operability and serviceability (manual tank gauging or groundwater monitoring).
+
+c) Inspection of containment sumps required by subsection (b)(2) shall be performed:
+
+1) By an OSFM-licensed contractor that has licensure in the installation/retrofitting or inspection and testing of UST equipment module; and
+
+2) Using an employee of an OSFM-licensed contractor for testing or inspection. Under 41 Ill. Adm. Code 172.40(b)(4), this employee shall have a passing score on the required OSFM-approved exam for the installation/retrofitting module or the credentials and training as required by the manufacturer's recommended procedures and instructions. The employing licensed contractor may certify the employee has the requisite credentials and training.
+
+d) The OSFM 30-day and annual walkthrough inspections checklist is available at the website cited in subsection (b)(2)(C).
+
+e) Operations and Maintenance Plan. UST facility owners and operators shall also, in conjunction with their designated Class A and B Operators, adopt and implement a written operations and maintenance plan signed by both the owner and either a Class A or Class B Operator designated for the UST facility. The plan shall be kept at the facility for the life of the UST and shall be updated to reflect changes in the UST facility equipment and operations as they occur. The operations and maintenance plan shall be as specific as possible for each facility. At a minimum, the operations and maintenance plan shall include the following:
+
+1) A detailed plan showing what inspections, operations, testing, maintenance and recordkeeping shall be done on a daily, 30-day, monthly, and annual basis in accordance with OSFM rules.
+
+2) A description of the manner in which UST facility owners and operators properly dispose of regulated substances spilled at the facility, including any water or soil removed from any part of the UST when there is any indication it might be or has been contaminated with a regulated substance.
+
+3) The emergency procedures and instructions required under Section 176.645.
+
+f) The UST facility owner and operator and certified operators shall ensure that all inspections and testing, as outlined in the operations and maintenance plan and required by this Subpart, are properly performed. They shall also ensure that the work is performed by licensed contractors if required by 41 Ill. Adm. Code 174, 175 or 176.
+
+g) The certified operators shall provide the UST facility owner and operator with a copy of each inspection checklist and alert the owner and operator to any condition that requires follow-up actions. The certified operator doing this shall date and initial the 30-day and annual walkthrough inspection checklist, indicating that this information has been provided to the UST facility owner and operator and a description of the actions taken to correct an issue. The UST owner and operator shall promptly address and correct each compliance and maintenance item noted as being deficient on the checklist.
+
+h) A Class A, B or C Operator shall not represent himself or herself as certified unless the person has a current valid certificate of training from an approved trainer.
+
+(Source: Amended at 48 Ill. Reg. 12876, effective August 7, 2024)
+
+Section 176.660 Violations
+
+A facility may not operate unless Class A, B and C Operators have been designated and trained for each UST that is being operated at each facility. Trained Operators may be assigned to more than one facility at a time as long as the requirements of this Subpart F are met, including requirements under Section 176.655(a) that a Class A, B or C Operator be on site at all times at manned (attended) facilities. Failure to comply with this Subpart shall be sufficient reason for the summary revocation of the OSFM-issued green tag providing authority to operate an underground storage tank facility whose Class A, B and C Operators have not been designated and trained. Failure to remain in compliance with UST rules may also result in OSFM's issuance of a red tag for the tanks or facility at issue, prohibiting any further operation of the facility or further deposit of regulated substances into any tank subject to a red tag. An approved training and testing program may be decertified by OSFM in the event of provider fraud, misrepresentation, negligence or noncompliance with OSFM rules, or with an OSFM certification audit recommendation, in conducting the training or testing.
+
+(Source: Amended at 47 Ill. Reg. 6949, effective May 2, 2023)
+
+Section 176.APPENDIX A Derivation Table (Repealed)
+
+(Source: Repealed at 42 Ill. Reg. 10621, effective October 13, 2018)

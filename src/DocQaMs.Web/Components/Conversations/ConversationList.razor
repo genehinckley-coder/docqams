@@ -1,0 +1,43 @@
+@* The design's conversation column. Its clickable <div> rows are <button>s here, so the keyboard reaches them; a
+   button holds only phrasing content, so a row's parts are spans laid out as blocks. *@
+<aside class="convlist" aria-label="Conversations">
+    <Button Variant="ButtonVariant.Secondary" FullWidth="true" OnClick="() => OnNew.InvokeAsync()">New conversation</Button>
+    <ul class="convlist__items">
+        @foreach (ConversationSnapshot conversation in Conversations)
+        {
+            bool active = conversation.Id == ActiveId;
+            <li @key="conversation.Id">
+                <button type="button" class="convlist__row" aria-current="@(active ? "true" : null)"
+                        @onclick="() => OnSelect.InvokeAsync(conversation.Id)">
+                    <span class="convlist__title">@conversation.Title</span>
+                    <span class="convlist__meta">
+                        <span>@Formatting.Count(conversation.CommittedAnswers, "answer") · @Formatting.SettingsBadge(conversation.Settings)</span>
+                        <span class="convlist__cost">@Formatting.Money(conversation.Cost.Known.Total)</span>
+                    </span>
+                    @if (conversation.IsAnswering)
+                    {
+                        <span class="convlist__status">Answering…</span>
+                    }
+                </button>
+            </li>
+        }
+    </ul>
+</aside>
+
+@code {
+    /// <summary>Every conversation, newest first.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<ConversationSnapshot> Conversations { get; set; } = [];
+
+    /// <summary>The conversation on screen, marked as the current one.</summary>
+    [Parameter]
+    public Guid ActiveId { get; set; }
+
+    /// <summary>Called with the id of the conversation clicked.</summary>
+    [Parameter]
+    public EventCallback<Guid> OnSelect { get; set; }
+
+    /// <summary>Called when "New conversation" is clicked.</summary>
+    [Parameter]
+    public EventCallback OnNew { get; set; }
+}

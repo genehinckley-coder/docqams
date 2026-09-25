@@ -1,0 +1,293 @@
+@* One finished question: its answer's summary, its detail, its reasoning and its sources each in their own area, all
+   but the summary collapsed. Everything from the model, the documents and the
+   store is text, never markup. The styles are in app.css, shared with InProgressView. *@
+<article class="qa" aria-labelledby="@QuestionId">
+    <div class="qa__eyebrow">Question</div>
+    <p id="@QuestionId" class="qa__question">@Record.Question</p>
+
+    <div class="qa__eyebrow qa__eyebrow--answer">Answer</div>
+    @if (_sections.HasSummaryText)
+    {
+        <AnswerText Segments="_sections.Summary" MarkerHref="SourceHref" MarkerLabel="MarkerLabel" />
+        @if (_sections.Detail.Count > 0)
+        {
+            <details class="qa__disclosure qa__detail">
+                <summary>Detail</summary>
+                <AnswerText Segments="_sections.Detail" MarkerHref="SourceHref" MarkerLabel="MarkerLabel" />
+            </details>
+        }
+    }
+    else
+    {
+        <p class="qa__empty">@EmptyText</p>
+    }
+
+    <ReasoningSummary Thinking="@Record.Thinking" HasRedactedThinking="Record.HasRedactedThinking" />
+
+    @if (Record.Notice is { } notice)
+    {
+        <div class="qa__notice">
+            <Badge Tone="OutcomeTone" Dot="true">@OutcomeLabel</Badge>
+            <span>@notice</span>
+        </div>
+    }
+
+    @if (Record.Quotes is { Checks.Count: > 0 } quotes)
+    {
+        @* Collapsed, with the quote count as its label, unless the address names one of its sources: the Documents
+           screen's link back lands there. A marker's link opens it in the browser first (app.js). *@
+        <section class="qa__sources" aria-labelledby="@SourcesId">
+            <Tooltip Label="Provenance, not entailment">
+                <span id="@SourcesId" class="qa__eyebrow qa__eyebrow--help">Sources</span>
+            </Tooltip>
+            <details class="qa__disclosure" open="@_sourcesOpened">
+                <summary><span class="qa__quality">@QualityLine(quotes)</span></summary>
+                <ol class="qa__source-list">
+                    @for (int i = 0; i < quotes.Checks.Count; i++)
+                    {
+                        int number = i + 1;
+                        QuoteCheck check = quotes.Checks[i];
+                        <li id="@SourceId(number)" class="qa__source" tabindex="-1">
+                            <span class="qa__source-number" aria-hidden="true">[@number]</span>
+                            <span class="qa__source-body">
+                                <span class="qa__source-label"><span class="visually-hidden">Source @number: </span>@SourceStatus.Label(check, Record.Corpus)</span>
+                                <span class="qa__source-quote">“@check.CitedText”</span>
+                                @if (check.Detail is { } detail)
+                                {
+                                    <span class="qa__source-detail">@detail</span>
+                                }
+                                @if (DocumentHref(number, check) is { } documentHref)
+                                {
+                                    <a class="qa__source-link" href="@documentHref">Show in document<span class="visually-hidden">, source @number</span></a>
+                                }
+                            </span>
+                            <Badge Tone="SourceStatus.Tone(check.Status)">@check.Status.ToDisplayName()</Badge>
+                        </li>
+                    }
+                </ol>
+                @if (quotes.ThinBlocks is { Count: > 0 } thin)
+                {
+                    <div class="qa__thin">
+                        <span class="qa__thin-title">Thinly sourced</span>
+                        <ul class="qa__thin-list">
+                            @foreach (BlockCoverage block in thin)
+                            {
+                                <li>“@Excerpt(block.Text)” @Markers(block.SourceNumbers): @Formatting.Percent(block.Fraction) of its text is in matched quotes.</li>
+                            }
+                        </ul>
+                    </div>
+                }
+            </details>
+        </section>
+    }
+
+    @if (Record.Warnings.Count > 0)
+    {
+        <ul class="qa__warnings">
+            @foreach (TurnWarning warning in Record.Warnings)
+            {
+                <li class="qa__warning">
+                    <Badge Tone="WarningTone(warning.Kind)" Dot="true">@WarningLabel(warning.Kind)</Badge>
+                    <span>@WarningDetail(warning)</span>
+                </li>
+            }
+        </ul>
+    }
+
+    @if (ShowDisclaimer)
+    {
+        <p class="qa__disclaimer">@QuoteChecker.MatchDisclaimer</p>
+    }
+
+    <p class="qa__meta">@MetaLine</p>
+</article>
+
+@code {
+    private const int ExcerptLength = 90;
+
+    private AnswerRecord? _renderedRecord;
+    private bool _renderedDisclaimer;
+    private string? _renderedBaseUri;
+    private Guid? _renderedConversationId;
+    private bool _sourcesOpened;
+    private AnswerSections _sections = new([], []);
+    private bool _changed = true;
+
+    /// <summary>The question and what came of it.</summary>
+    [Parameter, EditorRequired]
+    public AnswerRecord Record { get; set; } = null!;
+
+    /// <summary>Its position in the conversation, which keeps its element ids unique on the page.</summary>
+    [Parameter]
+    public int Index { get; set; }
+
+    /// <summary>Whether this is the conversation's first answer with sources, which carries the disclaimer.</summary>
+    [Parameter]
+    public bool ShowDisclaimer { get; set; }
+
+    /// <summary>The page's address without a fragment, so a marker's link keeps the conversation's query string.</summary>
+    [Parameter]
+    public string BaseUri { get; set; } = "";
+
+    /// <summary>
+    /// The conversation the answer belongs to, which a source's link to the Documents screen names; without it, sources
+    /// have no such link.
+    /// </summary>
+    [Parameter]
+    public Guid? ConversationId { get; set; }
+
+    /// <summary>
+    /// Whether the sources start expanded: the page's address names one of them, as the Documents screen's link back
+    /// does. They are collapsed otherwise.
+    /// </summary>
+    [Parameter]
+    public bool OpenSources { get; set; }
+
+    /// <summary>The prefix of this answer's source row ids, which a fragment naming one of them starts with.</summary>
+    /// <param name="index">The answer's position in the conversation.</param>
+    /// <returns>For example <c>answer-0-source-</c>.</returns>
+    public static string SourceIdPrefix(int index) => $"answer-{index}-source-";
+
+    private string QuestionId => $"answer-{Index}-question";
+    private string SourcesId => $"answer-{Index}-sources";
+
+    private string SourceId(int number) => SourceIdPrefix(Index) + number;
+
+    private QuoteCheck? CheckFor(int number) =>
+        Record.Quotes is { } quotes && number >= 1 && number <= quotes.Checks.Count ? quotes.Checks[number - 1] : null;
+
+    private string? SourceHref(int number) => CheckFor(number) is null ? null : $"{BaseUri}#{SourceId(number)}";
+
+    private string MarkerLabel(int number) =>
+        CheckFor(number) is { } check ? $"Source {number}: {SourceStatus.Label(check, Record.Corpus)}" : $"Source {number}";
+
+    // Only a span with text to highlight links to the Documents screen; an out-of-range or unreadable one has nothing
+    // to show there. Relative, so it resolves against the app's base address.
+    private string? DocumentHref(int number, QuoteCheck check) =>
+        ConversationId is { } id && SourceStatus.Locate(check, Record.Corpus) is { Spans.Count: > 0 }
+            ? $"documents?c={id}&answer={Index}&source={number}"
+            : null;
+
+    private static string QualityLine(QuoteReport quotes)
+    {
+        string line = $"{quotes.MatchedCount} of {quotes.Checks.Count} quotes matched";
+        return quotes.AnswerCharacters > 0
+            ? $"{line}; {Formatting.Percent(quotes.UncitedFraction)} of the answer's text cites nothing."
+            : line + ".";
+    }
+
+    private static string Markers(IReadOnlyList<int> numbers) => string.Concat(numbers.Select(number => $"[{number}]"));
+
+    private static string Excerpt(string text)
+    {
+        string flat = string.Join(' ', text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+        if (flat.Length <= ExcerptLength)
+        {
+            return flat;
+        }
+
+        int cut = ExcerptLength - 1;
+        if (char.IsHighSurrogate(flat[cut - 1]))
+        {
+            cut--;
+        }
+
+        return flat[..cut].TrimEnd() + "…";
+    }
+
+    private static string WarningLabel(TurnWarningKind kind) => kind switch
+    {
+        TurnWarningKind.Truncated => "TRUNCATED",
+        TurnWarningKind.Refused => "REFUSED",
+        TurnWarningKind.Incomplete => "INCOMPLETE",
+        TurnWarningKind.CacheMiss => "CACHE MISS",
+        TurnWarningKind.NotCached => "NOT CACHED",
+        TurnWarningKind.Context => "CONTEXT",
+        _ => kind.ToString().ToUpperInvariant(),
+    };
+
+    private static BadgeTone WarningTone(TurnWarningKind kind) =>
+        kind is TurnWarningKind.Incomplete or TurnWarningKind.Context ? BadgeTone.Warning : BadgeTone.Danger;
+
+    // Each warning's text starts with its badge text; the badge already shows it.
+    private static string WarningDetail(TurnWarning warning)
+    {
+        string prefix = WarningLabel(warning.Kind) + ": ";
+        return warning.Message.StartsWith(prefix, StringComparison.Ordinal) ? warning.Message[prefix.Length..] : warning.Message;
+    }
+
+    private string OutcomeLabel => Record.Outcome switch
+    {
+        TurnOutcome.Stopped => "STOPPED",
+        TurnOutcome.Failed => "FAILED",
+        TurnOutcome.NotReplayable => "NOT ADDED",
+        _ => "COMPLETED",
+    };
+
+    private BadgeTone OutcomeTone => Record.Outcome == TurnOutcome.Failed ? BadgeTone.Danger : BadgeTone.Warning;
+
+    private string EmptyText => Record.Outcome switch
+    {
+        TurnOutcome.Stopped => "Stopped before any answer text arrived.",
+        TurnOutcome.Failed => "No answer text arrived.",
+        _ => "The answer carried no text.",
+    };
+
+    private string MetaLine
+    {
+        get
+        {
+            string settings = Formatting.Settings(Record.Settings);
+            if (Record.Result is { } result)
+            {
+                return string.Join(
+                    " · ",
+                    settings,
+                    Formatting.Money(result.Cost.Total),
+                    CacheText(Record.Cache),
+                    Formatting.Elapsed(result.Elapsed),
+                    $"{Formatting.Number(result.Usage.ContextTokens)} input and {Formatting.Number(result.Usage.Output)} output tokens");
+            }
+
+            return settings + " · " + (Record.CostNote ?? (Record.Cost is { } cost ? Formatting.Money(cost.Total) : "cost unknown"));
+        }
+    }
+
+    private static string CacheText(CacheReport? cache) => cache?.Status switch
+    {
+        CacheStatus.ColdWrite => "cold cache write",
+        CacheStatus.Read => "cache read",
+        CacheStatus.Miss => "cache miss",
+        CacheStatus.NotCached => "not cached",
+        _ => "no cache report",
+    };
+
+    /// <inheritdoc/>
+    protected override void OnParametersSet()
+    {
+        // A finished record never changes, so the page's frequent renders while another answer streams skip it.
+        bool newRecord = !ReferenceEquals(Record, _renderedRecord);
+        _changed = newRecord
+            || ShowDisclaimer != _renderedDisclaimer
+            || BaseUri != _renderedBaseUri
+            || ConversationId != _renderedConversationId;
+
+        // Only ever opened from here for the same record: a later address naming another answer's source leaves these
+        // as the reader has them, rather than collapsing them. Another conversation's answer at this index starts over.
+        if (newRecord)
+        {
+            _sections = AnswerSections.Split(Record.Segments);
+            _sourcesOpened = false;
+        }
+
+        _changed |= OpenSources && !_sourcesOpened;
+        _sourcesOpened |= OpenSources;
+        _renderedRecord = Record;
+        _renderedDisclaimer = ShowDisclaimer;
+        _renderedBaseUri = BaseUri;
+        _renderedConversationId = ConversationId;
+    }
+
+    /// <inheritdoc/>
+    protected override bool ShouldRender() => _changed;
+}

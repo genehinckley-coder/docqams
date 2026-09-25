@@ -1,0 +1,13 @@
+@* Always present, so that a screen reader is already watching it when its text changes. Change the text once
+   per event ("Answer complete", "Answer stopped"); never make streaming text itself live. *@
+<div role="status" aria-live="polite" aria-atomic="true" class="@Css.Join("visually-hidden", Class)">@Message</div>
+
+@code {
+    /// <summary>The announcement; it is read when it changes.</summary>
+    [Parameter]
+    public string? Message { get; set; }
+
+    /// <summary>Extra classes.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+}

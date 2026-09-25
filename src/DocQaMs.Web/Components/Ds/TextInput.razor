@@ -1,0 +1,104 @@
+@using Microsoft.AspNetCore.Components.Rendering
+
+@if (HasField)
+{
+    <div class="d1-field">
+        @if (Label is not null)
+        {
+            <label class="d1-field__label" for="@InputId">@Label</label>
+        }
+        @{ RenderControl(__builder); }
+        @if (Error is not null)
+        {
+            <span class="d1-field__error" id="@ErrorId">@Error</span>
+        }
+        else if (Hint is not null)
+        {
+            <span class="d1-field__hint" id="@HintId">@Hint</span>
+        }
+    </div>
+}
+else
+{
+    RenderControl(__builder);
+}
+
+@code {
+    private readonly string _generatedId = Css.NewId("d1-input");
+
+    /// <summary>The visible label, set in capitals by the design system.</summary>
+    [Parameter]
+    public string? Label { get; set; }
+
+    /// <summary>One clause of help below the control.</summary>
+    [Parameter]
+    public string? Hint { get; set; }
+
+    /// <summary>What is wrong, naming the rule; shown in place of the hint, and marks the control invalid.</summary>
+    [Parameter]
+    public string? Error { get; set; }
+
+    /// <summary>The height of a single-line input.</summary>
+    [Parameter]
+    public ControlSize Size { get; set; } = ControlSize.Md;
+
+    /// <summary>Whether it is a <c>textarea</c>.</summary>
+    [Parameter]
+    public bool Multiline { get; set; }
+
+    /// <summary>The control's id; one is generated when none is given, so the label is always tied to it.</summary>
+    [Parameter]
+    public string? Id { get; set; }
+
+    /// <summary>The text.</summary>
+    [Parameter]
+    public string? Value { get; set; }
+
+    /// <summary>Called with the text on every keystroke.</summary>
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    /// <summary>Extra classes on the control.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>Any other attribute of the control, such as <c>placeholder</c> or <c>rows</c>.</summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private bool HasField => Label is not null || Hint is not null || Error is not null;
+
+    private string InputId => Id ?? _generatedId;
+
+    private string ErrorId => InputId + "-error";
+
+    private string HintId => InputId + "-hint";
+
+    private string CssClass => Css.Join(
+        "d1-input",
+        Size == ControlSize.Md || Multiline ? null : "d1-input--" + Css.Modifier(Size),
+        Multiline ? "d1-input--area" : null,
+        Class);
+
+    private string? DescribedBy => Css.DescribedBy(
+        AdditionalAttributes,
+        Error is not null ? ErrorId : Hint is not null ? HintId : null);
+
+    private void RenderControl(RenderTreeBuilder __builder)
+    {
+        if (Multiline)
+        {
+            <textarea @attributes="AdditionalAttributes" id="@InputId" class="@CssClass" value="@Value"
+                      aria-invalid="@(Error is null ? null : "true")" aria-describedby="@DescribedBy"
+                      @oninput="HandleInputAsync"></textarea>
+        }
+        else
+        {
+            <input @attributes="AdditionalAttributes" id="@InputId" class="@CssClass" value="@Value"
+                   aria-invalid="@(Error is null ? null : "true")" aria-describedby="@DescribedBy"
+                   @oninput="HandleInputAsync" />
+        }
+    }
+
+    private Task HandleInputAsync(ChangeEventArgs args) => ValueChanged.InvokeAsync(args.Value?.ToString() ?? "");
+}

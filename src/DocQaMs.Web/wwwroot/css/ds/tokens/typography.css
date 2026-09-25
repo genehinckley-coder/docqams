@@ -1,0 +1,23 @@
+:root{
+/* --- Families --- */
+--font-display:"Cormorant Garamond","Cormorant",Georgia,"Times New Roman",serif;
+--font-text:"EB Garamond",Georgia,"Times New Roman",serif;
+--font-ui:"Jost","Futura","Avenir Next",system-ui,sans-serif;
+--font-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+
+/* --- Scale (perfect-fourth-ish, classical) --- */
+--type-micro:12px;--type-caption:14px;--type-small:15px;--type-body:17px;--type-lead:20px;
+--type-h4:24px;--type-h3:30px;--type-h2:40px;--type-h1:54px;--type-display:76px;--type-poster:104px;
+
+/* --- Weights --- */
+--weight-light:300;--weight-regular:400;--weight-medium:500;--weight-semibold:600;--weight-bold:700;
+
+/* --- Leading --- */
+--leading-tight:1.06;--leading-snug:1.2;--leading-normal:1.5;--leading-prose:1.62;--leading-loose:1.8;
+
+/* --- Tracking --- */
+--tracking-display:-0.02em;--tracking-normal:0;--tracking-wide:0.04em;--tracking-caps:0.14em;--tracking-caps-wide:0.22em;
+
+/* --- Measure --- */
+--measure-prose:64ch;--measure-narrow:44ch;--measure-wide:78ch;
+}

@@ -1,0 +1,36 @@
+@* An answer as plain text, never markup: model output can echo the documents, which are data, not instructions. Each
+   block's [n] markers follow it, as the prototype prints them once the block completes. *@
+<p class="answer-text">
+    @foreach (AnswerSegment segment in Segments)
+    {
+        @segment.Text
+        @foreach (int number in segment.SourceNumbers)
+        {
+            if (MarkerHref?.Invoke(number) is { } href)
+            {
+                <a class="answer-text__marker" href="@href" aria-label="@(MarkerLabel?.Invoke(number) ?? $"Source {number}")">[@number]</a>
+            }
+            else
+            {
+                <span class="answer-text__marker">[@number]</span>
+            }
+        }
+    }
+</p>
+
+@code {
+    /// <summary>The answer's text blocks, with their source numbers.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<AnswerSegment> Segments { get; set; } = [];
+
+    /// <summary>
+    /// The link for marker <c>n</c>, to its source row, or <see langword="null"/> for a plain marker: while the answer
+    /// streams, its sources are not known yet.
+    /// </summary>
+    [Parameter]
+    public Func<int, string?>? MarkerHref { get; set; }
+
+    /// <summary>What a linked marker is called for a screen reader: its source, not "[1]".</summary>
+    [Parameter]
+    public Func<int, string>? MarkerLabel { get; set; }
+}

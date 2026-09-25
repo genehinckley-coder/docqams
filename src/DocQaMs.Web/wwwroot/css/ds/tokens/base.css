@@ -1,0 +1,14 @@
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--surface-page);color:var(--text-body);font-family:var(--font-text);font-size:var(--type-body);line-height:var(--leading-prose);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+h1,h2,h3,h4{font-family:var(--font-display);color:var(--text-heading);font-weight:var(--weight-regular);letter-spacing:var(--tracking-display);line-height:var(--leading-tight);margin:0 0 var(--space-4)}
+h1{font-size:var(--type-h1)}h2{font-size:var(--type-h2)}h3{font-size:var(--type-h3)}h4{font-size:var(--type-h4);letter-spacing:var(--tracking-normal)}
+p{margin:0 0 var(--space-4);max-width:var(--measure-prose);text-wrap:pretty}
+a{color:var(--text-link);text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;text-decoration-color:color-mix(in oklab,var(--text-link) 45%,transparent);transition:color var(--dur-fast) var(--ease-standard),text-decoration-color var(--dur-fast) var(--ease-standard)}
+a:hover{color:var(--text-link-hover);text-decoration-color:currentColor}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:var(--focus-ring-width) solid var(--focus-ring);outline-offset:var(--focus-ring-offset)}
+hr{border:0;border-top:var(--border-rule);margin:var(--space-6) 0}
+small{font-size:var(--type-caption)}
+code,kbd,pre{font-family:var(--font-mono);font-size:.92em}
+.ds-eyebrow{font-family:var(--font-ui);font-size:var(--type-micro);font-weight:var(--weight-medium);letter-spacing:var(--tracking-caps);text-transform:uppercase;color:var(--text-muted)}
+.ds-lede{font-size:var(--type-lead);line-height:var(--leading-normal);color:var(--text-body)}
+.ds-measure{max-width:var(--measure-prose)}

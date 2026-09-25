@@ -1,0 +1,95 @@
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+
+@* Enter sends and Shift+Enter inserts a newline. Blazor fixes @onkeydown:preventDefault when the page renders and
+   cannot decide it per key on the server, so a small module on the textarea does it (QuestionInput.razor.js). *@
+<div class="composer-input">
+    <label class="visually-hidden" for="@_id">Question</label>
+    <textarea @ref="_textarea" id="@_id" class="d1-input d1-input--area composer-input__field" rows="2"
+              placeholder="Ask about the corpus" value="@Value" aria-describedby="@DescribedBy"
+              @oninput="HandleInputAsync"></textarea>
+</div>
+
+@code {
+    private const string ModulePath = "./Components/Conversations/QuestionInput.razor.js";
+
+    private readonly string _id = Css.NewId("question");
+    private ElementReference _textarea;
+    private IJSObjectReference? _module;
+    private DotNetObjectReference<QuestionInput>? _self;
+
+    /// <summary>The question being written.</summary>
+    [Parameter]
+    public string? Value { get; set; }
+
+    /// <summary>Called with the text on every keystroke.</summary>
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    /// <summary>Called with the text when Enter is pressed without Shift, outside an IME composition.</summary>
+    [Parameter]
+    public EventCallback<string> OnSubmit { get; set; }
+
+    /// <summary>The id of the element that says why a question cannot be asked now, if there is one.</summary>
+    [Parameter]
+    public string? DescribedBy { get; set; }
+
+    /// <summary>Moves keyboard focus to the textarea.</summary>
+    /// <returns>A task that completes once focus has moved.</returns>
+    public ValueTask FocusAsync() => _textarea.FocusAsync();
+
+    /// <summary>
+    /// Called by the module on Enter, with the textarea's text at that moment: the last keystroke's input event may
+    /// not have reached the server yet.
+    /// </summary>
+    /// <param name="value">The question.</param>
+    /// <returns>A task that completes once the page has handled it.</returns>
+    [JSInvokable]
+    public Task SubmitFromKeyboard(string value) => OnSubmit.InvokeAsync(value);
+
+    /// <inheritdoc/>
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        try
+        {
+            _module = await JS.InvokeAsync<IJSObjectReference>("import", ModulePath);
+            if (_module is null)
+            {
+                return;
+            }
+
+            _self = DotNetObjectReference.Create(this);
+            await _module.InvokeVoidAsync("attach", _textarea, _self);
+        }
+        catch (JSDisconnectedException)
+        {
+            // The circuit closed while the module was loading; nothing is left to attach to.
+        }
+    }
+
+    /// <inheritdoc/>
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_module is not null)
+            {
+                await _module.InvokeVoidAsync("detach", _textarea);
+                await _module.DisposeAsync();
+            }
+        }
+        catch (JSDisconnectedException)
+        {
+            // The circuit has gone, and the browser's page with it.
+        }
+
+        _self?.Dispose();
+    }
+
+    private Task HandleInputAsync(ChangeEventArgs args) => ValueChanged.InvokeAsync(args.Value?.ToString() ?? "");
+}

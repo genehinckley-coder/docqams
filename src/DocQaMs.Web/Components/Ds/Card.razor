@@ -1,0 +1,96 @@
+@if (IsInteractive)
+{
+    @* A clickable card is a <button>, not the design's clickable <div>, so the keyboard reaches it. A button may hold
+       only phrasing content, so its parts are spans; the card's flex column lays them out as blocks. *@
+    <button @attributes="AdditionalAttributes" type="button" class="@CssClass" @onclick="OnClick">
+        @if (Eyebrow is not null)
+        {
+            <span class="d1-card__eyebrow">@Eyebrow</span>
+        }
+        @if (Title is not null)
+        {
+            <span class="d1-card__title">@Title</span>
+        }
+        @if (ChildContent is not null)
+        {
+            <span class="d1-card__body">@ChildContent</span>
+        }
+    </button>
+}
+else
+{
+    <div @attributes="AdditionalAttributes" class="@CssClass">
+        @if (Eyebrow is not null)
+        {
+            <span class="d1-card__eyebrow">@Eyebrow</span>
+        }
+        @if (Title is not null)
+        {
+            <h3 class="d1-card__title">@Title</h3>
+        }
+        @if (ChildContent is not null)
+        {
+            <div class="d1-card__body">@ChildContent</div>
+        }
+        @if (Footer is not null)
+        {
+            <div class="d1-card__footer">@Footer</div>
+        }
+    </div>
+}
+
+@code {
+    /// <summary>A short label above the title, set in capitals by the design system.</summary>
+    [Parameter]
+    public string? Eyebrow { get; set; }
+
+    /// <summary>The title, in sentence case.</summary>
+    [Parameter]
+    public string? Title { get; set; }
+
+    /// <summary>The body. On a clickable card it must be phrasing content, since the card is a button.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>A footer below a hairline. Not allowed on a clickable card, which cannot hold controls.</summary>
+    [Parameter]
+    public RenderFragment? Footer { get; set; }
+
+    /// <summary>The look.</summary>
+    [Parameter]
+    public CardVariant Variant { get; set; } = CardVariant.Default;
+
+    /// <summary>Whether it uses the larger padding.</summary>
+    [Parameter]
+    public bool PadLarge { get; set; }
+
+    /// <summary>Makes the card a button, called on a click.</summary>
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    /// <summary>Extra classes.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>Any other attribute.</summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private bool IsInteractive => OnClick.HasDelegate;
+
+    private string CssClass => Css.Join(
+        "d1-card",
+        Variant == CardVariant.Default ? null : "d1-card--" + Css.Modifier(Variant),
+        PadLarge ? "d1-card--pad-lg" : null,
+        IsInteractive ? "d1-card--interactive" : null,
+        Class);
+
+    /// <inheritdoc/>
+    protected override void OnParametersSet()
+    {
+        if (IsInteractive && Footer is not null)
+        {
+            throw new InvalidOperationException("A clickable card is a button and cannot have a footer.");
+        }
+    }
+}

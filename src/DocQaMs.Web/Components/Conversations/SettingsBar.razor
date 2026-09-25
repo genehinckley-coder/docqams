@@ -1,0 +1,129 @@
+@* The model and level selector, an addition to the design, which shows only a fixed CLAUDE-OPUS-5 badge. The selects
+   stay editable until the conversation has something to protect; then they become a read-only badge, since a change
+   would cost a hidden cold write on the next question. The cost preview is always visible, and both selects point
+   at it with aria-describedby, so a screen reader reads the new cost when the choice changes. *@
+<div class="settings">
+    @if (Locked)
+    {
+        <div class="settings__row">
+            <Badge Tone="BadgeTone.Neutral" aria-describedby="@_previewId">@Formatting.SettingsBadge(Settings)</Badge>
+            <Button Variant="ButtonVariant.Secondary" Size="ControlSize.Sm" OnClick="() => OnNewWithDifferentSettings.InvokeAsync()">
+                New conversation with different settings
+            </Button>
+        </div>
+    }
+    else
+    {
+        <div class="settings__row">
+            <Select Label="Model" Size="ControlSize.Sm" Options="ModelOptions" Value="@Settings.ModelId"
+                    ValueChanged="ChangeModelAsync" aria-describedby="@_previewId" />
+            <Select Label="Level" Size="ControlSize.Sm" Options="LevelOptions" Value="@Settings.Effort.ToString()"
+                    ValueChanged="ChangeLevelAsync" aria-describedby="@_previewId" />
+        </div>
+    }
+
+    <p id="@_previewId" class="settings__preview">
+        @if (Preview is { } preview)
+        {
+            @if (preview.Warning is { } warning)
+            {
+                <strong class="settings__warning">@warning</strong>
+            }
+            <span>@preview.Summary</span>
+            @(" ")
+            <span>@preview.WorstCase</span>
+            @if (preview.Caution is { } caution)
+            {
+                <span class="settings__caution">@caution</span>
+            }
+        }
+        else
+        {
+            @PreviewUnavailable
+        }
+    </p>
+
+    @if ((Error ?? _error) is { } error)
+    {
+        <p class="settings__error" role="alert">@error</p>
+    }
+</div>
+
+@code {
+    private readonly string _previewId = Css.NewId("cost-preview");
+    private string? _error;
+
+    /// <summary>The conversation's model and level.</summary>
+    [Parameter, EditorRequired]
+    public AnswerSettings Settings { get; set; } = AnswerSettings.Default;
+
+    /// <summary>Whether they can no longer change: a turn is in flight, or one is committed.</summary>
+    [Parameter]
+    public bool Locked { get; set; }
+
+    /// <summary>The cost preview, or <see langword="null"/> while there is no corpus to price.</summary>
+    [Parameter]
+    public CostPreviewText? Preview { get; set; }
+
+    /// <summary>Shown in place of the preview while there is none.</summary>
+    [Parameter]
+    public string PreviewUnavailable { get; set; } = "The cost preview appears once the corpus has loaded.";
+
+    /// <summary>The combinations not offered, each shown disabled with its reason.</summary>
+    [Parameter]
+    public IReadOnlyList<ExcludedCombination> Excluded { get; set; } = CacheAffecting.ExcludedCombinations;
+
+    /// <summary>Called with the newly chosen settings.</summary>
+    [Parameter]
+    public EventCallback<AnswerSettings> OnChange { get; set; }
+
+    /// <summary>Called when "New conversation with different settings" is clicked.</summary>
+    [Parameter]
+    public EventCallback OnNewWithDifferentSettings { get; set; }
+
+    /// <summary>Why the last change was refused, from the page; shown below the preview.</summary>
+    [Parameter]
+    public string? Error { get; set; }
+
+    private IReadOnlyList<SelectOption> ModelOptions =>
+    [
+        .. CacheAffecting.SelectableModels.Select(model =>
+            new SelectOption(model.Id, model.DisplayName, ExclusionReason(model.Id, Settings.Effort))),
+    ];
+
+    private IReadOnlyList<SelectOption> LevelOptions =>
+    [
+        .. CacheAffecting.EffortLevels.Select(level =>
+            new SelectOption(level.ToString(), level.ToDisplayName(), ExclusionReason(Settings.ModelId, level))),
+    ];
+
+    private string? ExclusionReason(string modelId, EffortLevel effort) =>
+        Excluded.FirstOrDefault(combination => combination.ModelId == modelId && combination.Effort == effort)?.Reason;
+
+    private Task ChangeModelAsync(string modelId) => ChangeAsync(modelId, Settings.Effort);
+
+    private Task ChangeLevelAsync(string value) =>
+        Enum.TryParse(value, out EffortLevel effort) && Enum.IsDefined(effort)
+            ? ChangeAsync(Settings.ModelId, effort)
+            : Task.CompletedTask;
+
+    private async Task ChangeAsync(string modelId, EffortLevel effort)
+    {
+        AnswerSettings settings;
+        try
+        {
+            settings = AnswerSettings.Create(modelId, effort);
+        }
+        catch (ArgumentException)
+        {
+            // The select's options already disable what is not offered, so this is a stale or forged choice.
+            _error = ExclusionReason(modelId, effort) is { } reason
+                ? $"That combination is not offered: {reason}"
+                : "That combination is not offered.";
+            return;
+        }
+
+        _error = null;
+        await OnChange.InvokeAsync(settings);
+    }
+}

@@ -1,0 +1,42 @@
+@* The thinking summary, collapsed like the answer's detail and sources. Always shown, so its place never moves: it says
+   when there is no reasoning to show. The text is plain text, never markup, like the answer's. *@
+<details class="qa__disclosure qa__reasoning">
+    <summary>@Label</summary>
+    @if (Thinking.Length > 0)
+    {
+        <p class="qa__reasoning-text">@Thinking</p>
+    }
+    @if (HasRedactedThinking)
+    {
+        <p class="qa__reasoning-note">@RedactedNote</p>
+    }
+    else if (Thinking.Length == 0)
+    {
+        @* Adaptive thinking can skip thinking altogether, at a low effort level or on a simple question. *@
+        <p class="qa__reasoning-note">@NoneNote</p>
+    }
+</details>
+
+@code {
+    /// <summary>The thinking summary so far.</summary>
+    [Parameter]
+    public string Thinking { get; set; } = "";
+
+    /// <summary>Whether part of the thinking was redacted.</summary>
+    [Parameter]
+    public bool HasRedactedThinking { get; set; }
+
+    /// <summary>Whether the answer is still streaming, so the summary may grow while it is open.</summary>
+    [Parameter]
+    public bool InProgress { get; set; }
+
+    private string Label => InProgress ? "Reasoning summary so far" : "Reasoning summary";
+
+    private string RedactedNote => InProgress
+        ? "Part of the reasoning is redacted and cannot be shown."
+        : "Part of the reasoning was redacted and cannot be shown.";
+
+    private string NoneNote => InProgress
+        ? "No reasoning has arrived yet."
+        : "No reasoning was recorded for this answer: the model answered without thinking first.";
+}

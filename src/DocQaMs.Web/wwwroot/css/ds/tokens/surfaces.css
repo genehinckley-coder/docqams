@@ -1,0 +1,25 @@
+:root{
+/* --- Radii: classical = near-square. 0 for plates and rules, 2-5px for controls --- */
+--radius-none:0;--radius-sm:2px;--radius-md:3px;--radius-lg:5px;--radius-xl:8px;--radius-pill:999px;
+
+/* --- Borders --- */
+--border-hairline:1px solid var(--line-hairline);
+--border-rule:1px solid var(--line-rule);
+--border-strong:1px solid var(--line-strong);
+--rule-thick:3px;
+
+/* --- Shadows: engraved and shallow, never glowy --- */
+--shadow-none:none;
+--shadow-1:0 1px 2px rgba(20,18,14,.07);
+--shadow-2:0 2px 8px rgba(20,18,14,.09);
+--shadow-3:0 14px 36px -12px rgba(20,18,14,.22);
+--shadow-inset-hairline:inset 0 0 0 1px var(--line-hairline);
+--shadow-letterpress:inset 0 1px 0 rgba(255,255,255,.55),0 1px 1px rgba(20,18,14,.08);
+--shadow-inset-well:inset 0 1px 2px rgba(20,18,14,.10);
+
+/* --- Blur / veils --- */
+--blur-veil:saturate(120%) blur(10px) /* @kind other */;
+--veil-paper:color-mix(in oklch,var(--paper-100) 78%,transparent);
+--veil-ink:color-mix(in oklch,var(--ink-900) 62%,transparent);
+--gradient-protect:linear-gradient(to top,color-mix(in oklch,var(--ink-900) 72%,transparent),color-mix(in oklch,var(--ink-900) 0%,transparent)) /* @kind other */;
+}

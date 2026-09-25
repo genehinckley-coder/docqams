@@ -1,0 +1,103 @@
+/* The DocQA Prototype design's Conversation screen: the conversation column, then a header, the scrolling history
+   and the composer. The design's inline styles, on the design tokens. */
+.conv {
+    flex: 1;
+    display: flex;
+    min-height: 0;
+}
+
+.conv__main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.conv__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: 20px 32px;
+    border-bottom: var(--border-hairline);
+}
+
+.conv__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+}
+
+.conv__title {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: var(--weight-regular);
+    color: var(--text-heading);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.conv__history {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    padding: 28px 32px;
+    overflow-y: auto;
+}
+
+.conv__notice {
+    max-width: 720px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border: var(--border-rule);
+    border-radius: var(--radius-md);
+    background: var(--surface-card);
+    font-family: var(--font-text);
+    font-size: 15px;
+    color: var(--text-body);
+}
+
+.conv__empty {
+    max-width: 560px;
+}
+
+.conv__empty-lede {
+    margin: 0 0 var(--space-4);
+    font-family: var(--font-text);
+    font-size: var(--type-body);
+    font-style: italic;
+    color: var(--text-muted);
+}
+
+.conv__suggestions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.conv__composer {
+    padding: 16px 32px;
+    border-top: var(--border-hairline);
+    background: var(--surface-card);
+}
+
+.conv__composer-row {
+    display: flex;
+    align-items: flex-end;
+    gap: var(--space-3);
+}
+
+.conv__error {
+    margin: var(--space-2) 0 0;
+    font-family: var(--font-text);
+    font-size: 14px;
+    color: var(--status-danger);
+}

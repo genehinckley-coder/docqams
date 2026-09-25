@@ -1,0 +1,65 @@
+@using System.Globalization
+
+@* The design system paints these through React's dangerouslySetInnerHTML. Here each glyph is real markup,
+   so no MarkupString is needed, and an unknown glyph is a compile error rather than a blank square. *@
+<svg class="@Css.Join("d1-icon", Class)" width="@Size" height="@Size" viewBox="0 0 24 24" fill="none"
+     stroke="currentColor" stroke-width="@StrokeWidth.ToString(CultureInfo.InvariantCulture)"
+     stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+    @switch (Name)
+    {
+        case IconName.Feather:
+            <path d="M12.67 19a2 2 0 0 0 1.416-.588l6.154-6.172a6 6 0 0 0-8.49-8.49L5.586 9.914A2 2 0 0 0 5 11.328V18a1 1 0 0 0 1 1z" />
+            <path d="M16 8 2 22" />
+            <path d="M17.5 15H9" />
+            break;
+        case IconName.BookOpen:
+            <path d="M12 7v14" />
+            <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" />
+            break;
+        case IconName.Settings:
+            <path d="M10 5H3" />
+            <path d="M12 19H3" />
+            <path d="M14 3v4" />
+            <path d="M16 17v4" />
+            <path d="M21 12h-9" />
+            <path d="M21 19h-5" />
+            <path d="M21 5h-7" />
+            <path d="M8 10v4" />
+            <path d="M8 12H3" />
+            break;
+        case IconName.X:
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+            break;
+        case IconName.ChevronDown:
+            <path d="m6 9 6 6 6-6" />
+            break;
+    }
+</svg>
+
+@code {
+    /// <summary>The glyph.</summary>
+    [Parameter, EditorRequired]
+    public IconName Name { get; set; }
+
+    /// <summary>Width and height in pixels. The design system uses 13–15 beside small controls and 16–18 inline.</summary>
+    [Parameter]
+    public int Size { get; set; } = 18;
+
+    /// <summary>Stroke width, 1.5 by default so the glyph sits with the hairline rules.</summary>
+    [Parameter]
+    public double StrokeWidth { get; set; } = 1.5;
+
+    /// <summary>Extra classes.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <inheritdoc/>
+    protected override void OnParametersSet()
+    {
+        if (!Enum.IsDefined(Name))
+        {
+            throw new ArgumentOutOfRangeException(nameof(Name), Name, "Not a glyph the app ships.");
+        }
+    }
+}

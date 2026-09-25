@@ -1,0 +1,44 @@
+.settings {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.settings__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: var(--space-3);
+}
+
+/* The Select primitive renders the field, so scoped CSS reaches it only through ::deep. */
+.settings__row ::deep .d1-field {
+    min-width: 180px;
+}
+
+.settings__preview {
+    max-width: 78ch;
+    margin: 0;
+    font-family: var(--font-text);
+    font-size: 15px;
+    line-height: var(--leading-normal);
+    color: var(--text-muted);
+}
+
+.settings__warning {
+    display: block;
+    font-weight: var(--weight-medium);
+    color: var(--status-danger);
+}
+
+.settings__caution {
+    display: block;
+    font-style: italic;
+}
+
+.settings__error {
+    margin: 0;
+    font-family: var(--font-text);
+    font-size: 14px;
+    color: var(--status-danger);
+}

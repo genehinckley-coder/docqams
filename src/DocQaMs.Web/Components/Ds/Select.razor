@@ -1,0 +1,110 @@
+@using Microsoft.AspNetCore.Components.Rendering
+
+@if (HasField)
+{
+    <div class="d1-field">
+        @if (Label is not null)
+        {
+            <label class="d1-field__label" for="@SelectId">@Label</label>
+        }
+        @{ RenderControl(__builder); }
+        @if (Error is not null)
+        {
+            <span class="d1-field__error" id="@ErrorId">@Error</span>
+        }
+        else if (Hint is not null)
+        {
+            <span class="d1-field__hint" id="@HintId">@Hint</span>
+        }
+    </div>
+}
+else
+{
+    RenderControl(__builder);
+}
+
+@code {
+    private readonly string _generatedId = Css.NewId("d1-select");
+
+    /// <summary>The visible label, set in capitals by the design system.</summary>
+    [Parameter]
+    public string? Label { get; set; }
+
+    /// <summary>One clause of help below the control.</summary>
+    [Parameter]
+    public string? Hint { get; set; }
+
+    /// <summary>What is wrong, naming the rule; shown in place of the hint, and marks the control invalid.</summary>
+    [Parameter]
+    public string? Error { get; set; }
+
+    /// <summary>The options, in order. A disabled one shows its reason beside its label.</summary>
+    [Parameter, EditorRequired]
+    public IReadOnlyList<SelectOption> Options { get; set; } = [];
+
+    /// <summary>The chosen option's value.</summary>
+    [Parameter]
+    public string? Value { get; set; }
+
+    /// <summary>Called with the newly chosen value.</summary>
+    [Parameter]
+    public EventCallback<string> ValueChanged { get; set; }
+
+    /// <summary>The height.</summary>
+    [Parameter]
+    public ControlSize Size { get; set; } = ControlSize.Md;
+
+    /// <summary>The control's id; one is generated when none is given, so the label is always tied to it.</summary>
+    [Parameter]
+    public string? Id { get; set; }
+
+    /// <summary>Extra classes on the control.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>
+    /// Any other attribute of the control. The model and level selects pass <c>aria-describedby</c> here, pointing at
+    /// the cost preview, so a screen reader reads the new cost when the choice changes.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private bool HasField => Label is not null || Hint is not null || Error is not null;
+
+    private string SelectId => Id ?? _generatedId;
+
+    private string ErrorId => SelectId + "-error";
+
+    private string HintId => SelectId + "-hint";
+
+    private string CssClass => Css.Join(
+        "d1-input",
+        "d1-select__native",
+        Size == ControlSize.Md ? null : "d1-input--" + Css.Modifier(Size),
+        Class);
+
+    private string? DescribedBy => Css.DescribedBy(
+        AdditionalAttributes,
+        Error is not null ? ErrorId : Hint is not null ? HintId : null);
+
+    private static string OptionText(SelectOption option) =>
+        option.DisabledReason is { } reason ? option.Label + " — " + reason : option.Label;
+
+    private void RenderControl(RenderTreeBuilder __builder)
+    {
+        <span class="d1-select">
+            @* selected on the option as well as value on the select: the prerendered page has no script to apply value. *@
+            <select @attributes="AdditionalAttributes" id="@SelectId" class="@CssClass" value="@Value"
+                    aria-invalid="@(Error is null ? null : "true")" aria-describedby="@DescribedBy"
+                    @onchange="HandleChangeAsync">
+                @foreach (SelectOption option in Options)
+                {
+                    <option value="@option.Value" disabled="@option.IsDisabled" selected="@(option.Value == Value)">@OptionText(option)</option>
+                }
+            </select>
+            <Icon Name="IconName.ChevronDown" Size="14" Class="d1-select__caret" />
+        </span>
+    }
+
+    private Task HandleChangeAsync(ChangeEventArgs args) => ValueChanged.InvokeAsync(args.Value?.ToString() ?? "");
+}

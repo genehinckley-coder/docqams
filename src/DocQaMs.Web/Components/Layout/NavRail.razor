@@ -1,0 +1,105 @@
+@implements IDisposable
+@using Microsoft.AspNetCore.WebUtilities
+@inject IConversationStore Store
+@inject NavigationManager Navigation
+
+@* Each link carries the open conversation, ?c=, so Documents marks its citations and Conversation reopens it.
+   NavLinkMatch.All ignores the query string in .NET 10, so the link stays marked whatever the query holds. *@
+<nav class="rail" aria-label="Main">
+    <div class="rail__masthead">
+        <div class="rail__eyebrow">DocQA</div>
+        <div class="rail__title">Title 41 Q&amp;A</div>
+    </div>
+    <div class="rail__links">
+        <NavLink class="rail__link" href="@WithConversation("")" Match="NavLinkMatch.All">
+            <Icon Name="IconName.Feather" />
+            <span>Conversation</span>
+        </NavLink>
+        <NavLink class="rail__link" href="@WithConversation("documents")" Match="NavLinkMatch.All">
+            <Icon Name="IconName.BookOpen" />
+            <span>Documents</span>
+        </NavLink>
+        <NavLink class="rail__link" href="@WithConversation("settings")" Match="NavLinkMatch.All">
+            <Icon Name="IconName.Settings" />
+            <span>Corpus settings</span>
+        </NavLink>
+    </div>
+    <div class="rail__cost">
+        <div class="rail__eyebrow">Total cost</div>
+        <div class="rail__amount">@Formatting.Money(_cost.Known.Total)</div>
+        @if (_cost.UnknownCostTurns > 0)
+        {
+            <div class="rail__note">Excludes @Formatting.Count(_cost.UnknownCostTurns, "turn") of unknown cost</div>
+        }
+        @if (_cost.UnreportedOutputTurns > 0)
+        {
+            <div class="rail__note">Output not reported for @Formatting.Count(_cost.UnreportedOutputTurns, "stopped or failed turn")</div>
+        }
+    </div>
+</nav>
+
+@code {
+    private ConversationCost _cost = ConversationCost.Zero;
+    private Guid? _conversation;
+    private bool _disposed;
+
+    /// <inheritdoc/>
+    protected override void OnInitialized()
+    {
+        _cost = Store.TotalCost;
+        _conversation = ConversationIn(Navigation.Uri);
+        Store.Changed += OnStoreChanged;
+        Navigation.LocationChanged += OnLocationChanged;
+    }
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        _disposed = true;
+        Store.Changed -= OnStoreChanged;
+        Navigation.LocationChanged -= OnLocationChanged;
+    }
+
+    private string WithConversation(string path) => _conversation is { } id ? $"{path}?c={id}" : path;
+
+    private static Guid? ConversationIn(string uri)
+    {
+        string query = new Uri(uri).Query;
+        return QueryHelpers.ParseQuery(query).TryGetValue("c", out var values) && Guid.TryParse(values.ToString(), out Guid id)
+            ? id
+            : null;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs args) =>
+        _ = InvokeAsync(() =>
+        {
+            Guid? conversation = ConversationIn(args.Location);
+            if (_disposed || conversation == _conversation)
+            {
+                return;
+            }
+
+            _conversation = conversation;
+            StateHasChanged();
+        });
+
+    // Every streamed fragment raises Changed, so re-render only when the total actually moved. A notification
+    // already queued when the component is disposed does nothing.
+    private void OnStoreChanged(Guid changedId) =>
+        _ = InvokeAsync(() =>
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            ConversationCost cost = Store.TotalCost;
+            if (cost == _cost)
+            {
+                return;
+            }
+
+            _cost = cost;
+            StateHasChanged();
+        });
+}

@@ -1,0 +1,10 @@
+.composer-input {
+    flex: 1;
+    min-width: 0;
+}
+
+/* The design's input is one line, 46px tall; a question may run to several lines, so it grows up to a point. */
+.composer-input__field.d1-input--area {
+    min-height: var(--control-height-lg);
+    max-height: 12em;
+}

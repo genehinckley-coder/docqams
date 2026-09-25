@@ -1,0 +1,42 @@
+@if (OnClick.HasDelegate)
+{
+    <button @attributes="AdditionalAttributes" type="button" class="@CssClass" aria-current="@AriaCurrent" @onclick="OnClick">
+        <span>@ChildContent</span>
+    </button>
+}
+else
+{
+    <span @attributes="AdditionalAttributes" class="@CssClass" aria-current="@AriaCurrent">
+        <span>@ChildContent</span>
+    </span>
+}
+
+@code {
+    /// <summary>The text.</summary>
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    /// <summary>Whether it is the current one, filled in ink and marked <c>aria-current</c>, so not by color alone.</summary>
+    [Parameter]
+    public bool Selected { get; set; }
+
+    /// <summary>Makes the tag a button, called on a click.</summary>
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    /// <summary>Extra classes.</summary>
+    [Parameter]
+    public string? Class { get; set; }
+
+    /// <summary>Any other attribute.</summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string, object>? AdditionalAttributes { get; set; }
+
+    private string CssClass => Css.Join(
+        "d1-tag",
+        Selected ? "d1-tag--selected" : null,
+        OnClick.HasDelegate ? "d1-tag--interactive" : null,
+        Class);
+
+    private string? AriaCurrent => Selected ? "true" : null;
+}

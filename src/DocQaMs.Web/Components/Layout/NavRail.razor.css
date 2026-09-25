@@ -1,0 +1,91 @@
+/* The left rail of the DocQA Prototype design: an ink plate, 232px wide. */
+.rail {
+    width: 232px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-5) 0;
+    overflow: hidden;
+    background: var(--surface-inverse);
+    /* The design system's green-600 focus ring is too dark to see on ink; its night theme lifts green to 500. */
+    --focus-ring: var(--green-500);
+}
+
+.rail__masthead {
+    padding: 0 var(--space-5) 20px;
+    margin-bottom: var(--space-4);
+    border-bottom: 1px solid var(--line-inverse);
+}
+
+.rail__eyebrow {
+    font-family: var(--font-ui);
+    font-size: 11px;
+    letter-spacing: var(--tracking-caps);
+    text-transform: uppercase;
+    color: var(--ink-300);
+}
+
+.rail__title {
+    margin-top: var(--space-1);
+    font-family: var(--font-display);
+    font-size: 26px;
+    line-height: 1.15;
+    color: #fff;
+}
+
+.rail__links {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/* NavLink renders its <a> in a child component, which scoped CSS does not reach without ::deep. */
+.rail__links ::deep .rail__link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: 11px var(--space-5);
+    border-left: 3px solid transparent;
+    font-family: var(--font-ui);
+    font-size: 14px;
+    letter-spacing: var(--tracking-wide);
+    color: var(--paper-300);
+    text-decoration: none;
+    transition: var(--transition-control);
+}
+
+.rail__links ::deep .rail__link:hover {
+    color: #fff;
+}
+
+.rail__links ::deep .rail__link.active {
+    background: rgba(255, 255, 255, 0.08);
+    border-left-color: var(--green-500);
+    color: #fff;
+}
+
+/* The links span the rail, which clips overflow, so the ring is drawn inside the link. */
+.rail__links ::deep .rail__link:focus-visible {
+    outline-offset: -3px;
+}
+
+.rail__cost {
+    margin-top: auto;
+    padding: var(--space-4) var(--space-5) 0;
+    border-top: 1px solid var(--line-inverse);
+}
+
+.rail__amount {
+    margin-top: var(--space-1);
+    font-family: var(--font-mono);
+    font-size: 20px;
+    color: #fff;
+}
+
+.rail__note {
+    margin-top: var(--space-1);
+    font-family: var(--font-ui);
+    font-size: 11px;
+    letter-spacing: var(--tracking-wide);
+    color: var(--ink-200);
+}

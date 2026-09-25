@@ -1,0 +1,62 @@
+@using DocQaMs.Core.Text
+@* One paragraph of a document, as text, never markup: the documents are data. It renders again only when its own text
+   or highlight changes, so a new highlight re-renders the paragraphs it touches, not all 1,108 of Part 175. The
+   expressions and the <mark> share a line because the text keeps its whitespace (pre-wrap). *@
+<p id="@Id" class="docpara">
+    @if (_highlight is { } range)
+    {
+        @_text[..range.Start]<mark class="docpara__mark">@_text[range.Start..range.End]</mark>@_text[range.End..]
+    }
+    else
+    {
+        @_text
+    }
+</p>
+
+@code {
+    private CorpusDocument? _document;
+    private int _index = -1;
+    private string _text = "";
+    private TextRange? _highlight;
+    private bool _changed = true;
+
+    /// <summary>The document the paragraph belongs to.</summary>
+    [Parameter, EditorRequired]
+    public CorpusDocument Document { get; set; } = null!;
+
+    /// <summary>The paragraph's index in <see cref="CorpusDocument.Paragraphs"/>.</summary>
+    [Parameter, EditorRequired]
+    public int Index { get; set; }
+
+    /// <summary>The part to highlight, in offsets into the paragraph's own text; <see langword="null"/> for none.</summary>
+    [Parameter]
+    public TextRange? Highlight { get; set; }
+
+    /// <summary>The element id a section tag or a citation scrolls to.</summary>
+    public static string IdFor(int index) => $"paragraph-{index}";
+
+    private string Id => IdFor(_index);
+
+    /// <inheritdoc/>
+    protected override void OnParametersSet()
+    {
+        bool textChanged = !ReferenceEquals(Document, _document) || Index != _index;
+        if (textChanged)
+        {
+            TextRange paragraph = Document.Paragraphs[Index];
+            _document = Document;
+            _index = Index;
+            _text = Document.Text[paragraph.Start..paragraph.End];
+        }
+
+        // A range that does not fit the paragraph is dropped rather than thrown on.
+        TextRange? highlight = Highlight is { } range && range.Start >= 0 && range.Start < range.End && range.End <= _text.Length
+            ? range
+            : null;
+        _changed = textChanged || highlight != _highlight;
+        _highlight = highlight;
+    }
+
+    /// <inheritdoc/>
+    protected override bool ShouldRender() => _changed;
+}

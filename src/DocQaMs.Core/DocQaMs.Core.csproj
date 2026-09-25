@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- Enforces XML doc comments on the public API (CS1591 is an error under TreatWarningsAsErrors).
+         Core only: Razor components and xunit test classes are public too. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AngleSharp" />
+    <PackageReference Include="Anthropic" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="DocQaMs.Core.Tests" />
+    <!-- The screens' tests build corpus snapshots, whose constructors are internal. -->
+    <InternalsVisibleTo Include="DocQaMs.Web.Tests" />
+  </ItemGroup>
+
+</Project>

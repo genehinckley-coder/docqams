@@ -1,0 +1,47 @@
+@inject TimeProvider Time
+
+@* The answer in flight, from the store's snapshot, so a tab opened or refreshed mid-answer shows it too. aria-busy is
+   set while it streams; its end is announced once by the Ask/Stop button's live region, never by making this text
+   live. The styles are in app.css, shared with AnswerView. *@
+<article class="qa qa--live" aria-busy="true" aria-labelledby="@QuestionId">
+    <div class="qa__eyebrow">Question</div>
+    <p id="@QuestionId" class="qa__question">@Answer.Question</p>
+
+    <div class="qa__eyebrow qa__eyebrow--answer">Answer</div>
+    @if (Answer.HasText && AnswerSections.Split(Answer.Segments) is { HasSummaryText: true } sections)
+    {
+        <AnswerText Segments="sections.Summary" />
+        @if (sections.Detail.Count > 0)
+        {
+            @* Collapsed like a finished answer's; the label says it is still being written. *@
+            <details class="qa__disclosure qa__detail">
+                <summary>Detail <span class="qa__disclosure-note">· writing…</span></summary>
+                <AnswerText Segments="sections.Detail" />
+            </details>
+        }
+    }
+    else
+    {
+        <div class="qa__assembling">
+            <span>Assembling answer from documents</span>
+            <span class="qa__dots" aria-hidden="true"><span></span><span></span><span></span></span>
+        </div>
+    }
+
+    @* The reasoning so far, collapsed; once opened, it keeps growing as it streams. *@
+    <ReasoningSummary Thinking="@Answer.Thinking" HasRedactedThinking="Answer.HasRedactedThinking" InProgress="true" />
+
+    @if (Answer.IsStopping)
+    {
+        <p class="qa__stopping">Stopping…</p>
+    }
+
+    <p class="qa__meta">@Formatting.Settings(Answer.Settings) · asked at @Formatting.Time(Answer.AskedAt, Time.LocalTimeZone)</p>
+</article>
+
+@code {
+    private const string QuestionId = "answer-live-question";
+    /// <summary>The answer so far.</summary>
+    [Parameter, EditorRequired]
+    public InProgressAnswer Answer { get; set; } = null!;
+}

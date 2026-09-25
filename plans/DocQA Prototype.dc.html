@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/ice-blue-with-packers-highlights-design-741ce686-82d8-4ea2-9e43-990c8752d45a/tokens/fonts.css">
+  <link rel="stylesheet" href="_ds/ice-blue-with-packers-highlights-design-741ce686-82d8-4ea2-9e43-990c8752d45a/tokens/colors.css">
+  <link rel="stylesheet" href="_ds/ice-blue-with-packers-highlights-design-741ce686-82d8-4ea2-9e43-990c8752d45a/tokens/typography.css">
+  <link rel="stylesheet" href="_ds/ice-blue-with-packers-highlights-design-741ce686-82d8-4ea2-9e43-990c8752d45a/tokens/spacing.css">
+  <link rel="stylesheet" href="_ds/ice-blue-with-packers-highlights-design-741ce686-82d8-4ea2-9e43-990c8752d45a/tokens/surfaces.css">
+  <link rel="stylesheet" href="_ds/ice-blue-with-packers-highlights-design-741ce686-82d8-4ea2-9e43-990c8752d45a/tokens/motion.css">
+  <link rel="stylesheet" href="_ds/ice-blue-with-packers-highlights-design-741ce686-82d8-4ea2-9e43-990c8752d45a/tokens/base.css">
+  <link rel="stylesheet" href="_ds/ice-blue-with-packers-highlights-design-741ce686-82d8-4ea2-9e43-990c8752d45a/components/core/core.css">
+  <link rel="stylesheet" href="_ds/ice-blue-with-packers-highlights-design-741ce686-82d8-4ea2-9e43-990c8752d45a/components/forms/forms.css">
+  <link rel="stylesheet" href="_ds/ice-blue-with-packers-highlights-design-741ce686-82d8-4ea2-9e43-990c8752d45a/components/display/display.css">
+  <link rel="stylesheet" href="_ds/ice-blue-with-packers-highlights-design-741ce686-82d8-4ea2-9e43-990c8752d45a/components/navigation/navigation.css">
+  <link rel="stylesheet" href="_ds/ice-blue-with-packers-highlights-design-741ce686-82d8-4ea2-9e43-990c8752d45a/components/feedback/feedback.css">
+  <link rel="stylesheet" href="_ds/ice-blue-with-packers-highlights-design-741ce686-82d8-4ea2-9e43-990c8752d45a/styles.css">
+  <script src="_ds/ice-blue-with-packers-highlights-design-741ce686-82d8-4ea2-9e43-990c8752d45a/_ds_bundle.js"></script>
+  <style id="dcqa-base">
+    html,body{margin:0;height:100%;}
+    *{box-sizing:border-box;}
+    @keyframes dcqaPulse{0%,80%,100%{opacity:.25;}40%{opacity:1;}}
+    a{color:var(--text-link);}
+    a:hover{color:var(--text-link-hover);}
+  </style>
+</helmet>
+
+<div style="height:100vh;display:flex;background:var(--surface-page);font-family:var(--font-text);color:var(--text-body);overflow:hidden;">
+
+  <nav style="width:232px;flex-shrink:0;background:var(--surface-inverse);display:flex;flex-direction:column;padding:24px 0;overflow:hidden;">
+    <div style="padding:0 24px 20px;border-bottom:1px solid var(--line-inverse);margin-bottom:16px;">
+      <div style="font-family:var(--font-ui);font-size:11px;letter-spacing:var(--tracking-caps);color:var(--ink-300);">NOTRAG</div>
+      <div style="font-family:var(--font-display);font-size:26px;color:#fff;margin-top:4px;line-height:1.15;">Title 41 Q&amp;A</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:2px;">
+      <button onClick="{{ goConversation }}" style="{{ navConvStyle }}">
+        <x-import component-from-global-scope="Design1DesignSystem_741ce6.Icon" name="feather" size="18" hint-size="18px,18px"></x-import>
+        <span>Conversation</span>
+      </button>
+      <button onClick="{{ goDocuments }}" style="{{ navDocsStyle }}">
+        <x-import component-from-global-scope="Design1DesignSystem_741ce6.Icon" name="book-open" size="18" hint-size="18px,18px"></x-import>
+        <span>Documents</span>
+      </button>
+      <button onClick="{{ goSettings }}" style="{{ navSettingsStyle }}">
+        <x-import component-from-global-scope="Design1DesignSystem_741ce6.Icon" name="settings" size="18" hint-size="18px,18px"></x-import>
+        <span>Corpus settings</span>
+      </button>
+    </div>
+    <div style="margin-top:auto;padding:16px 24px 0;border-top:1px solid var(--line-inverse);">
+      <div style="font-family:var(--font-ui);font-size:11px;letter-spacing:var(--tracking-caps);color:var(--ink-300);">SESSION COST</div>
+      <div style="font-family:var(--font-mono);font-size:20px;color:#fff;margin-top:4px;">{{ sessionCostText }}</div>
+    </div>
+  </nav>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;overflow:hidden;">
+
+    <sc-if value="{{ isConversation }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:1;display:flex;min-height:0;">
+        <div style="width:264px;flex-shrink:0;border-right:var(--border-hairline);overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;background:var(--surface-card);">
+          <x-import component-from-global-scope="Design1DesignSystem_741ce6.Button" variant="secondary" size="md" fullWidth="{{ true }}" onClick="{{ newConversation }}" hint-size="100%,38px">New conversation</x-import>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <sc-for list="{{ sessions }}" as="s" hint-placeholder-count="3">
+              <div onClick="{{ s.onClick }}" style="{{ s.rowStyle }}">
+                <div style="font-family:var(--font-text);font-size:15px;color:var(--text-heading);">{{ s.title }}</div>
+                <div style="display:flex;justify-content:space-between;margin-top:4px;font-family:var(--font-ui);font-size:11px;letter-spacing:var(--tracking-wide);color:var(--text-subtle);">
+                  <span>{{ s.subtitle }}</span><span style="font-family:var(--font-mono);">{{ s.costText }}</span>
+                </div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+          <div style="padding:20px 32px;border-bottom:var(--border-hairline);display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+            <div style="flex:1;min-width:120px;font-family:var(--font-display);font-size:28px;color:var(--text-heading);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ headerTitle }}</div>
+            <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+              <x-import component-from-global-scope="Design1DesignSystem_741ce6.Badge" tone="neutral" hint-size="auto,24px">CLAUDE-OPUS-5</x-import>
+              <x-import component-from-global-scope="Design1DesignSystem_741ce6.Badge" tone="{{ headerCacheTone }}" hint-size="auto,24px">{{ headerCacheText }}</x-import>
+            </div>
+          </div>
+
+          <div style="flex:1;overflow-y:auto;padding:28px 32px;display:flex;flex-direction:column;gap:28px;">
+            <sc-if value="{{ showEmptyState }}" hint-placeholder-val="{{ false }}">
+              <div style="max-width:560px;">
+                <div style="font-family:var(--font-text);font-style:italic;color:var(--text-muted);font-size:17px;margin-bottom:16px;">The first answer will appear here once a question is asked of the corpus.</div>
+                <div style="display:flex;flex-direction:column;gap:8px;">
+                  <sc-for list="{{ suggestions }}" as="sug" hint-placeholder-count="2">
+                    <x-import component-from-global-scope="Design1DesignSystem_741ce6.Card" variant="sunken" interactive="{{ true }}" onClick="{{ sug.onClick }}" hint-size="100%,60px">
+                      <span style="font-family:var(--font-text);font-size:16px;color:var(--text-body);">{{ sug.text }}</span>
+                    </x-import>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-for list="{{ messages }}" as="m" hint-placeholder-count="2">
+              <div style="max-width:720px;">
+                <sc-if value="{{ m.isUser }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-family:var(--font-ui);font-size:11px;letter-spacing:var(--tracking-caps);color:var(--text-subtle);margin-bottom:6px;">QUESTION</div>
+                  <div style="font-family:var(--font-text);font-size:19px;line-height:1.5;color:var(--text-heading);">{{ m.text }}</div>
+                </sc-if>
+                <sc-if value="{{ m.isAssistant }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-family:var(--font-ui);font-size:11px;letter-spacing:var(--tracking-caps);color:var(--text-accent);margin-bottom:6px;">ANSWER</div>
+                  <div style="font-family:var(--font-text);font-size:17px;line-height:var(--leading-prose);color:var(--text-body);">
+                    <sc-for list="{{ m.segments }}" as="seg" hint-placeholder-count="4">
+                      <sc-if value="{{ seg.isText }}" hint-placeholder-val="{{ true }}"><span>{{ seg.text }}</span></sc-if>
+                      <sc-if value="{{ seg.isCitation }}" hint-placeholder-val="{{ false }}">
+                        <button onClick="{{ seg.onClick }}" style="background:transparent;border:none;color:var(--text-accent);font-family:var(--font-mono);font-size:14px;cursor:pointer;padding:0 1px;font-weight:600;">{{ seg.label }}</button>
+                      </sc-if>
+                    </sc-for>
+                  </div>
+
+                  <sc-if value="{{ m.hasCitations }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-top:16px;border-top:var(--border-hairline);padding-top:12px;">
+                      <x-import component-from-global-scope="Design1DesignSystem_741ce6.Tooltip" label="Provenance, not entailment" placement="top" hint-size="auto,16px">
+                        <span style="font-family:var(--font-ui);font-size:11px;letter-spacing:var(--tracking-caps);color:var(--text-subtle);border-bottom:1px dotted var(--text-subtle);cursor:help;">SOURCES</span>
+                      </x-import>
+                      <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
+                        <sc-for list="{{ m.citations }}" as="c" hint-placeholder-count="3">
+                          <div onClick="{{ c.onClick }}" style="display:flex;align-items:flex-start;gap:10px;padding:8px 10px;border-radius:var(--radius-md);cursor:pointer;background:var(--surface-sunken);">
+                            <span style="font-family:var(--font-mono);font-size:13px;color:var(--text-subtle);flex-shrink:0;">[{{ c.n }}]</span>
+                            <div style="flex:1;min-width:0;">
+                              <div style="font-family:var(--font-ui);font-size:12px;letter-spacing:var(--tracking-wide);color:var(--text-heading);">{{ c.label }} &middot; {{ c.section }}</div>
+                              <div style="font-family:var(--font-text);font-style:italic;font-size:14px;color:var(--text-muted);margin-top:2px;">&ldquo;{{ c.citedText }}&rdquo;</div>
+                              <sc-if value="{{ c.hasDetail }}" hint-placeholder-val="{{ false }}">
+                                <div style="font-family:var(--font-text);font-size:13px;color:var(--status-danger);margin-top:2px;">{{ c.detail }}</div>
+                              </sc-if>
+                            </div>
+                            <x-import component-from-global-scope="Design1DesignSystem_741ce6.Badge" tone="{{ c.statusTone }}" hint-size="auto,22px">{{ c.statusLabel }}</x-import>
+                          </div>
+                        </sc-for>
+                      </div>
+                      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
+                        <div style="font-family:var(--font-ui);font-size:12px;color:var(--text-subtle);">{{ m.qualityLine }}</div>
+                        <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-subtle);">{{ m.metaLine }}</div>
+                      </div>
+                      <sc-if value="{{ m.hasWarning }}" hint-placeholder-val="{{ false }}">
+                        <div style="margin-top:6px;"><x-import component-from-global-scope="Design1DesignSystem_741ce6.Badge" tone="danger" dot="{{ true }}" hint-size="auto,22px">{{ m.warningText }}</x-import></div>
+                      </sc-if>
+                      <sc-if value="{{ m.showDisclaimer }}" hint-placeholder-val="{{ false }}">
+                        <div style="font-family:var(--font-text);font-style:italic;font-size:13px;color:var(--text-subtle);margin-top:10px;">&ldquo;Matched&rdquo; means the quoted text appears in the source at the cited location. It does not mean the quote supports the claim beside it.</div>
+                      </sc-if>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ m.isFallback }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-top:10px;font-family:var(--font-mono);font-size:12px;color:var(--text-subtle);">{{ m.metaLine }}</div>
+                  </sc-if>
+                </sc-if>
+              </div>
+            </sc-for>
+
+            <sc-if value="{{ isSending }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:8px;font-family:var(--font-ui);font-size:12px;letter-spacing:var(--tracking-wide);color:var(--text-subtle);">
+                <span>ASSEMBLING ANSWER FROM DOCUMENTS</span>
+                <span style="display:inline-flex;gap:3px;">
+                  <span style="width:4px;height:4px;border-radius:50%;background:var(--green-600);animation:dcqaPulse 1.2s infinite;"></span>
+                  <span style="width:4px;height:4px;border-radius:50%;background:var(--green-600);animation:dcqaPulse 1.2s infinite .2s;"></span>
+                  <span style="width:4px;height:4px;border-radius:50%;background:var(--green-600);animation:dcqaPulse 1.2s infinite .4s;"></span>
+                </span>
+              </div>
+            </sc-if>
+          </div>
+
+          <div style="border-top:var(--border-hairline);padding:16px 32px;display:flex;gap:12px;align-items:flex-end;background:var(--surface-card);">
+            <div style="flex:1;">
+              <x-import component-from-global-scope="Design1DesignSystem_741ce6.Input" value="{{ draft }}" onChange="{{ onDraftChange }}" onKeyDown="{{ onDraftKeyDown }}" placeholder="Ask about the corpus" hint-size="100%,46px"></x-import>
+            </div>
+            <x-import component-from-global-scope="Design1DesignSystem_741ce6.Button" variant="primary" size="lg" onClick="{{ onSend }}" disabled="{{ sendDisabled }}" hint-size="120px,46px">Ask</x-import>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isDocuments }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;min-height:0;">
+        <div style="width:300px;flex-shrink:0;border-right:var(--border-hairline);overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:8px;background:var(--surface-card);">
+          <div style="font-family:var(--font-ui);font-size:11px;letter-spacing:var(--tracking-caps);color:var(--text-subtle);margin-bottom:8px;">CORPUS &middot; 6 DOCUMENTS</div>
+          <sc-for list="{{ documents }}" as="d" hint-placeholder-count="6">
+            <div onClick="{{ d.onClick }}" style="{{ d.rowStyle }}">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                <span style="font-family:var(--font-ui);font-size:13px;letter-spacing:var(--tracking-wide);color:var(--text-heading);">{{ d.label }}</span>
+                <sc-if value="{{ d.cited }}" hint-placeholder-val="{{ false }}"><x-import component-from-global-scope="Design1DesignSystem_741ce6.Badge" tone="accent" hint-size="auto,20px">CITED</x-import></sc-if>
+              </div>
+              <div style="font-family:var(--font-text);font-size:14px;color:var(--text-muted);margin-top:2px;">{{ d.title }}</div>
+              <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-subtle);margin-top:4px;">{{ d.charsFmt }} chars &middot; {{ d.tokensFmt }} tokens</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="flex:1;min-width:0;overflow-y:auto;padding:28px 36px;">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+            <div>
+              <div style="font-family:var(--font-ui);font-size:12px;letter-spacing:var(--tracking-caps);color:var(--text-subtle);">{{ selectedDoc.label }}</div>
+              <div style="font-family:var(--font-display);font-size:32px;color:var(--text-heading);margin-top:2px;">{{ selectedDoc.title }}</div>
+            </div>
+            <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-subtle);text-align:right;">
+              <div>{{ selectedDoc.filename }}</div>
+              <div style="margin-top:2px;">{{ selectedDoc.charsFmt }} chars &middot; {{ selectedDoc.tokensFmt }} tokens</div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;">
+            <sc-for list="{{ selectedDoc.toc }}" as="h" hint-placeholder-count="2">
+              <x-import component-from-global-scope="Design1DesignSystem_741ce6.Tag" onClick="{{ h.onClick }}" hint-size="auto,30px">{{ h.text }}</x-import>
+            </sc-for>
+          </div>
+
+          <div style="margin-top:16px;font-family:var(--font-text);font-style:italic;font-size:13px;color:var(--text-subtle);">Extracted text &mdash; excerpt of the full section</div>
+          <div ref="{{ docTextRef }}" style="margin-top:8px;background:var(--surface-sunken);border:var(--border-hairline);border-radius:var(--radius-md);padding:20px 24px;max-height:calc(100vh - 340px);overflow-y:auto;font-family:var(--font-text);font-size:15px;line-height:var(--leading-prose);color:var(--text-body);white-space:pre-wrap;">
+            <sc-for list="{{ selectedDoc.segments }}" as="para" hint-placeholder-count="3">
+              <div data-pidx="{{ para.pIdx }}" style="margin-bottom:14px;">
+                <sc-for list="{{ para.pieces }}" as="piece" hint-placeholder-count="1">
+                  <sc-if value="{{ piece.mark }}" hint-placeholder-val="{{ false }}">
+                    <mark ref="{{ highlightRef }}" style="background:var(--green-100);box-shadow:inset 0 0 0 1px var(--green-500);border-radius:var(--radius-sm);padding:1px 2px;">{{ piece.text }}</mark>
+                  </sc-if>
+                  <sc-if value="{{ piece.plain }}" hint-placeholder-val="{{ true }}"><span>{{ piece.text }}</span></sc-if>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;overflow-y:auto;padding:28px 36px;">
+        <div style="font-family:var(--font-display);font-size:32px;color:var(--text-heading);margin-bottom:20px;">Corpus and cost settings</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px;">
+
+          <x-import component-from-global-scope="Design1DesignSystem_741ce6.Card" eyebrow="CORPUS" title="Corpus health" hint-size="100%,220px">
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:13px;color:var(--text-muted);margin-bottom:6px;">
+                  <span>{{ settings.tokensFmt }} tokens</span><span>{{ settings.ceilingFmt }} ceiling</span>
+                </div>
+                <div style="height:8px;background:var(--surface-page);border-radius:var(--radius-pill);overflow:hidden;box-shadow:var(--shadow-inset-well);">
+                  <div style="height:100%;width:{{ settings.gaugePctText }};background:var(--green-600);"></div>
+                </div>
+                <div style="font-family:var(--font-ui);font-size:11px;letter-spacing:var(--tracking-wide);color:var(--text-subtle);margin-top:4px;">{{ settings.gaugeLabel }} OF CEILING</div>
+              </div>
+              <div style="border-top:var(--border-hairline);padding-top:12px;font-size:14px;color:var(--text-body);">{{ settings.fingerprintStatus }}</div>
+              <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-subtle);">SHA-256 {{ settings.fingerprintShort }}</div>
+              <div style="border-top:var(--border-hairline);padding-top:12px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                <span style="font-family:var(--font-text);font-size:13px;color:var(--text-subtle);font-style:italic;">{{ settings.lastRecordedText }}</span>
+                <x-import component-from-global-scope="Design1DesignSystem_741ce6.Button" variant="secondary" size="sm" onClick="{{ reloadCorpus }}" disabled="{{ settings.isReloading }}" hint-size="auto,30px">{{ settings.reloadLabel }}</x-import>
+              </div>
+            </div>
+          </x-import>
+
+          <x-import component-from-global-scope="Design1DesignSystem_741ce6.Card" eyebrow="REGISTRY" title="Document labels" hint-size="100%,220px">
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <sc-for list="{{ settings.registry }}" as="r" hint-placeholder-count="6">
+                <div style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end;border-bottom:var(--border-hairline);padding-bottom:10px;">
+                  <x-import component-from-global-scope="Design1DesignSystem_741ce6.Input" label="{{ r.filename }}" value="{{ r.label }}" onChange="{{ r.onChange }}" size="sm" hint-size="100%,54px"></x-import>
+                  <div style="font-family:var(--font-mono);font-size:12px;color:var(--text-subtle);text-align:right;white-space:nowrap;">{{ r.charsFmt }}c &middot; {{ r.tokensFmt }}t</div>
+                </div>
+              </sc-for>
+            </div>
+          </x-import>
+
+          <x-import component-from-global-scope="Design1DesignSystem_741ce6.Card" eyebrow="CACHE" title="Cache and pricing" hint-size="100%,220px">
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              <x-import component-from-global-scope="Design1DesignSystem_741ce6.Select" label="CACHE TTL" value="{{ settings.ttl }}" onChange="{{ onTtlChange }}" options="{{ ttlOptions }}" size="sm" hint-size="100%,54px"></x-import>
+              <x-import component-from-global-scope="Design1DesignSystem_741ce6.Input" label="TOKEN CEILING" type="number" value="{{ settings.tokenCeiling }}" onChange="{{ onCeilingChange }}" size="sm" hint-size="100%,54px"></x-import>
+              <div style="display:flex;flex-direction:column;gap:6px;border-top:var(--border-hairline);padding-top:12px;">
+                <sc-for list="{{ pricingRows }}" as="p" hint-placeholder-count="4">
+                  <div style="display:flex;justify-content:space-between;font-size:13px;">
+                    <span style="color:var(--text-muted);">{{ p.label }}</span><span style="font-family:var(--font-mono);color:var(--text-heading);">{{ p.value }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </x-import>
+
+          <x-import component-from-global-scope="Design1DesignSystem_741ce6.Card" eyebrow="COST" title="Session cost" hint-size="100%,220px">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="font-family:var(--font-text);font-size:13px;color:var(--text-subtle);">{{ settings.costSessionLabel }}</div>
+              <sc-for list="{{ settings.costBuckets }}" as="b" hint-placeholder-count="2">
+                <div style="display:flex;justify-content:space-between;font-size:14px;">
+                  <span style="color:var(--text-muted);">{{ b.label }}</span><span style="font-family:var(--font-mono);color:var(--text-heading);">{{ b.amountFmt }}</span>
+                </div>
+              </sc-for>
+              <div style="display:flex;justify-content:space-between;border-top:var(--border-hairline);padding-top:8px;margin-top:4px;font-family:var(--font-ui);font-size:14px;letter-spacing:var(--tracking-wide);color:var(--text-heading);">
+                <span>TOTAL</span><span style="font-family:var(--font-mono);">{{ settings.costTotalFmt }}</span>
+              </div>
+            </div>
+          </x-import>
+
+        </div>
+      </div>
+    </sc-if>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.docTextRef = React.createRef();
+    this.highlightRef = React.createRef();
+    this.corpusWarmed = false;
+
+    this.docs = {
+      p172: { id: 'p172', title: 'General Provisions', filename: 'ADMINISTRATIVE CODE 41 172.htm', chars: 42800, tokens: 17759,
+        text: ["Section 172.100  Purpose and Applicability",
+          "This Part sets out definitions and general obligations that apply to every underground storage tank system regulated under this Title, unless a later Part states a different rule for a specific system or component.",
+          "Section 172.110  General Recordkeeping",
+          "(a) Every UST owner or operator must keep the records required anywhere in this Title in a form that is legible and available for inspection for at least three years, or for the operating life of the UST system if a specific Part sets a longer period.",
+          "(b)\n2)\nH) Records kept under this Section must identify the UST system, or the component of it, to which they apply, by tank or line number."
+        ].join("\n\n") },
+      p174: { id: 'p174', title: 'UST Technical Standards', filename: 'ADMINISTRATIVE CODE 41 174.htm', chars: 61200, tokens: 25415,
+        text: ["Section 174.200  Applicability",
+          "This Part applies to design and construction standards for underground storage tank systems not otherwise addressed in Part 175, including tank materials, corrosion protection and spill and overfill prevention equipment.",
+          "Section 174.310  Corrosion Protection",
+          "(a) A steel tank or steel piping in contact with soil or backfill must be protected from corrosion by coating, cathodic protection, or both, unless the component is constructed of a noncorrodible material.",
+          "(b) Cathodic protection systems must be inspected within six months of installation and at least once every three years after that."
+        ].join("\n\n") },
+      p175: { id: 'p175', title: 'Design, Construction and Installation', filename: 'ADMINISTRATIVE CODE 41 175.htm', chars: 168900, tokens: 70083,
+        text: ["Section 175.400  Scope",
+          "This Subpart establishes design, construction and installation standards for underground storage tank systems and the sumps associated with them. It applies to every UST system installed, replaced or brought into service after the effective date of this Part.",
+          "Section 175.410  Sumps and Spill Containment Structures",
+          "(a) Liquid tightness. A sump installed beneath a dispenser, beneath a submersible turbine pump, or at any other under-dispenser containment location must be liquid-tight on its sides and bottom.",
+          "(b) Materials. A sump must be constructed of a material compatible with the substance stored in the tank system it serves, and resistant to the corrosive or degrading effects of that substance for the design life of the sump.",
+          "(c) Access. A sump must be fitted with a removable cover that allows visual inspection of the sump interior without removing the sump from the ground.",
+          "(h) Testing.\n1) A sump must be tested for liquid tightness before it is placed into service and at intervals not to exceed three years after that, using a method capable of detecting a leak of 0.05 gallon per hour or less.\n2) A sump that fails the test required under subsection (h)(1) must be taken out of service, repaired or replaced, and retested before it is returned to service.\n3) The owner or operator must keep the results of every sump test, and the record of any repair made under subsection (h)(2), on site for the operating life of the UST system.",
+          "(l) Secondary containment.\n1) A sump used as secondary containment for piping must be tested at the interval and to the standard set out in subsection (h) of this Section.\n2)\nA) Interstitial monitoring of a sump used as secondary containment must be capable of detecting a release into the sump within 30 days.\nB) A sump under continuous interstitial monitoring is not subject to the periodic test required under subsection (h)(1) while that monitoring remains in service.\nC) Written certification of the monitoring equipment's function must be renewed annually."
+        ].join("\n\n") },
+      p176: { id: 'p176', title: 'Release Detection', filename: 'ADMINISTRATIVE CODE 41 176.htm', chars: 88300, tokens: 36639,
+        text: ["Section 176.400  Release Detection Methods",
+          "This Subpart lists the methods an owner or operator may use to meet the release detection requirement for tanks, piping and their sumps, and the intervals at which each method must be used.",
+          "Section 176.430  Interstitial Monitoring",
+          "(b)\n6) A positive result from interstitial monitoring is a suspected release and triggers the investigation and reporting duties set out in Part 177, not the testing duty set out in Part 175.",
+          "Section 176.655  Recordkeeping for Release Detection",
+          "(b) Results of every release detection test, by whatever method, must be kept for at least one year after the test, or until the next test of the same kind, whichever is longer.",
+          "(c) A positive result and the investigation it triggered must be kept for the operating life of the UST system."
+        ].join("\n\n") },
+      p177: { id: 'p177', title: 'Release Reporting', filename: 'ADMINISTRATIVE CODE 41 177.htm', chars: 51100, tokens: 21203,
+        text: ["Section 177.100  Duty to Report",
+          "(a) A suspected or confirmed release from a UST system must be reported to the Agency within 24 hours of discovery, by telephone, followed by a written report within 20 days.",
+          "(b) A report made under this Section must identify the UST system involved, the substance released, and the estimated quantity, to the extent known at the time of the report."
+        ].join("\n\n") },
+      p178: { id: 'p178', title: 'Corrective Action', filename: 'ADMINISTRATIVE CODE 41 178.htm', chars: 68632, tokens: 28484,
+        text: ["Section 178.300  Initial Response and Notification",
+          "Within 24 hours of confirming a release, the owner or operator must remove as much of the released substance as is necessary to prevent further migration, and must notify the Agency by the method set out in Part 177.",
+          "Section 178.500  Corrective Action Plan Schedule",
+          "(a) A corrective action plan must be submitted to the Agency within 45 days of the Agency's request for one.",
+          "(b) Once approved, the plan's remediation schedule may be extended only by written Agency approval, and a request for extension must be filed before the existing schedule lapses."
+        ].join("\n\n") }
+    };
+
+    this.PRICING_ROWS = [
+      { label: 'Input tokens', value: '$5.00 / MTok' },
+      { label: 'Cache write (1h)', value: '\u2248$10.00 / MTok' },
+      { label: 'Cache read', value: '\u2248$0.50 / MTok' },
+      { label: 'Output', value: '$25.00 / MTok' }
+    ];
+    this.TTL_OPTIONS = ['5 minutes', '1 hour'];
+    this.FALLBACK_TEXT = 'This prototype answers questions about sump standards (try \u201csump\u201d), release detection intervals (\u201cdetection\u201d or \u201cinterval\u201d), recordkeeping (\u201crecord\u201d) and corrective action plans (\u201ccorrective\u201d or \u201cplan\u201d) under Parts 172 and 174\u2013178.';
+
+    const s1 = { id: 's1', title: 'Sump requirements for USTs', messages: [], citationCounter: 0 };
+    this.pushQA(s1, "What are the sump requirements for a UST in Illinois?");
+    this.pushQA(s1, "What about release detection intervals for the sump itself?");
+    const s2 = { id: 's2', title: 'Recordkeeping for release detection', messages: [], citationCounter: 0 };
+    this.pushQA(s2, "How often must release detection results be kept on file?");
+    const s3 = { id: 's3', title: 'Corrective action plan deadline', messages: [], citationCounter: 0 };
+    this.pushQA(s3, "How long do we have to submit a corrective action plan once the Agency asks for one?");
+
+    this.state = {
+      screen: 'conversation',
+      sessions: [s1, s2, s3],
+      activeSessionId: 's1',
+      draft: '',
+      isSending: false,
+      selectedDocId: 'p175',
+      highlightSpan: null,
+      tokenCeiling: 400000,
+      ttl: '1 hour',
+      labels: { p172: '41 Ill. Adm. Code 172', p174: '41 Ill. Adm. Code 174', p175: '41 Ill. Adm. Code 175', p176: '41 Ill. Adm. Code 176', p177: '41 Ill. Adm. Code 177', p178: '41 Ill. Adm. Code 178' },
+      isReloading: false,
+      lastRecordedAt: 'Sep 13, 9:41 AM'
+    };
+  }
+
+  fmtMoney(v) { return '$' + (v || 0).toFixed(2); }
+  fmtNum(n) { return (n || 0).toLocaleString('en-US'); }
+
+  makeCitation(docId, section, sourceSpan, citedText, status, detail) {
+    const text = this.docs[docId].text;
+    const start = text.indexOf(sourceSpan);
+    const safeStart = start < 0 ? 0 : start;
+    const end = start < 0 ? 0 : start + sourceSpan.length;
+    return { docId, section, sourceSpan, citedText: citedText || sourceSpan, status, detail: detail || null, start: safeStart, end };
+  }
+
+  tplSump() {
+    const d = this.docs;
+    const SPAN1 = "under-dispenser containment location must be liquid-tight on its sides and bottom.";
+    const SPAN2 = "A sump must be tested for liquid tightness before it is placed into service and at intervals not to exceed three years after that, using a method capable of detecting a leak of 0.05 gallon per hour or less.";
+    const SPAN3 = "A sump used as secondary containment for piping must be tested at the interval and to the standard set out in subsection (h) of this Section.";
+    const SPAN4 = "The owner or operator must keep the results of every sump test, and the record of any repair made under subsection (h)(2), on site for the operating life of the UST system.";
+    const SPAN5 = "Every UST owner or operator must keep the records required anywhere in this Title in a form that is legible and available for inspection for at least three years, or for the operating life of the UST system if a specific Part sets a longer period.";
+    const SPAN6 = "A positive result from interstitial monitoring is a suspected release and triggers the investigation and reporting duties set out in Part 177, not the testing duty set out in Part 175.";
+    return {
+      segments: [
+        { t: 'text', text: 'Illinois requires sumps used with underground storage tank systems to meet liquid-tightness, testing and containment standards set out in Part 175. Every sump beneath a dispenser or submersible pump must be liquid-tight on its sides and bottom' },
+        { t: 'cite', idx: 0 },
+        { t: 'text', text: '. It must be tested for tightness before being placed into service and at least once every three years after that, using a method sensitive enough to detect a leak of 0.05 gallon per hour' },
+        { t: 'cite', idx: 1 },
+        { t: 'text', text: '. A sump used as secondary containment for piping is tested at that same interval and standard' },
+        { t: 'cite', idx: 2 },
+        { t: 'text', text: ', and every test result and repair record must stay on site for the operating life of the UST system' },
+        { t: 'cite', idx: 3 },
+        { t: 'text', text: '. General recordkeeping duties for all UST owners are set out separately in Part 172' },
+        { t: 'cite', idx: 4 },
+        { t: 'text', text: ', and a positive release-detection result under Part 176 triggers the reporting duty rather than the sump-testing duty itself' },
+        { t: 'cite', idx: 5 },
+        { t: 'text', text: '.' }
+      ],
+      citationsRaw: [
+        this.makeCitation('p175', '175.410(a)', SPAN1, SPAN1, 'matched'),
+        this.makeCitation('p175', '175.410(h)(1)', SPAN2, SPAN2, 'matched'),
+        this.makeCitation('p175', '175.410(l)(1)', SPAN3, SPAN3, 'matched'),
+        this.makeCitation('p175', '175.410(h)(3)', SPAN4, SPAN4, 'matched'),
+        this.makeCitation('p172', '172.110(a)', SPAN5, SPAN5, 'matched'),
+        this.makeCitation('p176', '176.430(b)(6)', SPAN6, SPAN6, 'matched')
+      ]
+    };
+  }
+
+  tplDetection() {
+    const SPAN7 = "Interstitial monitoring of a sump used as secondary containment must be capable of detecting a release into the sump within 30 days.";
+    const SPAN2 = "A sump must be tested for liquid tightness before it is placed into service and at intervals not to exceed three years after that, using a method capable of detecting a leak of 0.05 gallon per hour or less.";
+    return {
+      segments: [
+        { t: 'text', text: 'A sump under continuous interstitial monitoring must be able to detect a release into the sump within 30 days' },
+        { t: 'cite', idx: 0 },
+        { t: 'text', text: ", which runs on a much shorter cycle than the sump's own periodic tightness test" },
+        { t: 'cite', idx: 1 },
+        { t: 'text', text: '.' }
+      ],
+      citationsRaw: [
+        this.makeCitation('p175', '175.410(l)(2)(A)', SPAN7, SPAN7, 'matched'),
+        this.makeCitation('p175', '175.410(h)(1)', SPAN2, "A sump must be tested at intervals not to exceed three years, using a method capable of detecting a leak of 0.05 gallon per hour or less.", 'mismatch', "Departs from the source at character 15 of the span; the quoted text does not appear verbatim in this document.")
+      ]
+    };
+  }
+
+  tplRecord() {
+    const SPAN_R1 = "Results of every release detection test, by whatever method, must be kept for at least one year after the test, or until the next test of the same kind, whichever is longer.";
+    const SPAN_R2 = "A positive result and the investigation it triggered must be kept for the operating life of the UST system.";
+    return {
+      segments: [
+        { t: 'text', text: 'Release detection results must be kept for at least one year after the test, or until the next test of the same kind, whichever is longer' },
+        { t: 'cite', idx: 0 },
+        { t: 'text', text: '. A positive result, and the investigation it triggers, must be kept for the operating life of the UST system' },
+        { t: 'cite', idx: 1 },
+        { t: 'text', text: '.' }
+      ],
+      citationsRaw: [
+        this.makeCitation('p176', '176.655(b)', SPAN_R1, SPAN_R1, 'matched'),
+        this.makeCitation('p176', '176.655(c)', SPAN_R2, SPAN_R2, 'matched')
+      ]
+    };
+  }
+
+  tplCorrective() {
+    const SPAN_C1 = "A corrective action plan must be submitted to the Agency within 45 days of the Agency's request for one.";
+    const SPAN_C2 = "Once approved, the plan's remediation schedule may be extended only by written Agency approval, and a request for extension must be filed before the existing schedule lapses.";
+    return {
+      segments: [
+        { t: 'text', text: 'Once the Agency requests a corrective action plan, the owner or operator has 45 days to submit it' },
+        { t: 'cite', idx: 0 },
+        { t: 'text', text: ". An approved plan's schedule can only be extended with the Agency's written approval, and the extension request must be filed before the current schedule lapses" },
+        { t: 'cite', idx: 1 },
+        { t: 'text', text: '.' }
+      ],
+      citationsRaw: [
+        this.makeCitation('p178', '178.500(a)', SPAN_C1, SPAN_C1, 'matched'),
+        this.makeCitation('p178', '178.500(b)', SPAN_C2, SPAN_C2, 'matched')
+      ]
+    };
+  }
+
+  matchQuestion(text) {
+    const q = text.toLowerCase();
+    if (/sump/.test(q) && !/detection|interval/.test(q)) return this.tplSump();
+    if (/detection|interval|30 day|monitor/.test(q)) return this.tplDetection();
+    if (/record|keep|file|retain/.test(q)) return this.tplRecord();
+    if (/correct|plan|45 day/.test(q)) return this.tplCorrective();
+    return { segments: [{ t: 'text', text: this.FALLBACK_TEXT }], citationsRaw: [] };
+  }
+
+  buildAnswerMessage(questionText, session) {
+    const built = this.matchQuestion(questionText);
+    const citationsRaw = built.citationsRaw;
+    const total = citationsRaw.length;
+    const hasCitations = total > 0;
+    let cost = 0, cacheKind = 'none';
+    if (hasCitations && !this.corpusWarmed) { cost = 2.16; cacheKind = 'cold'; this.corpusWarmed = true; }
+    else if (hasCitations) { cost = 0.19; cacheKind = 'read'; }
+
+    const baseCount = session.citationCounter || 0;
+    const citations = citationsRaw.map((c, i) => ({ ...c, n: baseCount + i + 1 }));
+    session.citationCounter = baseCount + citations.length;
+
+    const segmentsResolved = built.segments.map(sg => sg.t === 'text' ? sg : { t: 'cite', citation: citations[sg.idx] });
+    const matchedCount = citations.filter(c => c.status === 'matched').length;
+    const qualityLine = total ? (matchedCount + ' of ' + total + ' quote' + (total === 1 ? '' : 's') + ' matched') : '';
+    const hasWarning = total > matchedCount;
+    const failCount = total - matchedCount;
+    const warningText = hasWarning ? (failCount + ' quote' + (failCount === 1 ? '' : 's') + ' failed its check') : '';
+    const isFirstAssistantInSession = !session.messages.some(m => m.role === 'assistant');
+    const metaLine = cacheKind === 'cold' ? (this.fmtMoney(cost) + ' \u00b7 cold cache write') : cacheKind === 'read' ? (this.fmtMoney(cost) + ' \u00b7 cache read') : 'No documents cited';
+
+    return {
+      id: 'a' + Date.now() + Math.random(), role: 'assistant', segments: segmentsResolved, citations,
+      hasCitations, qualityLine, hasWarning, warningText, showDisclaimer: isFirstAssistantInSession && hasCitations,
+      metaLine, costValue: cost, cacheKind
+    };
+  }
+
+  pushQA(session, questionText) {
+    session.messages.push({ id: 'u' + Date.now() + Math.random(), role: 'user', text: questionText });
+    session.messages.push(this.buildAnswerMessage(questionText, session));
+  }
+
+  submitQuestion(text) {
+    if (!text || !text.trim() || this.state.isSending) return;
+    const q = text.trim();
+    const sessionId = this.state.activeSessionId;
+    this.setState(prev => ({
+      sessions: prev.sessions.map(s => s.id === sessionId
+        ? { ...s, title: s.title === 'New conversation' ? q.slice(0, 48) : s.title, messages: [...s.messages, { id: 'u' + Date.now(), role: 'user', text: q }] }
+        : s),
+      draft: '', isSending: true
+    }));
+    setTimeout(() => {
+      this.setState(prev => ({
+        sessions: prev.sessions.map(s => {
+          if (s.id !== sessionId) return s;
+          const clone = { ...s, citationCounter: s.citationCounter || 0 };
+          const built = this.buildAnswerMessage(q, clone);
+          return { ...clone, messages: [...s.messages, built] };
+        }),
+        isSending: false
+      }));
+    }, 900);
+  }
+
+  newConversation() {
+    const ns = { id: 's' + Date.now(), title: 'New conversation', messages: [], citationCounter: 0 };
+    this.setState(prev => ({ sessions: [ns, ...prev.sessions], activeSessionId: ns.id, draft: '' }));
+  }
+
+  selectSession(id) { this.setState({ activeSessionId: id, draft: '' }); }
+  setScreen(name) { this.setState({ screen: name }); }
+  onDraftChange(e) { this.setState({ draft: e.target.value }); }
+  onDraftKeyDown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this.submitQuestion(this.state.draft); } }
+  onSend() { this.submitQuestion(this.state.draft); }
+  selectDocument(id) { this.setState({ selectedDocId: id, highlightSpan: null }); }
+  updateLabel(id, e) { const v = e.target.value; this.setState(prev => ({ labels: { ...prev.labels, [id]: v } })); }
+  onCeilingChange(e) { const v = parseInt(e.target.value, 10); this.setState({ tokenCeiling: isNaN(v) ? 0 : v }); }
+  onTtlChange(e) { this.setState({ ttl: e.target.value }); }
+
+  openCitation(citation) {
+    this.setState({ screen: 'documents', selectedDocId: citation.docId, highlightSpan: { docId: citation.docId, start: citation.start, end: citation.end } });
+  }
+
+  reloadCorpus() {
+    if (this.state.isReloading) return;
+    this.setState({ isReloading: true });
+    setTimeout(() => {
+      const now = new Date();
+      const label = now.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', month: 'short', day: 'numeric' });
+      this.setState({ isReloading: false, lastRecordedAt: label });
+    }, 1100);
+  }
+
+  scrollToHeading(pIdx) {
+    const el = this.docTextRef.current && this.docTextRef.current.querySelector('[data-pidx="' + pIdx + '"]');
+    if (el && this.docTextRef.current) this.docTextRef.current.scrollTop = el.offsetTop - 12;
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.highlightSpan && this.state.highlightSpan !== prevState.highlightSpan) {
+      setTimeout(() => {
+        if (this.highlightRef.current && this.docTextRef.current) {
+          this.docTextRef.current.scrollTop = this.highlightRef.current.offsetTop - 40;
+        }
+      }, 80);
+    }
+  }
+
+  buildNavStyle(active) {
+    return { display: 'flex', alignItems: 'center', gap: '12px', width: '100%', padding: '11px 24px', border: 'none',
+      background: active ? 'rgba(255,255,255,0.08)' : 'transparent', color: active ? '#ffffff' : 'var(--paper-300)',
+      borderLeft: active ? '3px solid var(--green-500)' : '3px solid transparent', fontFamily: 'var(--font-ui)',
+      fontSize: '14px', letterSpacing: 'var(--tracking-wide)', cursor: 'pointer', textAlign: 'left' };
+  }
+
+  buildDocSegments(doc, highlightSpan) {
+    const paras = doc.text.split('\n\n');
+    let offset = 0;
+    return paras.map((para, pIdx) => {
+      const paraStart = offset, paraEnd = offset + para.length;
+      offset = paraEnd + 2;
+      const heading = /^Section\s+(\S+)/.exec(para);
+      let pieces;
+      if (highlightSpan && highlightSpan.docId === doc.id && highlightSpan.start >= paraStart && highlightSpan.start < paraEnd) {
+        const relStart = highlightSpan.start - paraStart;
+        const relEnd = Math.min(highlightSpan.end - paraStart, para.length);
+        pieces = [
+          { text: para.slice(0, relStart), mark: false },
+          { text: para.slice(relStart, relEnd), mark: true },
+          { text: para.slice(relEnd), mark: false }
+        ];
+      } else {
+        pieces = [{ text: para, mark: false }];
+      }
+      return { pIdx, isHeading: !!heading, headingLabel: heading ? heading[1] : null, pieces };
+    });
+  }
+
+  renderVals() {
+    const st = this.state;
+    const activeSession = st.sessions.find(s => s.id === st.activeSessionId) || st.sessions[0];
+    const isConversation = st.screen === 'conversation', isDocuments = st.screen === 'documents', isSettings = st.screen === 'settings';
+
+    const sessions = st.sessions.map(s => {
+      const answers = s.messages.filter(m => m.role === 'assistant').length;
+      const totalCost = s.messages.reduce((sum, m) => sum + (m.costValue || 0), 0);
+      const isActive = s.id === activeSession.id;
+      return {
+        key: s.id, title: s.title, subtitle: answers + ' answer' + (answers === 1 ? '' : 's'),
+        costText: this.fmtMoney(totalCost), onClick: () => this.selectSession(s.id),
+        rowStyle: { padding: '10px 12px', borderRadius: 'var(--radius-md)', cursor: 'pointer',
+          background: isActive ? 'var(--surface-accent-soft)' : 'transparent',
+          borderLeft: isActive ? '3px solid var(--green-600)' : '3px solid transparent' }
+      };
+    });
+
+    const messages = activeSession.messages.map(m => {
+      if (m.role === 'user') return { key: m.id, isUser: true, isAssistant: false, text: m.text };
+      const segs = m.segments.map((sg, i) => {
+        if (sg.t === 'text') return { key: 't' + i, isText: true, isCitation: false, text: sg.text };
+        const c = sg.citation;
+        return { key: 'c' + i, isText: false, isCitation: true, label: '[' + c.n + ']', onClick: () => this.openCitation(c) };
+      });
+      const citations = m.citations.map(c => ({
+        key: 'src' + c.n, n: c.n, label: st.labels[c.docId], section: c.section, citedText: c.citedText,
+        hasDetail: c.status === 'mismatch', detail: c.detail,
+        statusTone: c.status === 'matched' ? 'success' : (c.status === 'mismatch' ? 'danger' : 'warning'),
+        statusLabel: c.status.toUpperCase(), onClick: () => this.openCitation(c)
+      }));
+      return {
+        key: m.id, isUser: false, isAssistant: true, segments: segs, hasCitations: m.hasCitations, citations,
+        qualityLine: m.qualityLine, hasWarning: m.hasWarning, warningText: m.warningText, showDisclaimer: m.showDisclaimer,
+        metaLine: m.metaLine, isFallback: !m.hasCitations
+      };
+    });
+
+    const lastAssistant = [...activeSession.messages].reverse().find(m => m.role === 'assistant');
+    const headerCacheTone = !lastAssistant ? 'neutral' : lastAssistant.cacheKind === 'cold' ? 'accent' : lastAssistant.cacheKind === 'read' ? 'success' : 'neutral';
+    const headerCacheText = !lastAssistant ? 'NO QUESTIONS YET' : lastAssistant.cacheKind === 'cold' ? 'COLD CACHE WRITE' : lastAssistant.cacheKind === 'read' ? 'CACHE READ' : 'NO DOCUMENTS CITED';
+    const sessionCostText = this.fmtMoney(activeSession.messages.reduce((sum, m) => sum + (m.costValue || 0), 0));
+
+    const citedDocIds = new Set();
+    activeSession.messages.forEach(m => (m.citations || []).forEach(c => citedDocIds.add(c.docId)));
+
+    const documents = Object.keys(this.docs).map(id => {
+      const d = this.docs[id];
+      const isSelected = id === st.selectedDocId;
+      return {
+        key: id, id, label: st.labels[id], title: d.title, charsFmt: this.fmtNum(d.chars), tokensFmt: this.fmtNum(d.tokens),
+        cited: citedDocIds.has(id), onClick: () => this.selectDocument(id),
+        rowStyle: { padding: '12px', borderRadius: 'var(--radius-md)', cursor: 'pointer',
+          background: isSelected ? 'var(--surface-accent-soft)' : 'transparent',
+          borderLeft: isSelected ? '3px solid var(--green-600)' : '3px solid transparent' }
+      };
+    });
+
+    const doc = this.docs[st.selectedDocId];
+    const docSegs = this.buildDocSegments(doc, st.highlightSpan);
+    const selectedDoc = {
+      label: st.labels[doc.id], title: doc.title, filename: doc.filename, charsFmt: this.fmtNum(doc.chars), tokensFmt: this.fmtNum(doc.tokens),
+      toc: docSegs.filter(s => s.isHeading).map(s => ({ key: 'h' + s.pIdx, text: s.headingLabel, onClick: () => this.scrollToHeading(s.pIdx) })),
+      segments: docSegs.map(s => ({ key: 'p' + s.pIdx, pIdx: s.pIdx, pieces: s.pieces.map((p, pi) => ({ key: pi, text: p.text, mark: p.mark, plain: !p.mark })) }))
+    };
+
+    const totalTokens = 199583, ceiling = st.tokenCeiling || 1;
+    const pct = Math.min(100, (totalTokens / ceiling) * 100);
+    const registry = Object.keys(this.docs).map(id => {
+      const d = this.docs[id];
+      return { key: id, label: st.labels[id], filename: d.filename, charsFmt: this.fmtNum(d.chars), tokensFmt: this.fmtNum(d.tokens), onChange: (e) => this.updateLabel(id, e) };
+    });
+    const bucketLabels = { cold: 'Cache write (1h)', read: 'Cache read' };
+    const buckets = {};
+    activeSession.messages.forEach(m => { if (m.role === 'assistant' && m.cacheKind && m.cacheKind !== 'none') buckets[m.cacheKind] = (buckets[m.cacheKind] || 0) + (m.costValue || 0); });
+    const costBuckets = Object.keys(buckets).map(k => ({ key: k, label: bucketLabels[k], amountFmt: this.fmtMoney(buckets[k]) }));
+    const costTotal = Object.values(buckets).reduce((a, b) => a + b, 0);
+
+    const settings = {
+      tokensFmt: this.fmtNum(totalTokens), ceilingFmt: this.fmtNum(ceiling), gaugePctText: pct.toFixed(1) + '%', gaugeLabel: pct.toFixed(1) + '%',
+      fingerprintStatus: 'Unchanged since the run recorded at ' + st.lastRecordedAt + '.',
+      fingerprintShort: '3fa2c8e1\u20269b04d7', lastRecordedText: 'Last checked ' + st.lastRecordedAt,
+      reloadLabel: st.isReloading ? 'Reloading\u2026' : 'Reload corpus', isReloading: st.isReloading,
+      tokenCeiling: st.tokenCeiling, ttl: st.ttl, registry,
+      costSessionLabel: 'Breakdown for \u201c' + activeSession.title + '\u201d', costBuckets, costTotalFmt: this.fmtMoney(costTotal)
+    };
+
+    return {
+      isConversation, isDocuments, isSettings,
+      goConversation: () => this.setScreen('conversation'), goDocuments: () => this.setScreen('documents'), goSettings: () => this.setScreen('settings'),
+      navConvStyle: this.buildNavStyle(isConversation), navDocsStyle: this.buildNavStyle(isDocuments), navSettingsStyle: this.buildNavStyle(isSettings),
+      sessionCostText, sessions, newConversation: () => this.newConversation(),
+      headerTitle: activeSession.title, headerCacheTone, headerCacheText,
+      showEmptyState: activeSession.messages.length === 0,
+      suggestions: [
+        { key: 'sg1', text: 'What are the sump requirements for a UST in Illinois?', onClick: () => this.submitQuestion('What are the sump requirements for a UST in Illinois?') },
+        { key: 'sg2', text: 'How often must release detection results be kept on file?', onClick: () => this.submitQuestion('How often must release detection results be kept on file?') }
+      ],
+      messages, isSending: st.isSending,
+      draft: st.draft, onDraftChange: (e) => this.onDraftChange(e), onDraftKeyDown: (e) => this.onDraftKeyDown(e), onSend: () => this.onSend(),
+      sendDisabled: st.isSending || !(st.draft && st.draft.trim()),
+      documents, selectedDoc, docTextRef: this.docTextRef, highlightRef: this.highlightRef,
+      settings, pricingRows: this.PRICING_ROWS, ttlOptions: this.TTL_OPTIONS,
+      reloadCorpus: () => this.reloadCorpus(), onCeilingChange: (e) => this.onCeilingChange(e), onTtlChange: (e) => this.onTtlChange(e)
+    };
+  }
+}
+</script>
+</body>
+</html>

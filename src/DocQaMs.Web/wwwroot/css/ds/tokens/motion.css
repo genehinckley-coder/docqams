@@ -1,0 +1,13 @@
+:root{
+--dur-instant:90ms /* @kind other */;
+--dur-fast:140ms /* @kind other */;
+--dur-base:220ms /* @kind other */;
+--dur-slow:360ms /* @kind other */;
+--dur-stately:620ms /* @kind other */;
+--ease-standard:cubic-bezier(.2,0,.2,1) /* @kind other */;
+--ease-out:cubic-bezier(.16,.8,.24,1) /* @kind other */;
+--ease-in:cubic-bezier(.5,0,1,1) /* @kind other */;
+/* No spring, no bounce, no overshoot anywhere in this system. */
+--transition-control:background-color var(--dur-fast) var(--ease-standard),color var(--dur-fast) var(--ease-standard),border-color var(--dur-fast) var(--ease-standard),box-shadow var(--dur-fast) var(--ease-standard);
+}
+@media (prefers-reduced-motion:reduce){:root{--dur-instant:0ms /* @kind other */;--dur-fast:0ms /* @kind other */;--dur-base:0ms /* @kind other */;--dur-slow:0ms /* @kind other */;--dur-stately:0ms /* @kind other */}}

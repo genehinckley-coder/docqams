@@ -1,0 +1,96 @@
+{
+  "prototype_fingerprint": "32f2256f054f9ec8de7f30ad8a4557c74b7df6036ba20561b68f9b5d28482727",
+  "prototype_tokens": 199749,
+  "prototype_tokens_model": "claude-opus-5",
+  "prototype_tokens_recorded_at": "2026-09-13T17:57:33+00:00",
+  "blocks": [
+    {
+      "type": "document",
+      "source": {
+        "type": "text",
+        "media_type": "text/plain",
+        "chars": 36978,
+        "data_sha256": "f609801cdad6fa37629b19573a7450c94ba52eddc110d7d450fb803fdf6bbe66"
+      },
+      "title": "41 Ill. Adm. Code 172: Petroleum Equipment Contractor Licensing",
+      "context": "Source file: ADMINISTRATIVE CODE 41 172.htm",
+      "citations": {
+        "enabled": true
+      }
+    },
+    {
+      "type": "document",
+      "source": {
+        "type": "text",
+        "media_type": "text/plain",
+        "chars": 74552,
+        "data_sha256": "fc46bd0fea1320d1cf1d058b95a5c09993379199c7391658ee0e3301ce8dbee1"
+      },
+      "title": "41 Ill. Adm. Code 174: General Requirements for Underground Storage Tanks",
+      "context": "Source file: ADMINISTRATIVE CODE 41 174.htm",
+      "citations": {
+        "enabled": true
+      }
+    },
+    {
+      "type": "document",
+      "source": {
+        "type": "text",
+        "media_type": "text/plain",
+        "chars": 246682,
+        "data_sha256": "145192e2c0faf26c3091536f0e303beb76273e935d9700dec4cdd75060d00ab3"
+      },
+      "title": "41 Ill. Adm. Code 175: Technical Requirements for Underground Storage Tanks",
+      "context": "Source file: ADMINISTRATIVE CODE 41 175.htm",
+      "citations": {
+        "enabled": true
+      }
+    },
+    {
+      "type": "document",
+      "source": {
+        "type": "text",
+        "media_type": "text/plain",
+        "chars": 102620,
+        "data_sha256": "44ab8cdeff8ef24273d88106c89cb8b23c7991b213518c96fda9b46d63629dd7"
+      },
+      "title": "41 Ill. Adm. Code 176: Administrative Requirements for Underground Storage Tanks",
+      "context": "Source file: ADMINISTRATIVE CODE 41 176.htm",
+      "citations": {
+        "enabled": true
+      }
+    },
+    {
+      "type": "document",
+      "source": {
+        "type": "text",
+        "media_type": "text/plain",
+        "chars": 7557,
+        "data_sha256": "001d15266752511af9477e0c991ec28ee1c778b1bff4aaf85ad50b808b0da14d"
+      },
+      "title": "41 Ill. Adm. Code 177: Compliance Certification for Underground Storage Tanks",
+      "context": "Source file: ADMINISTRATIVE CODE 41 177.htm",
+      "citations": {
+        "enabled": true
+      }
+    },
+    {
+      "type": "document",
+      "source": {
+        "type": "text",
+        "media_type": "text/plain",
+        "chars": 12543,
+        "data_sha256": "edd2d97b22a298664a8df6fee3cfca9a6eb4b1105bf3a5cd43ac7263f95e541d"
+      },
+      "title": "41 Ill. Adm. Code 178: UST Fund Eligibility and Deductible Determinations",
+      "context": "Source file: ADMINISTRATIVE CODE 41 178.htm",
+      "citations": {
+        "enabled": true
+      },
+      "cache_control": {
+        "type": "ephemeral",
+        "ttl": "1h"
+      }
+    }
+  ]
+}

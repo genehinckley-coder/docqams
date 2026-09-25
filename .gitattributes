@@ -1,0 +1,10 @@
+# Normalize text files to LF in the repository.
+* text=auto
+
+# Files compared byte for byte are exempt. The corpus pages are CRLF throughout,
+# and the corpus fingerprint and citation character offsets are defined against
+# exact content; the golden files are the prototype's extraction output, compared
+# byte for byte. Git must never rewrite their line endings on commit or checkout.
+*.htm  -text
+*.html -text
+tests/golden/*.txt -text

@@ -1,0 +1,36 @@
+/* A paragraph of extracted text, which keeps its line breaks, as the design shows it. */
+.docpara {
+    margin: 0 0 14px;
+    font-family: var(--font-text);
+    font-size: 15px;
+    line-height: var(--leading-prose);
+    color: var(--text-body);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.docpara:last-child {
+    margin-bottom: 0;
+}
+
+/* Focus lands here after a citation or a section is chosen; the paragraph is not a control, so no ring for a click. */
+.docpara:focus {
+    outline: none;
+}
+
+.docpara:focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 4px;
+    border-radius: var(--radius-sm);
+}
+
+/* The cited span, as the design marks it. <mark> also names it as highlighted text to a screen reader. */
+.docpara__mark {
+    padding: 1px 2px;
+    border-radius: var(--radius-sm);
+    background: var(--green-100);
+    box-shadow: inset 0 0 0 1px var(--green-500);
+    color: inherit;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+}

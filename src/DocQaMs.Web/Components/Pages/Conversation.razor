@@ -1,0 +1,452 @@
+@page "/"
+@implements IDisposable
+@using CorpusSnapshot = DocQaMs.Core.Corpus.Corpus
+@inject IConversationStore Store
+@inject ICorpusSource CorpusSource
+@inject CostEstimator Costs
+@inject CacheWarmthTracker Warmth
+@inject TimeProvider Time
+@inject NavigationManager Navigation
+
+<PageTitle>Conversation · DocQA</PageTitle>
+
+@if (_active is { } active)
+{
+    <div class="conv">
+        <ConversationList Conversations="_conversations" ActiveId="active.Id" OnSelect="Select" OnNew="NewConversation" />
+
+        <section class="conv__main" aria-labelledby="conversation-title">
+            <header class="conv__header">
+                <div class="conv__heading">
+                    <h1 id="conversation-title" class="conv__title">@active.Title</h1>
+                    @if (CacheBadgeOf(active) is { } badge)
+                    {
+                        <Badge Tone="badge.Tone">@badge.Text</Badge>
+                    }
+                </div>
+                <SettingsBar Settings="active.Settings" Locked="active.SettingsLocked" Preview="_preview"
+                             OnChange="ChangeSettings" OnNewWithDifferentSettings="NewConversation" Error="@_settingsError" />
+            </header>
+
+            <div class="conv__history">
+                @switch (_corpusState)
+                {
+                    case CorpusState.Loading:
+                        <div class="conv__notice">
+                            <Badge Tone="BadgeTone.Info">CORPUS LOADING</Badge>
+                            <span>Extracting the pages and counting their tokens. Questions can be asked once it is ready.</span>
+                        </div>
+                        break;
+                    case CorpusState.Failed failed:
+                        <div class="conv__notice">
+                            <Badge Tone="BadgeTone.Danger" Dot="true">CORPUS NOT LOADED</Badge>
+                            <span>@failed.Reason</span>
+                            <Button Variant="ButtonVariant.Secondary" Size="ControlSize.Sm" OnClick="RetryCorpusLoad">Retry</Button>
+                        </div>
+                        break;
+                    case CorpusState.Ready { ReloadFailure: { } reloadFailure }:
+                        <div class="conv__notice">
+                            <Badge Tone="BadgeTone.Warning">RELOAD FAILED</Badge>
+                            <span>@reloadFailure The corpus loaded before stays in use.</span>
+                        </div>
+                        break;
+                }
+
+                @if (IsCorpusReplaced(active))
+                {
+                    <div class="conv__notice">
+                        <Badge Tone="BadgeTone.Warning">CORPUS RELOADED</Badge>
+                        <span>
+                            The corpus was reloaded and has changed since this conversation began. Its answers stay readable, checked
+                            against the text they were given. Start a new conversation to ask about the current corpus.
+                        </span>
+                        <Button Variant="ButtonVariant.Secondary" Size="ControlSize.Sm" OnClick="NewConversation">New conversation</Button>
+                    </div>
+                }
+
+                @if (active.Answers.Count == 0 && !active.IsAnswering)
+                {
+                    <div class="conv__empty">
+                        <p class="conv__empty-lede">The first answer will appear here once a question is asked of the corpus.</p>
+                        <div class="conv__suggestions">
+                            @foreach (string suggestion in Suggestions)
+                            {
+                                <Card Variant="CardVariant.Sunken" OnClick="() => UseSuggestionAsync(suggestion)">@suggestion</Card>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @{
+                    int disclaimerAt = DisclaimerIndex(active);
+                    string baseUri = BaseUri;
+                    string fragment = Fragment;
+                }
+                @for (int i = 0; i < active.Answers.Count; i++)
+                {
+                    int index = i;
+                    <AnswerView @key="index" Record="active.Answers[index]" Index="index" ShowDisclaimer="index == disclaimerAt" BaseUri="@baseUri"
+                                ConversationId="active.Id" OpenSources="fragment.StartsWith(AnswerView.SourceIdPrefix(index), StringComparison.Ordinal)" />
+                }
+
+                @if (active.InProgress is { } progress)
+                {
+                    <InProgressView Answer="progress" />
+                }
+            </div>
+
+            <div class="conv__composer">
+                <div class="conv__composer-row">
+                    <QuestionInput @ref="_input" Value="@_draft" ValueChanged="OnDraftChanged" OnSubmit="SubmitAsync" DescribedBy="@ReasonIdOrNull" />
+                    <AskStopButton ConversationId="active.Id" CanAsk="CanAsk" OnAsk="AskAsync" aria-describedby="@ReasonIdOrNull" />
+                </div>
+                @if (UnavailableReason is { } reason)
+                {
+                    @* Read with the button and the input; the notices above already show the corpus's state. *@
+                    <p id="@ReasonId" class="visually-hidden">@reason</p>
+                }
+                @if (_askError is { } error)
+                {
+                    <p class="conv__error" role="alert">@error</p>
+                }
+            </div>
+        </section>
+    </div>
+}
+
+@code {
+    private const string ReasonId = "ask-unavailable-reason";
+    private const string LockedSettingsError =
+        "The settings lock once a question is in flight or answered. Start a new conversation to change them.";
+
+    // A render at most this often while an answer streams, and at once when it starts, ends or is stopped.
+    private static readonly TimeSpan RenderInterval = TimeSpan.FromMilliseconds(100);
+
+    private static readonly string[] Suggestions =
+    [
+        "What are the sump requirements for a UST in Illinois?",
+        "How long must release detection results be kept on file?",
+    ];
+
+    private readonly Lock _gate = new();
+    private RenderThrottle _throttle = null!;
+    private ITimer _warmthExpiry = null!;
+    private Guid _activeId;
+    private Shape _shape;
+    private ConversationSnapshot? _active;
+    private IReadOnlyList<ConversationSnapshot> _conversations = [];
+    private CorpusState _corpusState = new CorpusState.Loading();
+    private CostPreviewText? _preview;
+    private QuestionInput? _input;
+    private string _draft = "";
+    private string? _askError;
+    private string? _settingsError;
+    private bool _refreshing;
+    private bool _disposed;
+
+    /// <summary>
+    /// The conversation on screen, from <c>?c=</c>, so a refresh reopens it and two tabs can show different ones. The
+    /// newest is shown when there is none or it does not exist.
+    /// </summary>
+    [SupplyParameterFromQuery(Name = "c")]
+    public Guid? ConversationId { get; set; }
+
+    private CorpusSnapshot? ReadyCorpus => (_corpusState as CorpusState.Ready)?.Corpus;
+
+    private string BaseUri => Navigation.Uri.Split('#')[0];
+
+    // The element the address points at, such as a source row the Documents screen links back to; empty for none.
+    private string Fragment => Navigation.Uri.IndexOf('#') is var hash and >= 0 ? Navigation.Uri[(hash + 1)..] : "";
+
+    private bool CanAsk =>
+        _active is { IsAnswering: false } active && CorpusBlocker(active) is null && !string.IsNullOrWhiteSpace(_draft);
+
+    private string? UnavailableReason => _active switch
+    {
+        null or { IsAnswering: true } => null,
+        { } active when CorpusBlocker(active) is { } blocker => blocker,
+        _ when string.IsNullOrWhiteSpace(_draft) => "Type a question to ask.",
+        _ => null,
+    };
+
+    private string? ReasonIdOrNull => UnavailableReason is null ? null : ReasonId;
+
+    /// <inheritdoc/>
+    protected override void OnInitialized()
+    {
+        _throttle = new RenderThrottle(Time, RenderInterval, () => _ = InvokeAsync(RenderNow));
+        _warmthExpiry = Time.CreateTimer(_ => _throttle.Flush(), null, Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+        Store.Changed += OnStoreChanged;
+        CorpusSource.StateChanged += OnCorpusChanged;
+    }
+
+    /// <inheritdoc/>
+    protected override void OnParametersSet()
+    {
+        ConversationSnapshot? snapshot = ConversationId is { } requested ? Store.Get(requested) : null;
+        snapshot ??= Store.List().FirstOrDefault() ?? Store.Create();
+
+        lock (_gate)
+        {
+            if (_activeId != snapshot.Id)
+            {
+                _activeId = snapshot.Id;
+                _shape = Shape.Of(snapshot);
+                _askError = null;
+                _settingsError = null;
+            }
+        }
+
+        Refresh();
+    }
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+        _disposed = true;
+        Store.Changed -= OnStoreChanged;
+        CorpusSource.StateChanged -= OnCorpusChanged;
+        _throttle.Dispose();
+        _warmthExpiry.Dispose();
+    }
+
+    // Raised on whichever thread changed the store. A change to the conversation on screen that starts, ends or stops
+    // an answer, or brings its first text, renders at once; streamed fragments and other conversations' changes wait
+    // for the throttle.
+    private void OnStoreChanged(Guid id)
+    {
+        bool flush = false;
+        lock (_gate)
+        {
+            if (id == _activeId && Store.Get(id) is { } snapshot)
+            {
+                Shape shape = Shape.Of(snapshot);
+                flush = shape != _shape;
+                _shape = shape;
+            }
+        }
+
+        if (flush)
+        {
+            _throttle.Flush();
+        }
+        else
+        {
+            _throttle.Request();
+        }
+    }
+
+    private void OnCorpusChanged() => _throttle.Flush();
+
+    private void RenderNow()
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        Refresh();
+        StateHasChanged();
+    }
+
+    private void Refresh()
+    {
+        // Taking the returned question raises a change, which may render here again before this returns.
+        if (_refreshing)
+        {
+            return;
+        }
+
+        _refreshing = true;
+        try
+        {
+            _corpusState = CorpusSource.State;
+            _conversations = Store.List();
+            _active = Store.Get(_activeId) ?? _active;
+            TakeReturnedQuestion();
+            _preview = BuildPreview();
+        }
+        finally
+        {
+            _refreshing = false;
+        }
+    }
+
+    // A stopped, failed or unreplayable turn returns its question through the store, so it reaches the input even in
+    // a tab refreshed since it was asked. Only a live circuit takes it: a prerendered page is thrown away, and would
+    // take the question with it. A draft already being written is not overwritten.
+    private void TakeReturnedQuestion()
+    {
+        if (!RendererInfo.IsInteractive || _active is not { ReturnedQuestion: not null } active || !string.IsNullOrWhiteSpace(_draft))
+        {
+            return;
+        }
+
+        if (Store.TakeReturnedQuestion(active.Id) is { } question)
+        {
+            _draft = question;
+            _active = Store.Get(active.Id) ?? active;
+        }
+    }
+
+    private CostPreviewText? BuildPreview()
+    {
+        if (_active is not { } active || (active.Corpus ?? ReadyCorpus) is not { } corpus)
+        {
+            _warmthExpiry.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
+            return null;
+        }
+
+        CacheWarmth warmth = Warmth.GetWarmth(CorpusCacheKey.For(corpus, active.Settings));
+
+        // A warm prediction turns cold at a known time with nothing else changing, so the preview refreshes then.
+        TimeSpan due = warmth.WarmUntil is { } until
+            ? TimeSpan.FromTicks(Math.Max(0, (until - Time.GetUtcNow() + TimeSpan.FromSeconds(1)).Ticks))
+            : Timeout.InfiniteTimeSpan;
+        _warmthExpiry.Change(due, Timeout.InfiniteTimeSpan);
+
+        return CostPreview.Describe(Costs.Estimate(active.Settings, corpus), warmth, Time.LocalTimeZone, followUp: active.CommittedAnswers > 0);
+    }
+
+    private bool IsCorpusReplaced(ConversationSnapshot conversation) =>
+        conversation.Corpus is { } own && ReadyCorpus is { } current && own.Fingerprint != current.Fingerprint;
+
+    private string? CorpusBlocker(ConversationSnapshot conversation)
+    {
+        if (IsCorpusReplaced(conversation))
+        {
+            return "This conversation's corpus was replaced by a reload, so it takes no more questions. Start a new conversation to ask about the current corpus.";
+        }
+
+        return _corpusState switch
+        {
+            CorpusState.Ready => null,
+            CorpusState.Failed => "The corpus could not be loaded, so there is nothing to ask about yet.",
+            _ => "The corpus is still loading, so there is nothing to ask about yet.",
+        };
+    }
+
+    private static (string Text, BadgeTone Tone)? CacheBadgeOf(ConversationSnapshot conversation)
+    {
+        if (conversation.Answers.Count == 0 && !conversation.IsAnswering)
+        {
+            return ("NO QUESTIONS YET", BadgeTone.Neutral);
+        }
+
+        return conversation.Answers.LastOrDefault(answer => answer.Cache is not null)?.Cache?.Status switch
+        {
+            CacheStatus.ColdWrite => ("COLD CACHE WRITE", BadgeTone.Accent),
+            CacheStatus.Read => ("CACHE READ", BadgeTone.Success),
+            CacheStatus.Miss => ("CACHE MISS", BadgeTone.Danger),
+            CacheStatus.NotCached => ("NOT CACHED", BadgeTone.Danger),
+            _ => null,
+        };
+    }
+
+    private static int DisclaimerIndex(ConversationSnapshot conversation)
+    {
+        for (int i = 0; i < conversation.Answers.Count; i++)
+        {
+            if (conversation.Answers[i].Quotes is { Checks.Count: > 0 })
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    private void Select(Guid id) => Navigation.NavigateTo(Navigation.GetUriWithQueryParameter("c", id));
+
+    // "New conversation" copies the settings of the one on screen; "with different settings" does the same, and the
+    // new conversation's selects are editable.
+    private void NewConversation() => Select(Store.Create(_active?.Settings).Id);
+
+    private void ChangeSettings(AnswerSettings settings)
+    {
+        _settingsError = Store.TryChangeSettings(_activeId, settings) ? null : LockedSettingsError;
+        Refresh();
+    }
+
+    private void OnDraftChanged(string value)
+    {
+        _draft = value;
+        _askError = null;
+    }
+
+    // A suggestion fills the input rather than asking: a first question can cost $2, so asking stays a deliberate act.
+    private async Task UseSuggestionAsync(string suggestion)
+    {
+        _draft = suggestion;
+        _askError = null;
+        if (_input is not null)
+        {
+            await _input.FocusAsync();
+        }
+    }
+
+    private Task AskAsync()
+    {
+        Send(_draft);
+        return Task.CompletedTask;
+    }
+
+    private Task SubmitAsync(string question)
+    {
+        _draft = question;
+        Send(question);
+        return Task.CompletedTask;
+    }
+
+    private void Send(string question)
+    {
+        // Checked against the store, not the last render, so an Enter pressed twice asks once.
+        if (_active is null
+            || Store.Get(_active.Id) is not { IsAnswering: false } current
+            || CorpusBlocker(current) is not null
+            || string.IsNullOrWhiteSpace(question))
+        {
+            return;
+        }
+
+        AskResult result = Store.Ask(current.Id, question);
+        if (result.Accepted)
+        {
+            _draft = "";
+            _askError = null;
+        }
+        else
+        {
+            _askError = result.Refusal;
+        }
+
+        Refresh();
+    }
+
+    private void RetryCorpusLoad()
+    {
+        try
+        {
+            // It never faults; its outcome arrives as a state change.
+            _ = CorpusSource.ReloadAsync();
+        }
+        catch (ObjectDisposedException)
+        {
+            // The app is shutting down.
+        }
+    }
+
+    /// <summary>What decides whether a change to the conversation on screen renders at once.</summary>
+    private readonly record struct Shape(
+        bool Answering, bool Stopping, bool HasText, int Answers, AnswerSettings Settings, bool Locked, string? Returned)
+    {
+        public static Shape Of(ConversationSnapshot snapshot) => new(
+            snapshot.IsAnswering,
+            snapshot.InProgress?.IsStopping ?? false,
+            snapshot.InProgress?.HasText ?? false,
+            snapshot.Answers.Count,
+            snapshot.Settings,
+            snapshot.SettingsLocked,
+            snapshot.ReturnedQuestion);
+    }
+}

@@ -1,0 +1,31 @@
+# --- Secrets -----------------------------------------------------------------
+# The real key lives outside this tree (D:\claude\apikeys\), but these rules are
+# cheap insurance in case one is ever copied in here.
+apikeys/
+*.key
+*-key.txt
+*_key.txt
+.env*
+
+# --- .NET build output ---------------------------------------------------------
+bin/
+obj/
+.vs/
+*.user
+TestResults/
+
+# --- Corpus support assets ----------------------------------------------------
+# Browser "Save Page As" sidecar folders: CSS, JS, images. The .htm files
+# themselves are tracked; these are never read by the extractor.
+admincode/*_files/
+
+# --- Local runtime state ------------------------------------------------------
+# The trailing * covers the .tmp file an interrupted state write can leave.
+.docqa_state.json*
+
+# --- Personal tool settings / editor / OS -------------------------------------
+.claude/settings.local.json
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
