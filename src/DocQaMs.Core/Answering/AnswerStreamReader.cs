@@ -12,7 +12,8 @@ namespace DocQaMs.Core.Answering;
 /// <remarks>
 /// <para>
 /// Every response content carries its content block's <see cref="ChatKeys.BlockIndex"/>. A text block is
-/// complete once content with a higher index arrives, or when the stream ends (<see cref="Finish"/>); its
+/// complete when an update marks its end (<see cref="ChatKeys.CompletedBlockIndex"/>), or failing that once
+/// content with a higher index arrives, or when the stream ends (<see cref="Finish"/>); its
 /// <see cref="AnswerEvent.TextBlockCompleted"/> then carries the citations that arrived for it.
 /// </para>
 /// <para>
@@ -85,6 +86,14 @@ internal sealed class AnswerStreamReader
                     _blocks.Add(new Block(BlockKind.Other, _current?.Index ?? 0) { Other = content });
                     break;
             }
+        }
+
+        // A block's end, when the provider marks it: complete it now, so a Stop or failure before the next block
+        // still leaves it complete.
+        if (update.AdditionalProperties is { } properties
+            && properties.TryGetValue(ChatKeys.CompletedBlockIndex, out long completed))
+        {
+            events.AddRange(CompleteTextBlock(checked((int)completed)));
         }
 
         return events;
@@ -284,12 +293,21 @@ internal sealed class AnswerStreamReader
         List<AnswerEvent> events = [];
         foreach (int open in _openTextBlocks.Keys.Where(open => open < index).ToList())
         {
-            List<AnswerCitation> citations = _openTextBlocks[open];
-            _openTextBlocks.Remove(open);
-            events.Add(new AnswerEvent.TextBlockCompleted(open, citations.AsReadOnly(), _numbering.Number(citations)));
+            events.AddRange(CompleteTextBlock(open));
         }
 
         return events;
+    }
+
+    /// <summary>Completes the text block at <paramref name="index"/>, if it is open; otherwise does nothing.</summary>
+    private List<AnswerEvent> CompleteTextBlock(int index)
+    {
+        if (!_openTextBlocks.Remove(index, out List<AnswerCitation>? citations))
+        {
+            return [];
+        }
+
+        return [new AnswerEvent.TextBlockCompleted(index, citations.AsReadOnly(), _numbering.Number(citations))];
     }
 
     private static string? StringProperty(AdditionalPropertiesDictionary properties, string key) =>

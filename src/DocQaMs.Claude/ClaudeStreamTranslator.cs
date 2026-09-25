@@ -17,7 +17,8 @@ namespace DocQaMs.Claude;
 /// <c>docs/MIGRATION.md</c>:
 /// </para>
 /// <list type="bullet">
-/// <item>tags every text and reasoning content with <see cref="ChatKeys.BlockIndex"/>;</item>
+/// <item>tags every text and reasoning content with <see cref="ChatKeys.BlockIndex"/>, and marks the update
+/// for each <c>content_block_stop</c> with <see cref="ChatKeys.CompletedBlockIndex"/>;</item>
 /// <item>replaces the adapter's redacted-thinking marker with <see cref="ChatKeys.RedactedReasoning"/>;</item>
 /// <item>replaces each citation with one read from the citation's JSON, carrying the document index and
 /// code-point offsets the adapter drops;</item>
@@ -143,6 +144,11 @@ internal sealed class ClaudeStreamTranslator
             }
 
             TagBlock(contents, delta.Index);
+        }
+        else if (streamEvent.TryPickContentBlockStop(out RawContentBlockStopEvent? blockStop))
+        {
+            // The adapter yields nothing for a block's end; the app completes the block here, as DocQa did.
+            (update.AdditionalProperties ??= [])[ChatKeys.CompletedBlockIndex] = blockStop.Index;
         }
         else if (streamEvent.TryPickDelta(out RawMessageDeltaEvent? messageDelta))
         {

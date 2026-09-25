@@ -63,6 +63,17 @@ public static class ChatKeys
     /// </summary>
     public const string BlockIndex = "docqams.block_index";
 
+    // ---- Response side: ChatResponseUpdate.AdditionalProperties ----------------------------------------
+
+    /// <summary>
+    /// On a streamed <see cref="ChatResponseUpdate"/>: the <see cref="BlockIndex"/> of a content block that has
+    /// just ended. The update usually has no contents. It lets a reader complete a block, with its citations,
+    /// as soon as it ends rather than when the next block starts, so a response stopped or failed between
+    /// blocks still has every finished block complete. Readers must not depend on it: content with a higher
+    /// index, or the end of the stream, completes a block too.
+    /// </summary>
+    public const string CompletedBlockIndex = "docqams.completed_block_index";
+
     // ---- Both sides: CitationAnnotation.AdditionalProperties -------------------------------------------
 
     /// <summary>

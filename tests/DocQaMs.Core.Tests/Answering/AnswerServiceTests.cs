@@ -316,6 +316,64 @@ public sealed class AnswerServiceTests
     }
 
     [Fact]
+    public async Task ABlockEndMarker_CompletesItsTextBlockAtOnce_AndOnlyOnce()
+    {
+        List<ChatResponseUpdate> updates =
+        [
+            NeutralUpdates.Start(),
+            .. NeutralUpdates.Text(0, "Cited.", NeutralUpdates.Citation(0, 10)),
+            NeutralUpdates.BlockStop(0),
+            .. NeutralUpdates.Text(1, " Next."),
+            NeutralUpdates.BlockStop(1),
+
+            // A marker for a block already completed, or one that never started, changes nothing.
+            NeutralUpdates.BlockStop(1),
+            NeutralUpdates.BlockStop(7),
+            .. NeutralUpdates.End(),
+        ];
+        using var harness = new AnswerHarness(updates);
+        List<AnswerEvent> received = [];
+
+        await harness.CollectAsync(received, cancellationToken: TestToken);
+
+        // Block 0 completes before block 1's text arrives, not when it does.
+        List<AnswerEvent> blockEvents = [.. received.Where(e => e is AnswerEvent.TextDelta or AnswerEvent.TextBlockCompleted)];
+        Assert.Equal(4, blockEvents.Count);
+        Assert.Equal(new AnswerEvent.TextDelta(0, "Cited."), blockEvents[0]);
+        var first = Assert.IsType<AnswerEvent.TextBlockCompleted>(blockEvents[1]);
+        Assert.Equal(0, first.BlockIndex);
+        Assert.Equal([1], first.SourceNumbers);
+        Assert.Equal(new AnswerEvent.TextDelta(1, " Next."), blockEvents[2]);
+        var second = Assert.IsType<AnswerEvent.TextBlockCompleted>(blockEvents[3]);
+        Assert.Equal(1, second.BlockIndex);
+    }
+
+    [Fact]
+    public async Task Stop_AfterACitedBlockEnded_KeepsThatBlocksCompletion()
+    {
+        // Stop between blocks: the finished block's markers must survive, as they did in DocQa, which
+        // completed a block at content_block_stop rather than when the next block started.
+        FakeResponse response = new FakeResponse(
+        [
+            NeutralUpdates.Start(),
+            .. NeutralUpdates.Text(0, "Cited.", NeutralUpdates.Citation(0, 10)),
+            NeutralUpdates.BlockStop(0),
+        ]).ThenStall();
+        using var harness = new AnswerHarness(new FakeChatClient(response));
+        using var stop = CancellationTokenSource.CreateLinkedTokenSource(TestToken);
+        List<AnswerEvent> received = [];
+
+        Task answer = harness.CollectAsync(received, cancellationToken: stop.Token);
+        await response.Stalled.WaitAsync(TimeSpan.FromSeconds(10), TestToken);
+        await stop.CancelAsync();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => answer);
+        var completed = Assert.Single(received.OfType<AnswerEvent.TextBlockCompleted>());
+        Assert.Equal(0, completed.BlockIndex);
+        Assert.Equal([1], completed.SourceNumbers);
+    }
+
+    [Fact]
     public async Task Stop_WhileTheStreamIsStalled_CancelsTheRead()
     {
         FakeResponse response = new FakeResponse(CannedAnswer.Opening).ThenStall();

@@ -37,6 +37,29 @@ public sealed class ClaudeChatClientStreamingTests
     }
 
     [Fact]
+    public async Task EachBlocksEnd_IsMarkedOnAnUpdate_AfterTheBlocksLastContent()
+    {
+        List<ChatResponseUpdate> updates = await StreamAsync(CannedAnswer.Events);
+
+        List<int> stops = [.. updates
+            .Select((update, position) => (update, position))
+            .Where(item => item.update.AdditionalProperties?.ContainsKey(ChatKeys.CompletedBlockIndex) == true)
+            .Select(item => item.position)];
+
+        // One marker per content_block_stop, in block order, each after every content of its block.
+        Assert.Equal(
+            [0L, 1L, 2L, 3L, 4L, 5L],
+            stops.Select(position => updates[position].AdditionalProperties!.TryGetValue(ChatKeys.CompletedBlockIndex, out long index) ? index : -1));
+        foreach (int position in stops)
+        {
+            long index = (long)updates[position].AdditionalProperties![ChatKeys.CompletedBlockIndex]!;
+            Assert.DoesNotContain(
+                updates.Skip(position + 1).SelectMany(update => update.Contents),
+                content => ClaudeTestClient.BlockIndex(content) == index);
+        }
+    }
+
+    [Fact]
     public async Task Reasoning_StreamsItsTextAndSignature()
     {
         List<ChatResponseUpdate> updates = await StreamAsync(CannedAnswer.Events);

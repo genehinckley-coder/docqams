@@ -104,6 +104,16 @@ internal static class NeutralUpdates
 
     public static ChatResponseUpdate TextDelta(int index, string text) => Update(Tagged(new TextContent(text), index));
 
+    /// <summary>The end of a content block, as the contract marks it: an update with no contents.</summary>
+    public static ChatResponseUpdate BlockStop(int index) =>
+        new(ChatRole.Assistant, [])
+        {
+            ResponseId = ResponseId,
+            MessageId = ResponseId,
+            ModelId = ModelId,
+            AdditionalProperties = new() { [ChatKeys.CompletedBlockIndex] = (long)index },
+        };
+
     /// <summary>A citation as the contract carries it: an empty text content with the block's index and one annotation.</summary>
     public static ChatResponseUpdate CitationDelta(int index, CitationAnnotation citation) =>
         Update(Tagged(new TextContent("") { Annotations = [citation] }, index));

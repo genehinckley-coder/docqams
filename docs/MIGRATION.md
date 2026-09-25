@@ -74,6 +74,11 @@ checking quotes, replaying the conversation, costing — uses Microsoft.Extensio
 * `TextContent` deltas have `BlockIndex`. Citations arrive as a `TextContent("")` with the block's index
   and one `CitationAnnotation` (`Snippet` = cited text, `Title` = document title, offsets in
   AdditionalProperties).
+* The end of each content block is marked by an update (usually with no contents) carrying
+  `CompletedBlockIndex`, so a text block completes, with its citations, as soon as it ends. A response
+  stopped or failed between blocks therefore keeps every finished block's `[n]` markers, as DocQa did
+  (it completed blocks at `content_block_stop`). Content with a higher index, or the end of the stream,
+  still completes a block when no marker arrives.
 * The update carrying `FinishReason` also carries `StopReason` (and refusal details).
 * A failure after the provider has signalled the end of the message ends the stream normally (logged).
 * Failures are `ChatProviderException`; cancellation is `OperationCanceledException`.
