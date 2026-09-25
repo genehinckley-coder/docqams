@@ -114,6 +114,6 @@ checking quotes, replaying the conversation, costing — uses Microsoft.Extensio
 
 | Project | Tests | What |
 |---|---|---|
-| `DocQaMs.Core.Tests` | 552 | Provider-neutral: `FakeChatClient` scripted with contract-shaped updates (`NeutralUpdates`). |
-| `DocQaMs.Claude.Tests` | 180 (+7 live, skipped) | Real `AnthropicClient` + adapter + `ClaudeChatClient` over a stub handler with canned SSE; request bodies asserted byte for byte; end-to-end `AnswerService`. |
+| `DocQaMs.Core.Tests` | 554 | Provider-neutral: `FakeChatClient` scripted with contract-shaped updates (`NeutralUpdates`). |
+| `DocQaMs.Claude.Tests` | 181 (+7 live, skipped) | Real `AnthropicClient` + adapter + `ClaudeChatClient` over a stub handler with canned SSE; request bodies asserted byte for byte; end-to-end `AnswerService`. |
 | `DocQaMs.Web.Tests` | 287 | bUnit. |

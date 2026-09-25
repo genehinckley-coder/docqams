@@ -94,7 +94,7 @@ app declines to claim either way.
 dotnet test
 ```
 
-1,019 tests, all offline (plus 7 live tests, skipped by default). The runner is **Microsoft Testing Platform** (selected in
+1,022 tests, all offline (plus 7 live tests, skipped by default). The runner is **Microsoft Testing Platform** (selected in
 `global.json`), not VSTest — xunit.v3 4.x drops VSTest on the .NET 10 SDK.
 
 ### Live tests cost real money
