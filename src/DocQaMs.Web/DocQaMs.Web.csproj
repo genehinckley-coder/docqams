@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DocQaMs.Claude\DocQaMs.Claude.csproj" />
     <ProjectReference Include="..\DocQaMs.Core\DocQaMs.Core.csproj" />
   </ItemGroup>
 

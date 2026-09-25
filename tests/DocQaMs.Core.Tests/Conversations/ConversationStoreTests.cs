@@ -1,11 +1,10 @@
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using Anthropic.Models.Messages;
 using DocQaMs.Core.Answering;
+using DocQaMs.Core.Chat;
 using DocQaMs.Core.Configuration;
 using DocQaMs.Core.Conversations;
 using DocQaMs.Core.Corpus;
 using DocQaMs.Core.Tests.TestSupport;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 
 namespace DocQaMs.Core.Tests.Conversations;
@@ -50,11 +49,11 @@ public sealed class ConversationStoreTests : IDisposable
         Task turn = _harness.AskAsync(id, "  What must a sump hold?  ");
         ScriptedAnswer answer = await _harness.Answers.NextAsync();
 
-        MessageParam first = Assert.Single(answer.Messages);
-        Assert.True(first.Content.TryPickContentBlockParams(out IReadOnlyList<ContentBlockParam>? blocks));
-        Assert.Equal(_harness.Corpus.Documents.Count + 1, blocks.Count);
-        Assert.True(blocks[^1].TryPickText(out TextBlockParam? question));
-        Assert.Equal("What must a sump hold?", question.Text);
+        ChatMessage first = Assert.Single(answer.Messages);
+        Assert.Equal(ChatRole.User, first.Role);
+        Assert.Equal(_harness.Corpus.Documents.Count + 1, first.Contents.Count);
+        Assert.All(first.Contents.SkipLast(1), content => Assert.IsType<CitableDocumentContent>(content));
+        Assert.Equal("What must a sump hold?", Assert.IsType<TextContent>(first.Contents[^1]).Text);
         Assert.Equal(AnswerSettings.Default, answer.Settings);
 
         ConversationSnapshot inFlight = Store.Get(id)!;
@@ -70,7 +69,7 @@ public sealed class ConversationStoreTests : IDisposable
         Assert.Collection(
             done.Messages,
             message => Assert.Same(first, message),
-            message => Assert.Equal(Role.Assistant, message.Role.Value()));
+            message => Assert.Equal(ChatRole.Assistant, message.Role));
         AnswerRecord record = Assert.Single(done.Answers);
         Assert.Equal(TurnOutcome.Completed, record.Outcome);
         Assert.True(record.IsCommitted);
@@ -215,7 +214,7 @@ public sealed class ConversationStoreTests : IDisposable
     {
         Guid id = Store.Create().Id;
         await _harness.AnswerAsync(id, "First?", await Replies.TextAsync());
-        IReadOnlyList<MessageParam> messages = Store.Get(id)!.Messages;
+        IReadOnlyList<ChatMessage> messages = Store.Get(id)!.Messages;
         Guid empty = Store.Create().Id;
         DocQaMs.Core.Corpus.Corpus reloaded = TestCorpus.Create("fingerprint-2");
         _harness.CorpusSource.Publish(FakeCorpusSource.Ready(reloaded));
@@ -269,7 +268,7 @@ public sealed class ConversationStoreTests : IDisposable
     {
         Guid id = Store.Create().Id;
         AnswerResult refusal = await Replies.EmptyRefusalAsync();
-        Assert.Empty(ReplayConverter.ToParams(refusal.Message.Content));
+        Assert.Empty(ReplayConverter.ToReplay(refusal.Reply));
 
         ConversationSnapshot snapshot = await _harness.AnswerAsync(id, "Q?", refusal);
 
@@ -765,8 +764,7 @@ public sealed class ConversationStoreTests : IDisposable
     [Fact]
     public async Task ThroughTheRealAnswerService_ACannedAnswerIsCommitted_AndTheFollowUpCarriesItBack()
     {
-        var stub = new StubHandler(_ => Sse.Response(CannedAnswer.Events));
-        using var answers = new AnswerHarness(stub);
+        using var answers = new AnswerHarness(CannedAnswer.Updates);
         using var harness = new StoreHarness(answers: answers.Service);
         Guid id = harness.Store.Create().Id;
 
@@ -787,16 +785,24 @@ public sealed class ConversationStoreTests : IDisposable
         // The canned response writes the corpus again on the follow-up, which the tracker did not predict.
         Assert.Equal(CacheStatus.Miss, done.Answers[1].Cache!.Status);
 
-        Assert.Equal(2, stub.Requests.Count);
-        using JsonDocument body = JsonDocument.Parse(stub.Requests[1].Body!);
-        JsonElement messages = body.RootElement.GetProperty("messages");
-        Assert.Equal(3, messages.GetArrayLength());
-        JsonElement firstContent = messages[0].GetProperty("content");
-        JsonElement previousQuestion = firstContent[firstContent.GetArrayLength() - 1];
-        Assert.Equal("What must a sump hold?", previousQuestion.GetProperty("text").GetString());
-        Assert.Equal("5m", previousQuestion.GetProperty("cache_control").GetProperty("ttl").GetString());
-        JsonTest.Equal(CannedAnswer.ReplayedContentJson, JsonNode.Parse(messages[1].GetProperty("content").GetRawText()));
-        Assert.Equal("And a spill bucket?", messages[2].GetProperty("content")[0].GetProperty("text").GetString());
+        Assert.Equal(2, answers.Client.Calls.Count);
+        IReadOnlyList<ChatMessage> messages = answers.Client.Calls[1].Messages;
+        Assert.Equal(3, messages.Count);
+        TextContent previousQuestion = Assert.IsType<TextContent>(messages[0].Contents[^1]);
+        Assert.Equal("What must a sump hold?", previousQuestion.Text);
+        Assert.Equal("5m", previousQuestion.AdditionalProperties?[ChatKeys.CacheTtl]);
+
+        // The reply goes back as committed: its thinking, redacted thinking and cited text, minus the empty block.
+        Assert.Equal(ChatRole.Assistant, messages[1].Role);
+        Assert.Same(done.Messages[1], messages[1]);
+        Assert.Collection(
+            messages[1].Contents,
+            content => Assert.Equal(CannedAnswer.Signature, Assert.IsType<TextReasoningContent>(content).ProtectedData),
+            content => Assert.Equal(CannedAnswer.RedactedData, Assert.IsType<TextReasoningContent>(content).ProtectedData),
+            content => Assert.Equal("Sumps must hold ", Assert.IsType<TextContent>(content).Text),
+            content => Assert.Equal(2, Assert.IsType<TextContent>(content).Annotations?.Count),
+            content => Assert.Equal(".", Assert.IsType<TextContent>(content).Text));
+        Assert.Equal("And a spill bucket?", Assert.IsType<TextContent>(Assert.Single(messages[2].Contents)).Text);
     }
 
     // --- Titles and totals --------------------------------------------------------------------------
@@ -838,14 +844,14 @@ public sealed class ConversationStoreTests : IDisposable
     }
 
     /// <summary>Asserts roles alternate from a user message to a final user message, and the request builder accepts them.</summary>
-    private static void AssertSendable(IReadOnlyList<MessageParam> messages)
+    private static void AssertSendable(IReadOnlyList<ChatMessage> messages)
     {
         for (int i = 0; i < messages.Count; i++)
         {
-            Assert.Equal(i % 2 == 0 ? Role.User : Role.Assistant, messages[i].Role.Value());
+            Assert.Equal(i % 2 == 0 ? ChatRole.User : ChatRole.Assistant, messages[i].Role);
         }
 
-        Assert.Equal(Role.User, messages[^1].Role.Value());
+        Assert.Equal(ChatRole.User, messages[^1].Role);
         MessageRequestBuilder.Create(ModelIds.ClaudeOpus5, EffortLevel.High, 32_000, CacheAffecting.SystemPrompt, messages);
     }
 

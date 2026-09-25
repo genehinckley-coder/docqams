@@ -1,5 +1,3 @@
-using Anthropic.Models.Messages;
-
 namespace DocQaMs.Core.Configuration;
 
 /// <summary>
@@ -60,22 +58,6 @@ public static class EffortLevelExtensions
         EffortLevel.High => "High",
         EffortLevel.XHigh => "Extra high",
         EffortLevel.Max => "Max",
-        _ => throw new ArgumentOutOfRangeException(nameof(level), level, "Not a defined effort level."),
-    };
-
-    /// <summary>
-    /// Returns the SDK's value for <c>output_config.effort</c>.
-    /// </summary>
-    /// <param name="level">The effort level.</param>
-    /// <returns>The matching <see cref="Effort"/> member; it serializes to <see cref="ToWireValue"/>.</returns>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="level"/> is not a defined value.</exception>
-    public static Effort ToSdkEffort(this EffortLevel level) => level switch
-    {
-        EffortLevel.Low => Effort.Low,
-        EffortLevel.Medium => Effort.Medium,
-        EffortLevel.High => Effort.High,
-        EffortLevel.XHigh => Effort.Xhigh,
-        EffortLevel.Max => Effort.Max,
         _ => throw new ArgumentOutOfRangeException(nameof(level), level, "Not a defined effort level."),
     };
 }

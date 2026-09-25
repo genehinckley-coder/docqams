@@ -1,46 +1,49 @@
 using System.Runtime.CompilerServices;
-using Anthropic;
-using Anthropic.Helpers;
-using Anthropic.Models.Messages;
-using DocQaMs.Core.ApiClient;
+using DocQaMs.Core.Chat;
 using DocQaMs.Core.Configuration;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace DocQaMs.Core.Answering;
 
 /// <summary>
-/// Streams one answer through the Messages API, in the prototype's request shape at the selected model
-/// and level.
+/// Streams one answer through the provider's chat client, in the prototype's request shape at the selected
+/// model and level.
 /// </summary>
 /// <remarks>
 /// <para>
-/// The stream is enumerated once: the SDK's aggregator passes every event through as it builds the
-/// final message, so the same pass serves the UI and the final message (proved by plan item 1).
+/// The stream is enumerated once: each update is turned into answer events for the UI and aggregated into
+/// the final response in the same pass (<see cref="AnswerStreamReader"/>).
 /// </para>
 /// <para>
-/// Each level's timeout is enforced here, on the token passed to the SDK. The SDK's own timeout bounds
-/// only the wait for the response headers, and a body that stalls after them is never interrupted
-/// (plan item 1).
+/// Each level's timeout is enforced here, on the token passed to the chat client, whatever the client
+/// itself enforces: a body that stalls after the response headers must still be interrupted (plan item 1).
 /// </para>
 /// </remarks>
 public sealed class AnswerService : IAnswerService
 {
-    private readonly Func<IAnthropicClientProvider> _clientProvider;
+    /// <summary>
+    /// The share of the level's timeout after which a cancellation nobody asked for is taken as the chat
+    /// client's own timeout. The margin allows for timer resolution.
+    /// </summary>
+    private const double ClientTimeoutFraction = 0.95;
+
+    private readonly Func<IChatClientProvider> _clientProvider;
     private readonly IOptions<DocQaOptions> _options;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<AnswerService> _logger;
 
     /// <summary>Creates the service.</summary>
     /// <param name="clientProvider">
-    /// Supplies the client when an answer is requested, not before. The client is built on first use, so
-    /// a missing or malformed key file surfaces as a failed answer, which the UI can show.
+    /// Supplies the chat client provider when an answer is requested, not before. The provider is built on
+    /// first use, so a missing or malformed key file surfaces as a failed answer, which the UI can show.
     /// </param>
     /// <param name="options">The options: <c>max_tokens</c>, timeout and prices.</param>
     /// <param name="timeProvider">The clock, for the timeout and the elapsed time.</param>
     /// <param name="logger">Receives every failure, with its full exception. Never a request body.</param>
     public AnswerService(
-        Func<IAnthropicClientProvider> clientProvider,
+        Func<IChatClientProvider> clientProvider,
         IOptions<DocQaOptions> options,
         TimeProvider timeProvider,
         ILogger<AnswerService> logger)
@@ -59,7 +62,7 @@ public sealed class AnswerService : IAnswerService
     /// <inheritdoc/>
     public async IAsyncEnumerable<AnswerEvent> StreamAsync(
         AnswerSettings settings,
-        IReadOnlyList<MessageParam> messages,
+        IReadOnlyList<ChatMessage> messages,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(settings);
@@ -71,18 +74,17 @@ public sealed class AnswerService : IAnswerService
         ModelPrices prices = options.Prices[settings.ModelId];
 
         // Built before anything is sent: an invalid conversation is a programming error, not a failed answer.
-        MessageCreateParams request = MessageRequestBuilder.Create(
+        ChatRequest request = MessageRequestBuilder.Create(
             settings.ModelId, settings.Effort, options.MaxTokens[settings.Effort], CacheAffecting.SystemPrompt, messages);
-        IAnthropicClient client = ClientFor(settings.Effort);
+        IChatClient client = ClientFor(settings.Effort);
 
         using var timeoutSource = new CancellationTokenSource(timeout, _timeProvider);
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, timeoutSource.Token);
         long started = _timeProvider.GetTimestamp();
-        var aggregator = new MessageContentAggregator();
         var reader = new AnswerStreamReader(prices);
 
-        IAsyncEnumerator<RawMessageStreamEvent> stream = aggregator
-            .CollectAsync(client.Messages.CreateStreaming(request, linked.Token))
+        IAsyncEnumerator<ChatResponseUpdate> stream = client
+            .GetStreamingResponseAsync(request.Messages, request.Options, linked.Token)
             .GetAsyncEnumerator(linked.Token);
         try
         {
@@ -93,13 +95,15 @@ public sealed class AnswerService : IAnswerService
                 IReadOnlyList<AnswerEvent> events;
                 try
                 {
-                    if (await NextAsync(stream, reader, settings))
+                    if (await stream.MoveNextAsync())
                     {
                         events = reader.Read(stream.Current);
                     }
                     else
                     {
-                        events = [new AnswerEvent.Completed(Complete(aggregator.Message(), reader, settings, options, started))];
+                        // The provider's client ends the stream normally once the whole message has arrived,
+                        // even if closing the response then fails, so what was paid for is kept.
+                        events = [.. reader.Finish(), new AnswerEvent.Completed(Complete(reader, settings, options, started))];
                         finished = true;
                     }
                 }
@@ -117,7 +121,7 @@ public sealed class AnswerService : IAnswerService
                 catch (Exception ex)
                 {
                     AnswerFailedException failure = AnswerFailures.Map(
-                        ex, settings.Effort, TimedOutAfter(ex, timeoutSource, timeout, client, started));
+                        ex, settings.Effort, TimedOutAfter(ex, timeoutSource, timeout, started));
                     _logger.LogError(
                         ex, "Answer failed ({Kind}) on {Model} at {Effort}.", failure.Kind, settings.ModelId, settings.Effort);
                     throw failure;
@@ -145,38 +149,16 @@ public sealed class AnswerService : IAnswerService
     }
 
     /// <summary>
-    /// Moves to the next raw event. A failure after <c>message_stop</c> ends the stream instead of the answer.
-    /// </summary>
-    /// <remarks>
-    /// The SDK closes the HTTP response inside the final <c>MoveNextAsync</c>, after <c>message_stop</c>
-    /// has arrived. By then the aggregator holds the whole message, which has been paid for, so a failure
-    /// closing the response, or a Stop landing then, must not discard it.
-    /// </remarks>
-    private async Task<bool> NextAsync(IAsyncEnumerator<RawMessageStreamEvent> stream, AnswerStreamReader reader, AnswerSettings settings)
-    {
-        try
-        {
-            return await stream.MoveNextAsync();
-        }
-        catch (Exception ex) when (reader.MessageStopped)
-        {
-            _logger.LogWarning(
-                ex, "The answer arrived whole, but closing its stream failed on {Model} at {Effort}.", settings.ModelId, settings.Effort);
-            return false;
-        }
-    }
-
-    /// <summary>
     /// The timeout that ended the request, or <see langword="null"/> when no timeout did.
     /// </summary>
     /// <remarks>
-    /// Either this service's own timeout fired, or the SDK's timeout on the response headers did. The SDK's
-    /// throws a bare <see cref="TaskCanceledException"/>, with no inner exception or other marker (checked
-    /// against 12.47.0), so it is recognized by how long the request ran. The 5% margin allows for timer
-    /// resolution.
+    /// Either this service's own timeout fired, or the chat client's did. The client's whole-request timeout
+    /// equals the level's (see <see cref="IChatClientProvider.ForEffort"/>), and it surfaces as a bare
+    /// <see cref="OperationCanceledException"/> with the caller's token not cancelled, so it is recognized by
+    /// how long the request ran.
     /// </remarks>
     private TimeSpan? TimedOutAfter(
-        Exception exception, CancellationTokenSource timeoutSource, TimeSpan timeout, IAnthropicClient client, long started)
+        Exception exception, CancellationTokenSource timeoutSource, TimeSpan timeout, long started)
     {
         if (timeoutSource.IsCancellationRequested)
         {
@@ -184,13 +166,12 @@ public sealed class AnswerService : IAnswerService
         }
 
         return exception is OperationCanceledException
-            && client.Timeout is { } headerTimeout
-            && _timeProvider.GetElapsedTime(started) >= headerTimeout * 0.95
-                ? headerTimeout
+            && _timeProvider.GetElapsedTime(started) >= timeout * ClientTimeoutFraction
+                ? timeout
                 : null;
     }
 
-    private IAnthropicClient ClientFor(EffortLevel effort)
+    private IChatClient ClientFor(EffortLevel effort)
     {
         try
         {
@@ -204,21 +185,23 @@ public sealed class AnswerService : IAnswerService
         }
     }
 
-    private AnswerResult Complete(
-        Message message, AnswerStreamReader reader, AnswerSettings settings, DocQaOptions options, long started)
+    private AnswerResult Complete(AnswerStreamReader reader, AnswerSettings settings, DocQaOptions options, long started)
     {
         TimeSpan elapsed = _timeProvider.GetElapsedTime(started);
-        TokenUsage usage = TokenUsage.From(message.Usage);
+        ChatResponse response = reader.Response();
+
+        // The provider reports usage on every response; without it, nothing is known to have been billed.
+        TokenUsage usage = TokenUsage.From(response.Usage ?? new UsageDetails());
         TurnCost cost = TurnCost.For(usage, options.Prices[settings.ModelId]);
-        StopWarning? warning = StopWarning.For(message, reader.StopDetails, settings.Effort, options.MaxTokens);
+        StopWarning? warning = StopWarning.For(response, settings.Effort, options.MaxTokens);
 
         _logger.LogInformation(
             "Answer completed on {Model} at {Effort} in {Seconds:0.0} s, stop reason {StopReason}: input {Input}, " +
             "1-hour write {Write1h}, 5-minute write {Write5m}, read {Read}, output {Output}, cost {Cost:0.0000} USD.",
-            settings.ModelId, settings.Effort, elapsed.TotalSeconds, message.StopReason?.Raw(), usage.Input,
+            settings.ModelId, settings.Effort, elapsed.TotalSeconds, StopWarning.StopReasonOf(response), usage.Input,
             usage.CacheWrite1h, usage.CacheWrite5m, usage.CacheRead, usage.Output, cost.Total);
 
-        return new AnswerResult(settings, message, reader.Sources(message), usage, cost, elapsed, warning);
+        return new AnswerResult(settings, response, reader.Sources(response), usage, cost, elapsed, warning);
     }
 
     private void LogStopped(AnswerSettings settings) =>

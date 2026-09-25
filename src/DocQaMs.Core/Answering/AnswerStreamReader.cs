@@ -1,19 +1,49 @@
-using Anthropic.Models.Messages;
+using System.Text;
+using DocQaMs.Core.Chat;
 using DocQaMs.Core.Configuration;
+using Microsoft.Extensions.AI;
 
 namespace DocQaMs.Core.Answering;
 
 /// <summary>
-/// Turns the SDK's raw stream events into <see cref="AnswerEvent"/>s, and numbers citations as they
-/// arrive. One instance reads one response.
+/// Turns the chat client's streamed updates into <see cref="AnswerEvent"/>s, numbers citations as they
+/// arrive, and aggregates the final response. One instance reads one response.
 /// </summary>
+/// <remarks>
+/// <para>
+/// Every response content carries its content block's <see cref="ChatKeys.BlockIndex"/>. A text block is
+/// complete once content with a higher index arrives, or when the stream ends (<see cref="Finish"/>); its
+/// <see cref="AnswerEvent.TextBlockCompleted"/> then carries the citations that arrived for it.
+/// </para>
+/// <para>
+/// The reply is aggregated per block rather than by <c>ToChatResponse()</c>, which would merge adjacent text
+/// blocks and lose which citations belong to which block: each block becomes one content of the final
+/// message, in block order, with its citations and thinking signature intact.
+/// </para>
+/// </remarks>
 internal sealed class AnswerStreamReader
 {
     private readonly ModelPrices _prices;
 
-    // The citations of each text block that has started but not yet stopped, by block index.
-    private readonly Dictionary<long, List<AnswerCitation>> _openTextBlocks = [];
+    // Every block in the order it started, which is block order; and the same blocks by index.
+    private readonly List<Block> _blocks = [];
+    private readonly Dictionary<int, Block> _blocksByIndex = [];
+
+    // The text blocks that have started but not yet completed, with their citations as numbered sources.
+    private readonly SortedDictionary<int, List<AnswerCitation>> _openTextBlocks = [];
     private readonly CitationNumbering _numbering = new();
+
+    private Block? _current;
+    private bool _usageStarted;
+    private UsageDetails? _usage;
+    private ChatFinishReason? _finishReason;
+    private string? _stopReason;
+    private string? _refusalCategory;
+    private string? _refusalExplanation;
+    private string? _modelId;
+    private string? _responseId;
+    private string? _messageId;
+    private DateTimeOffset? _createdAt;
 
     public AnswerStreamReader(ModelPrices prices)
     {
@@ -21,121 +51,308 @@ internal sealed class AnswerStreamReader
         _prices = prices;
     }
 
-    /// <summary>The refusal details from the last <c>message_delta</c>, if any.</summary>
-    public RefusalStopDetails? StopDetails { get; private set; }
-
-    /// <summary>Whether <c>message_stop</c> has arrived: the whole response has been received.</summary>
-    public bool MessageStopped { get; private set; }
-
-    /// <summary>Reads one raw event.</summary>
-    /// <returns>The answer events it produces: usually one, sometimes none.</returns>
-    /// <exception cref="NotSupportedException">A citation is not a well-formed <c>char_location</c> citation.</exception>
-    public IReadOnlyList<AnswerEvent> Read(RawMessageStreamEvent streamEvent)
+    /// <summary>Reads one streamed update.</summary>
+    /// <param name="update">The update.</param>
+    /// <returns>The answer events it produces: often one, sometimes none, sometimes more.</returns>
+    /// <exception cref="NotSupportedException">
+    /// A citation is not a well-formed <c>char_location</c> citation, or two kinds of content claim one block.
+    /// </exception>
+    public IReadOnlyList<AnswerEvent> Read(ChatResponseUpdate update)
     {
-        ArgumentNullException.ThrowIfNull(streamEvent);
+        ArgumentNullException.ThrowIfNull(update);
 
-        if (streamEvent.TryPickStart(out RawMessageStartEvent? start))
+        ReadMetadata(update);
+
+        List<AnswerEvent> events = [];
+        foreach (AIContent content in update.Contents)
         {
-            TokenUsage usage = TokenUsage.InputSide(start.Message.Usage);
-            return [new AnswerEvent.UsageStarted(usage, TurnCost.For(usage, _prices))];
+            switch (content)
+            {
+                case UsageContent usage:
+                    ReadUsage(usage, events);
+                    break;
+                case TextReasoningContent reasoning:
+                    ReadReasoning(reasoning, events);
+                    break;
+                case TextContent text:
+                    ReadText(text, events);
+                    break;
+                case null:
+                    break;
+                default:
+                    // Not something this app requests. It is kept in the reply, where the replay conversion
+                    // refuses it, so the reply is shown but not committed.
+                    _blocks.Add(new Block(BlockKind.Other, _current?.Index ?? 0) { Other = content });
+                    break;
+            }
         }
 
-        if (streamEvent.TryPickContentBlockStart(out RawContentBlockStartEvent? blockStart))
-        {
-            return ReadBlockStart(blockStart);
-        }
+        return events;
+    }
 
-        if (streamEvent.TryPickContentBlockDelta(out RawContentBlockDeltaEvent? delta))
-        {
-            return ReadDelta(delta);
-        }
+    /// <summary>
+    /// Completes every text block still open: the stream has ended. Call once, after the last update.
+    /// </summary>
+    /// <returns>A <see cref="AnswerEvent.TextBlockCompleted"/> per open text block, in block order.</returns>
+    public IReadOnlyList<AnswerEvent> Finish() => CompleteTextBlocksBefore(int.MaxValue);
 
-        if (streamEvent.TryPickContentBlockStop(out RawContentBlockStopEvent? blockStop)
-            && _openTextBlocks.Remove(blockStop.Index, out List<AnswerCitation>? citations))
-        {
-            return [new AnswerEvent.TextBlockCompleted(BlockIndex(blockStop.Index), citations, _numbering.Number(citations))];
-        }
+    /// <summary>
+    /// The aggregated response: one assistant message with one content per block, in block order; the finish
+    /// reason; the last usage reported; the model and response ids; and the provider's stop reason and
+    /// refusal details under their <see cref="ChatKeys"/>.
+    /// </summary>
+    /// <returns>A new response. The reader's state is not changed.</returns>
+    public ChatResponse Response()
+    {
+        List<AIContent> contents = [.. _blocks.Select(block => block.ToContent())];
+        var message = new ChatMessage(ChatRole.Assistant, contents) { MessageId = _messageId, CreatedAt = _createdAt };
 
-        if (streamEvent.TryPickDelta(out RawMessageDeltaEvent? messageDelta) && messageDelta.Delta.StopDetails is { } details)
-        {
-            StopDetails = details;
-        }
+        AdditionalPropertiesDictionary? properties = null;
+        AddProperty(ref properties, ChatKeys.StopReason, _stopReason);
+        AddProperty(ref properties, ChatKeys.RefusalCategory, _refusalCategory);
+        AddProperty(ref properties, ChatKeys.RefusalExplanation, _refusalExplanation);
 
-        if (streamEvent.TryPickStop(out _))
+        return new ChatResponse(message)
         {
-            MessageStopped = true;
-        }
-
-        return [];
+            FinishReason = _finishReason,
+            Usage = _usage,
+            ModelId = _modelId,
+            ResponseId = _responseId,
+            CreatedAt = _createdAt,
+            AdditionalProperties = properties,
+        };
     }
 
     /// <summary>
     /// The distinct cited spans in the order first cited, after numbering any citation in
-    /// <paramref name="message"/> that the stream did not deliver. Normally that adds nothing, since every
-    /// cited block has already passed through <c>content_block_stop</c>; it keeps the list complete if one
+    /// <paramref name="response"/> that the stream did not deliver as part of a completed block. Normally
+    /// that adds nothing, since every cited block has already completed; it keeps the list complete if one
     /// did not, as the prototype does.
     /// </summary>
-    public IReadOnlyList<AnswerCitation> Sources(Message message)
+    /// <param name="response">The final response.</param>
+    /// <returns>The sources. Marker <c>[n]</c> is element <c>n - 1</c>.</returns>
+    /// <exception cref="NotSupportedException">A citation is not a well-formed <c>char_location</c> citation.</exception>
+    public IReadOnlyList<AnswerCitation> Sources(ChatResponse response)
     {
-        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(response);
 
-        foreach (ContentBlock block in message.Content)
+        foreach (AIContent content in response.Messages.SelectMany(message => message.Contents))
         {
-            if (block.TryPickText(out TextBlock? text) && text.Citations is { Count: > 0 } cited)
+            if (content is TextContent { Annotations: { Count: > 0 } annotations })
             {
-                _numbering.Number(cited.Select(AnswerCitation.From));
+                _numbering.Number(annotations.OfType<CitationAnnotation>().Select(AnswerCitation.From));
             }
         }
 
         return _numbering.Sources;
     }
 
-    private IReadOnlyList<AnswerEvent> ReadBlockStart(RawContentBlockStartEvent blockStart)
+    private void ReadMetadata(ChatResponseUpdate update)
     {
-        if (blockStart.ContentBlock.TryPickText(out TextBlock? text))
+        _modelId = update.ModelId ?? _modelId;
+        _responseId = update.ResponseId ?? _responseId;
+        _messageId = update.MessageId ?? _messageId;
+        _createdAt ??= update.CreatedAt;
+        _finishReason = update.FinishReason ?? _finishReason;
+
+        if (update.AdditionalProperties is { } properties)
         {
-            _openTextBlocks[blockStart.Index] = [.. (text.Citations ?? []).Select(AnswerCitation.From)];
-
-            // The API starts every text block empty; this keeps any text it might carry.
-            return string.IsNullOrEmpty(text.Text) ? [] : [new AnswerEvent.TextDelta(BlockIndex(blockStart.Index), text.Text)];
+            _stopReason = StringProperty(properties, ChatKeys.StopReason) ?? _stopReason;
+            _refusalCategory = StringProperty(properties, ChatKeys.RefusalCategory) ?? _refusalCategory;
+            _refusalExplanation = StringProperty(properties, ChatKeys.RefusalExplanation) ?? _refusalExplanation;
         }
-
-        if (blockStart.ContentBlock.TryPickRedactedThinking(out _))
-        {
-            return [new AnswerEvent.ThinkingRedacted()];
-        }
-
-        if (blockStart.ContentBlock.TryPickThinking(out ThinkingBlock? thinking) && !string.IsNullOrEmpty(thinking.Thinking))
-        {
-            return [new AnswerEvent.ThinkingDelta(thinking.Thinking)];
-        }
-
-        return [];
     }
 
-    private IReadOnlyList<AnswerEvent> ReadDelta(RawContentBlockDeltaEvent delta)
+    private void ReadUsage(UsageContent usage, List<AnswerEvent> events)
     {
-        if (delta.Delta.TryPickText(out TextDelta? text))
+        // The first usage carries the input side; the last carries the final counts.
+        _usage = usage.Details;
+        if (!_usageStarted)
         {
-            return string.IsNullOrEmpty(text.Text) ? [] : [new AnswerEvent.TextDelta(BlockIndex(delta.Index), text.Text)];
+            _usageStarted = true;
+            TokenUsage input = TokenUsage.InputSide(usage.Details);
+            events.Add(new AnswerEvent.UsageStarted(input, TurnCost.For(input, _prices)));
         }
-
-        if (delta.Delta.TryPickThinking(out ThinkingDelta? thinking))
-        {
-            return string.IsNullOrEmpty(thinking.Thinking) ? [] : [new AnswerEvent.ThinkingDelta(thinking.Thinking)];
-        }
-
-        if (delta.Delta.TryPickCitations(out CitationsDelta? citation)
-            && _openTextBlocks.TryGetValue(delta.Index, out List<AnswerCitation>? citations))
-        {
-            citations.Add(AnswerCitation.From(citation.Citation));
-        }
-
-        // Signature deltas matter only for replay, and the aggregator keeps them in the final message.
-        return [];
     }
 
-    private static int BlockIndex(long index) => checked((int)index);
+    private void ReadReasoning(TextReasoningContent reasoning, List<AnswerEvent> events)
+    {
+        bool redacted = ReplayConverter.IsRedacted(reasoning);
+        Block block = BlockFor(reasoning, BlockKind.Reasoning, events, out _);
+        if (!string.IsNullOrEmpty(reasoning.ProtectedData))
+        {
+            block.ProtectedData = reasoning.ProtectedData;
+        }
+
+        if (redacted)
+        {
+            // Its content is encrypted: it is announced once, on its first content, and only its data is kept.
+            if (!block.Redacted)
+            {
+                block.Redacted = true;
+                events.Add(new AnswerEvent.ThinkingRedacted());
+            }
+
+            return;
+        }
+
+        if (!string.IsNullOrEmpty(reasoning.Text))
+        {
+            block.Text.Append(reasoning.Text);
+            events.Add(new AnswerEvent.ThinkingDelta(reasoning.Text));
+        }
+    }
+
+    private void ReadText(TextContent text, List<AnswerEvent> events)
+    {
+        Block block = BlockFor(text, BlockKind.Text, events, out bool started);
+        if (started)
+        {
+            _openTextBlocks[block.Index] = [];
+        }
+
+        if (!string.IsNullOrEmpty(text.Text))
+        {
+            block.Text.Append(text.Text);
+            events.Add(new AnswerEvent.TextDelta(block.Index, text.Text));
+        }
+
+        foreach (CitationAnnotation citation in (text.Annotations ?? []).OfType<CitationAnnotation>())
+        {
+            // Read first, so a citation this app cannot check fails the answer rather than being kept.
+            AnswerCitation read = AnswerCitation.From(citation);
+            block.Citations.Add(citation);
+            if (_openTextBlocks.TryGetValue(block.Index, out List<AnswerCitation>? open))
+            {
+                open.Add(read);
+            }
+        }
+    }
+
+    /// <summary>
+    /// The block <paramref name="content"/> belongs to, started if it is new. Any text block with a lower
+    /// index is complete, and its <see cref="AnswerEvent.TextBlockCompleted"/> is added first.
+    /// </summary>
+    private Block BlockFor(AIContent content, BlockKind kind, List<AnswerEvent> events, out bool started)
+    {
+        int index = IndexOf(content, kind);
+        events.AddRange(CompleteTextBlocksBefore(index));
+
+        if (_blocksByIndex.TryGetValue(index, out Block? block))
+        {
+            if (block.Kind != kind)
+            {
+                throw new NotSupportedException(
+                    $"Content block {index} carries both {block.Kind} and {kind} content; this app cannot read it.");
+            }
+
+            started = false;
+        }
+        else
+        {
+            block = new Block(kind, index);
+            _blocksByIndex[index] = block;
+            _blocks.Add(block);
+            started = true;
+        }
+
+        _current = block;
+        return block;
+    }
+
+    /// <summary>
+    /// The content's <see cref="ChatKeys.BlockIndex"/>. The provider always sets one; without it, the content
+    /// continues the current block when it is of the same kind, and starts the next one otherwise.
+    /// </summary>
+    private int IndexOf(AIContent content, BlockKind kind)
+    {
+        if (content.AdditionalProperties is { } properties && properties.TryGetValue(ChatKeys.BlockIndex, out long index))
+        {
+            return checked((int)index);
+        }
+
+        return _current switch
+        {
+            null => 0,
+            { } current when current.Kind == kind => current.Index,
+            { } current => current.Index + 1,
+        };
+    }
+
+    private List<AnswerEvent> CompleteTextBlocksBefore(int index)
+    {
+        List<AnswerEvent> events = [];
+        foreach (int open in _openTextBlocks.Keys.Where(open => open < index).ToList())
+        {
+            List<AnswerCitation> citations = _openTextBlocks[open];
+            _openTextBlocks.Remove(open);
+            events.Add(new AnswerEvent.TextBlockCompleted(open, citations.AsReadOnly(), _numbering.Number(citations)));
+        }
+
+        return events;
+    }
+
+    private static string? StringProperty(AdditionalPropertiesDictionary properties, string key) =>
+        properties.TryGetValue(key, out string? value) ? value : null;
+
+    private static void AddProperty(ref AdditionalPropertiesDictionary? properties, string key, string? value)
+    {
+        if (value is not null)
+        {
+            (properties ??= [])[key] = value;
+        }
+    }
+
+    private enum BlockKind
+    {
+        Reasoning,
+        Text,
+        Other,
+    }
+
+    /// <summary>One content block as it accumulates.</summary>
+    private sealed class Block(BlockKind kind, int index)
+    {
+        public BlockKind Kind { get; } = kind;
+
+        public int Index { get; } = index;
+
+        public StringBuilder Text { get; } = new();
+
+        public List<AIAnnotation> Citations { get; } = [];
+
+        public string? ProtectedData { get; set; }
+
+        public bool Redacted { get; set; }
+
+        /// <summary>For <see cref="BlockKind.Other"/>: the content as it arrived.</summary>
+        public AIContent? Other { get; init; }
+
+        public AIContent ToContent()
+        {
+            if (Kind == BlockKind.Other)
+            {
+                return Other!;
+            }
+
+            var properties = new AdditionalPropertiesDictionary { [ChatKeys.BlockIndex] = (long)Index };
+            if (Kind == BlockKind.Reasoning)
+            {
+                if (Redacted)
+                {
+                    properties[ChatKeys.RedactedReasoning] = true;
+                }
+
+                return new TextReasoningContent(Text.ToString()) { ProtectedData = ProtectedData, AdditionalProperties = properties };
+            }
+
+            return new TextContent(Text.ToString())
+            {
+                Annotations = Citations.Count > 0 ? [.. Citations] : null,
+                AdditionalProperties = properties,
+            };
+        }
+    }
 
     /// <summary>
     /// Numbers distinct cited spans in the order first cited, as the prototype's renderer does.

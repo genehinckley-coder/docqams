@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <!-- Enforces XML doc comments on the public API (CS1591 is an error under TreatWarningsAsErrors). -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Anthropic" />
+    <PackageReference Include="Microsoft.Extensions.AI" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DocQaMs.Core\DocQaMs.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="DocQaMs.Claude.Tests" />
+  </ItemGroup>
+</Project>

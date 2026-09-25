@@ -3,6 +3,7 @@ using DocQaMs.Core.Configuration;
 using DocQaMs.Core.Conversations;
 using DocQaMs.Core.Corpus;
 using DocQaMs.Core.Quotes;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
 using CorpusSnapshot = DocQaMs.Core.Corpus.Corpus;
@@ -98,22 +99,25 @@ internal sealed class StoreHarness : IDisposable
     public void Dispose() => Store.Dispose();
 }
 
-/// <summary>Completed responses, built by the real <see cref="AnswerService"/> from canned stream events.</summary>
+/// <summary>Completed responses, built by the real <see cref="AnswerService"/> from neutral streamed updates.</summary>
 internal static class Replies
 {
-    public static async Task<AnswerResult> OfAsync(IEnumerable<string> events, AnswerSettings? settings = null)
+    public static async Task<AnswerResult> OfAsync(IEnumerable<ChatResponseUpdate> updates, AnswerSettings? settings = null)
     {
-        var stub = new StubHandler(_ => Sse.Response(events));
-        using var harness = new AnswerHarness(stub);
-        return await harness.CompleteAsync(settings, TestContext.Current.CancellationToken);
+        using var harness = new AnswerHarness(updates);
+        return await harness.CompleteAsync(settings, cancellationToken: TestContext.Current.CancellationToken);
     }
 
     /// <summary>A one-block answer with the given usage.</summary>
     public static Task<AnswerResult> TextAsync(
-        long write1h = 2_080, long write5m = 20, long read = 0, long input = 12, AnswerSettings? settings = null) =>
-        OfAsync([StreamEvents.Start(input, write1h, write5m, read), .. StreamEvents.Text(0, "An answer."), .. StreamEvents.End()], settings);
+        long write1h = 2_080, long write5m = 20, long read = 0, long input = 12, AnswerSettings? settings = null)
+    {
+        var tokens = new InputTokens(input, write1h, write5m, read);
+        return OfAsync(
+            [NeutralUpdates.Start(tokens), .. NeutralUpdates.Text(0, "An answer."), .. NeutralUpdates.End(tokens: tokens)], settings);
+    }
 
     /// <summary>A refusal with no content at all: nothing that can be sent back.</summary>
     public static Task<AnswerResult> EmptyRefusalAsync() =>
-        OfAsync([StreamEvents.Start(), .. StreamEvents.End("refusal")]);
+        OfAsync([NeutralUpdates.Start(), .. NeutralUpdates.End("refusal")]);
 }

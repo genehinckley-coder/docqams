@@ -1,11 +1,10 @@
 using System.Text;
-using System.Text.Json;
-using Anthropic.Models.Messages;
 using DocQaMs.Core.Answering;
 using DocQaMs.Core.Corpus;
 using DocQaMs.Core.Quotes;
 using DocQaMs.Core.Tests.TestSupport;
 using DocQaMs.Core.Text;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 using CorpusSnapshot = DocQaMs.Core.Corpus.Corpus;
 
@@ -213,8 +212,7 @@ public sealed class QuoteCheckerTests
     [Fact]
     public void ACitationWithoutCharacterOffsets_IsNotCheckable_NotThrown()
     {
-        TextCitation page = RawCitation(
-            """{"type":"page_location","cited_text":"Sumps shall be liquid tight.","document_index":0,"document_title":null,"start_page_number":1,"end_page_number":2}""");
+        CitationAnnotation page = NeutralUpdates.RawCitation("page_location", "Sumps shall be liquid tight.");
 
         QuoteReport report = Report([], Block("Claim.", page));
 
@@ -231,8 +229,7 @@ public sealed class QuoteCheckerTests
     [Fact]
     public void ACharLocationCitationMissingAnOffset_IsNotCheckable()
     {
-        TextCitation partial = RawCitation(
-            """{"type":"char_location","cited_text":"Sumps shall be liquid tight.","document_index":0,"document_title":"T","start_char_index":3}""");
+        CitationAnnotation partial = NeutralUpdates.RawCitation("char_location", "Sumps shall be liquid tight.", start: 3, title: "T");
 
         QuoteCheck check = Assert.Single(Report([], Block("Claim.", partial)).Checks);
 
@@ -244,10 +241,10 @@ public sealed class QuoteCheckerTests
     [Fact]
     public void UnreadableCitationsOfTheSameQuote_AreOneSource()
     {
-        const string json =
-            """{"type":"page_location","cited_text":"Sumps shall be liquid tight.","document_index":0,"document_title":null,"start_page_number":1,"end_page_number":2}""";
-
-        QuoteReport report = Report([], Block("One.", RawCitation(json)), Block(" Two.", RawCitation(json)));
+        QuoteReport report = Report(
+            [],
+            Block("One.", NeutralUpdates.RawCitation("page_location", "Sumps shall be liquid tight.")),
+            Block(" Two.", NeutralUpdates.RawCitation("page_location", "Sumps shall be liquid tight.")));
 
         Assert.Single(report.Checks);
         Assert.Equal(2, report.CitationCount);
@@ -313,7 +310,7 @@ public sealed class QuoteCheckerTests
     {
         QuoteReport report = Report(
             [],
-            new ThinkingBlock { Thinking = "Long private reasoning.", Signature = "sig" },
+            new TextReasoningContent("Long private reasoning.") { ProtectedData = "sig" },
             Block("Sumps are tight.", CitePhrase(Tight)));
 
         Assert.Equal(Visible("Sumps are tight."), report.AnswerCharacters);
@@ -368,8 +365,7 @@ public sealed class QuoteCheckerTests
     [Fact]
     public void AnUnreadableCitation_SourcesNothing()
     {
-        TextCitation page = RawCitation(
-            """{"type":"page_location","cited_text":"x","document_index":0,"document_title":null,"start_page_number":1,"end_page_number":2}""");
+        CitationAnnotation page = NeutralUpdates.RawCitation("page_location", "x");
 
         BlockCoverage block = Assert.Single(Report([], Block("A claim resting on nothing checkable.", page)).CitedBlocks);
 
@@ -591,12 +587,10 @@ public sealed class QuoteCheckerTests
             Cite(10, 10, ""),
             Cite(0, 3),
         ];
-        TextCitation page = RawCitation(
-            """{"type":"page_location","cited_text":"x","document_index":0,"document_title":null,"start_page_number":1,"end_page_number":2}""");
-        TextCitation partial = RawCitation(
-            """{"type":"char_location","cited_text":"x","document_index":0,"document_title":null}""");
+        CitationAnnotation page = NeutralUpdates.RawCitation("page_location", "x");
+        CitationAnnotation partial = NeutralUpdates.RawCitation("char_location", "x");
 
-        QuoteReport report = Report(sources, Block("Claims.", [.. sources.Select(ToTextCitation), page, partial]));
+        QuoteReport report = Report(sources, Block("Claims.", [.. sources.Select(ToAnnotation), page, partial]));
 
         Assert.Equal(Enum.GetValues<MatchStatus>().ToHashSet(), report.Checks.Select(check => check.Status).ToHashSet());
         IEnumerable<string> wording = report.Checks.Select(check => check.Detail ?? "")
@@ -619,7 +613,7 @@ public sealed class QuoteCheckerTests
     [Fact]
     public async Task AStreamedAnswersReport_LinesUpWithItsSourcesAndMarkers()
     {
-        using var harness = new AnswerHarness(new StubHandler(_ => Sse.Response(CannedAnswer.Events)));
+        using var harness = new AnswerHarness(CannedAnswer.Updates);
         AnswerResult result = await harness.CompleteAsync(cancellationToken: TestContext.Current.CancellationToken);
         CorpusSnapshot corpus = CorpusOf(SpikeFixtures.TextA, SpikeFixtures.TextB);
 
@@ -679,33 +673,19 @@ public sealed class QuoteCheckerTests
         return Cite(start, start + phrase.Length + extra, document: document);
     }
 
-    private static TextBlock Block(string text) => new() { Text = text, Citations = null };
+    private static TextContent Block(string text) => new(text);
 
-    private static TextBlock Block(string text, params AnswerCitation[] citations) =>
-        Block(text, [.. citations.Select(ToTextCitation)]);
+    private static TextContent Block(string text, params AnswerCitation[] citations) =>
+        Block(text, [.. citations.Select(ToAnnotation)]);
 
-    private static TextBlock Block(string text, params TextCitation[] citations) =>
-        new() { Text = text, Citations = citations.Length == 0 ? null : citations };
+    private static TextContent Block(string text, params CitationAnnotation[] citations) =>
+        new(text) { Annotations = citations.Length == 0 ? null : [.. citations] };
 
-    private static QuoteReport Report(IReadOnlyList<AnswerCitation> sources, params ContentBlock[] content) =>
+    private static QuoteReport Report(IReadOnlyList<AnswerCitation> sources, params AIContent[] content) =>
         Checker.BuildReport(sources, content, Documents);
 
-    private static TextCitation ToTextCitation(AnswerCitation citation) => new(JsonSerializer.SerializeToElement(
-        new Dictionary<string, object?>
-        {
-            ["type"] = "char_location",
-            ["cited_text"] = citation.CitedText,
-            ["document_index"] = citation.DocumentIndex,
-            ["document_title"] = citation.DocumentTitle,
-            ["start_char_index"] = citation.StartCharIndex,
-            ["end_char_index"] = citation.EndCharIndex,
-        }));
-
-    private static TextCitation RawCitation(string json)
-    {
-        using JsonDocument document = JsonDocument.Parse(json);
-        return new TextCitation(document.RootElement.Clone());
-    }
+    private static CitationAnnotation ToAnnotation(AnswerCitation citation) => NeutralUpdates.Citation(
+        citation.StartCharIndex, citation.EndCharIndex, citation.CitedText, citation.DocumentIndex, citation.DocumentTitle);
 
     private static int CodePoints(string text) => text.EnumerateRunes().Count();
 

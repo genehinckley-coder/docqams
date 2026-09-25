@@ -1,58 +1,93 @@
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using Anthropic.Models.Messages;
-using DocQaMs.Core.ApiClient;
 using DocQaMs.Core.Answering;
-using DocQaMs.Core.Configuration;
+using DocQaMs.Core.Chat;
 using DocQaMs.Core.Tests.TestSupport;
+using Microsoft.Extensions.AI;
 
 namespace DocQaMs.Core.Tests.Answering;
 
 /// <summary>
-/// Plan item 1, check 4, offline: a streamed reply, converted block by block, goes back as turn 2
-/// without losing anything but its empty text blocks.
+/// Plan item 1, check 4, offline and provider-neutral: a streamed reply, converted block by block, goes back as
+/// turn 2 without losing anything but its empty text blocks. That the Claude provider sends the replay as the
+/// prototype's wire blocks is tested in DocQaMs.Claude.Tests.
 /// </summary>
 public sealed class ReplayConverterTests
 {
     [Fact]
     public async Task AStreamedReply_IsReplayedLosslessly_MinusItsEmptyTextBlock()
     {
-        var stub = new StubHandler(_ => Sse.Response(CannedAnswer.Events));
-        using AnthropicClientProvider provider = AnthropicClientProvider.Create(
-            SinglePass.FakeKey, SinglePass.Timeouts(TimeSpan.FromMinutes(1)), [stub]);
+        using var harness = new AnswerHarness(CannedAnswer.Updates);
         CancellationToken ct = TestContext.Current.CancellationToken;
 
-        MessageParam first = MessageRequestBuilder.FirstTurn(SpikeFixtures.Documents, "Q1?");
-        (Message reply, _) = await SinglePass.StreamAsync(provider.Client, Request([first]), ct);
+        ChatMessage first = MessageRequestBuilder.FirstTurn(SpikeFixtures.Documents, "Q1?");
+        AnswerResult reply = await harness.CompleteAsync(messages: [first], cancellationToken: ct);
 
-        List<ContentBlockParam> replay = ReplayConverter.ToParams(reply.Content);
-        await SinglePass.StreamAsync(
-            provider.Client,
-            Request([first, MessageRequestBuilder.AssistantTurn(replay), MessageRequestBuilder.FollowUpTurn(" Q2? ")]),
-            ct);
+        List<AIContent> replay = ReplayConverter.ToReplay(reply.Reply);
+        await harness.CompleteAsync(
+            messages: [first, MessageRequestBuilder.AssistantTurn(replay), MessageRequestBuilder.FollowUpTurn(" Q2? ")],
+            cancellationToken: ct);
 
-        Assert.Equal(2, stub.Requests.Count);
-        JsonArray turn1 = JsonNode.Parse(stub.Requests[0].Body!)!["messages"]!.AsArray();
-        JsonArray turn2 = JsonNode.Parse(stub.Requests[1].Body!)!["messages"]!.AsArray();
+        Assert.Collection(
+            replay,
+            content => AssertReasoning(content, CannedAnswer.Thinking, CannedAnswer.Signature, redacted: false),
+            content => AssertReasoning(content, "", CannedAnswer.RedactedData, redacted: true),
+            content => AssertText(content, "Sumps must hold "),
+            content => AssertText(content, "a minimum of 5 gallons", CannedAnswer.Citation1, CannedAnswer.Citation2),
+            content => AssertText(content, "."));
+
+        Assert.Equal(2, harness.Client.Calls.Count);
+        IReadOnlyList<ChatMessage> turn1 = harness.Client.Calls[0].Messages;
+        IReadOnlyList<ChatMessage> turn2 = harness.Client.Calls[1].Messages;
         Assert.Equal(3, turn2.Count);
 
         // History is append-only: turn 2 resends the first message unchanged, except that its question now
         // carries the tail breakpoint.
-        JsonNode resent = turn2[0]!.DeepClone();
-        JsonObject question = resent["content"]!.AsArray()[^1]!.AsObject();
-        Assert.NotNull(question["cache_control"]);
-        question.Remove("cache_control");
-        Assert.True(JsonNode.DeepEquals(turn1[0], resent));
+        Assert.Equal(turn1[0].Contents.SkipLast(1), turn2[0].Contents.SkipLast(1));
+        TextContent question = Assert.IsType<TextContent>(turn2[0].Contents[^1]);
+        Assert.Equal("Q1?", question.Text);
+        Assert.Equal("5m", question.AdditionalProperties?[ChatKeys.CacheTtl]);
 
-        Assert.Equal("assistant", (string?)turn2[1]!["role"]);
-        JsonTest.Equal(CannedAnswer.ReplayedContentJson, turn2[1]!["content"]);
-        JsonTest.Equal("""{"role":"user","content":[{"type":"text","text":"Q2?"}]}""", turn2[2]);
+        Assert.Equal(ChatRole.Assistant, turn2[1].Role);
+        Assert.Equal(replay, turn2[1].Contents);
+        Assert.Equal(ChatRole.User, turn2[2].Role);
+        Assert.Equal("Q2?", Assert.IsType<TextContent>(Assert.Single(turn2[2].Contents)).Text);
+    }
+
+    [Fact]
+    public void AReplyMessage_AndItsContents_ConvertAlike()
+    {
+        var reply = new ChatMessage(ChatRole.Assistant, [new TextReasoningContent("t") { ProtectedData = "sig" }, new TextContent("claim")]);
+
+        List<AIContent> fromMessage = ReplayConverter.ToReplay(reply);
+        List<AIContent> fromContents = ReplayConverter.ToReplay(reply.Contents.AsReadOnly());
+
+        Assert.Equal(2, fromMessage.Count);
+        AssertReasoning(fromMessage[0], "t", "sig", redacted: false);
+        AssertReasoning(fromContents[0], "t", "sig", redacted: false);
+        AssertText(fromMessage[1], "claim");
+        AssertText(fromContents[1], "claim");
+    }
+
+    [Fact]
+    public void TheReplay_IsNewContents_CarryingOnlyWhatIsReplayed()
+    {
+        // The reply's contents carry their block indexes; the replay must not send them back, nor share them.
+        var text = new TextContent("claim")
+        {
+            AdditionalProperties = new AdditionalPropertiesDictionary { [ChatKeys.BlockIndex] = 3L },
+            RawRepresentation = "the provider's block",
+        };
+
+        AIContent replayed = Assert.Single(ReplayConverter.ToReplay([text]));
+
+        Assert.NotSame(text, replayed);
+        Assert.Null(replayed.AdditionalProperties);
+        Assert.Null(replayed.RawRepresentation);
     }
 
     [Fact]
     public void AReplyWithOnlyEmptyText_HasNothingToReplay()
     {
-        List<ContentBlockParam> replay = ReplayConverter.ToParams([new TextBlock { Text = "", Citations = [] }]);
+        List<AIContent> replay = ReplayConverter.ToReplay([new TextContent(""), new TextContent(null)]);
 
         Assert.Empty(replay);
     }
@@ -61,70 +96,110 @@ public sealed class ReplayConverterTests
     public void AThinkingOnlyReply_KeepsItsThinkingAndSignature()
     {
         // A max_tokens stop inside thinking leaves no text; the signature is what the API verifies.
-        ContentBlockParam replayed = Assert.Single(ReplayConverter.ToParams(
-            [new ThinkingBlock { Thinking = "partial", Signature = "sig" }, new TextBlock { Text = "", Citations = [] }]));
+        AIContent replayed = Assert.Single(ReplayConverter.ToReplay(
+            [new TextReasoningContent("partial") { ProtectedData = "sig" }, new TextContent("")]));
 
-        Assert.True(replayed.TryPickThinking(out ThinkingBlockParam? thinking));
-        Assert.Equal("partial", thinking.Thinking);
-        Assert.Equal("sig", thinking.Signature);
+        AssertReasoning(replayed, "partial", "sig", redacted: false);
+    }
+
+    [Fact]
+    public void RedactedThinking_KeepsOnlyItsDataAndMarker()
+    {
+        var redacted = new TextReasoningContent("ignored")
+        {
+            ProtectedData = "cmVkYWN0ZWQ=",
+            AdditionalProperties = new AdditionalPropertiesDictionary { [ChatKeys.RedactedReasoning] = true, [ChatKeys.BlockIndex] = 1L },
+        };
+
+        AIContent replayed = Assert.Single(ReplayConverter.ToReplay([redacted]));
+
+        AssertReasoning(replayed, "", "cmVkYWN0ZWQ=", redacted: true);
+        Assert.Single(replayed.AdditionalProperties!);
     }
 
     [Fact]
     public void ANullDocumentTitle_IsCarriedThrough()
     {
-        var citation = new TextCitation(Parse(
-            """{"type":"char_location","cited_text":"x","document_index":0,"document_title":null,"start_char_index":0,"end_char_index":1}"""));
+        CitationAnnotation citation = NeutralUpdates.Citation(0, 1, "x", title: null);
 
-        ContentBlockParam replayed = Assert.Single(ReplayConverter.ToParams([new TextBlock { Text = "claim", Citations = [citation] }]));
+        AIContent replayed = Assert.Single(ReplayConverter.ToReplay([new TextContent("claim") { Annotations = [citation] }]));
 
-        Assert.True(replayed.TryPickText(out TextBlockParam? text));
-        TextCitationParam param = Assert.Single(text.Citations ?? []);
-        Assert.True(param.TryPickCitationCharLocation(out CitationCharLocationParam? location));
-        Assert.Null(location.DocumentTitle);
-        Assert.Equal("x", location.CitedText);
-        Assert.Equal(1, location.EndCharIndex);
+        AssertText(replayed, "claim", citation);
+        Assert.Null(Assert.IsType<CitationAnnotation>(Assert.Single(((TextContent)replayed).Annotations!)).Title);
     }
 
     [Fact]
     public void ACharLocationCitationMissingItsOffsets_IsRefused()
     {
-        var citation = new TextCitation(Parse(
-            """{"type":"char_location","cited_text":"x","document_index":0,"document_title":null,"start_char_index":0}"""));
+        CitationAnnotation citation = NeutralUpdates.RawCitation("char_location", "x", documentIndex: 0, start: 0);
 
         var ex = Assert.Throws<NotSupportedException>(() =>
-            ReplayConverter.ToParams([new TextBlock { Text = "claim", Citations = [citation] }]));
+            ReplayConverter.ToReplay([new TextContent("claim") { Annotations = [citation] }]));
 
         Assert.Contains("offsets", ex.Message, StringComparison.Ordinal);
     }
 
     [Fact]
-    public void ABlockKindTheAppNeverRequests_IsRefused_NotSkipped()
+    public void AContentKindTheAppNeverRequests_IsRefused_NotSkipped()
     {
-        var toolUse = new ContentBlock(Parse("""{"type":"tool_use","id":"toolu_1","name":"lookup","input":{}}"""));
+        var toolCall = new FunctionCallContent("toolu_1", "lookup");
 
-        var ex = Assert.Throws<NotSupportedException>(() => ReplayConverter.ToParams([toolUse]));
+        var ex = Assert.Throws<NotSupportedException>(() => ReplayConverter.ToReplay([toolCall]));
 
-        Assert.Contains("tool_use", ex.Message, StringComparison.Ordinal);
+        Assert.Contains(nameof(FunctionCallContent), ex.Message, StringComparison.Ordinal);
     }
 
     [Fact]
     public void ACitationKindOtherThanCharLocation_IsRefused()
     {
-        var pageCitation = new TextCitation(Parse(
-            """{"type":"page_location","cited_text":"x","document_index":0,"document_title":"T","start_page_number":1,"end_page_number":2}"""));
+        CitationAnnotation pageCitation = NeutralUpdates.RawCitation("page_location", "x", title: "T");
 
         var ex = Assert.Throws<NotSupportedException>(() =>
-            ReplayConverter.ToParams([new TextBlock { Text = "claim", Citations = [pageCitation] }]));
+            ReplayConverter.ToReplay([new TextContent("claim") { Annotations = [pageCitation] }]));
 
         Assert.Contains("page_location", ex.Message, StringComparison.Ordinal);
     }
 
-    private static MessageCreateParams Request(IReadOnlyList<MessageParam> messages) =>
-        MessageRequestBuilder.Create(ModelIds.ClaudeOpus5, EffortLevel.High, 32_000, CacheAffecting.SystemPrompt, messages);
-
-    private static JsonElement Parse(string json)
+    [Fact]
+    public void AnAnnotationThatIsNotACitation_IsRefused()
     {
-        using JsonDocument document = JsonDocument.Parse(json);
-        return document.RootElement.Clone();
+        var ex = Assert.Throws<NotSupportedException>(() =>
+            ReplayConverter.ToReplay([new TextContent("claim") { Annotations = [new AIAnnotation()] }]));
+
+        Assert.Contains(nameof(AIAnnotation), ex.Message, StringComparison.Ordinal);
+    }
+
+    private static void AssertReasoning(AIContent content, string text, string protectedData, bool redacted)
+    {
+        TextReasoningContent reasoning = Assert.IsType<TextReasoningContent>(content);
+        Assert.Equal(text, reasoning.Text);
+        Assert.Equal(protectedData, reasoning.ProtectedData);
+        Assert.Equal(redacted, ReplayConverter.IsRedacted(reasoning));
+        if (!redacted)
+        {
+            Assert.Null(reasoning.AdditionalProperties);
+        }
+    }
+
+    /// <summary>Asserts a replayed text and its citations, field by field, under the neutral keys only.</summary>
+    private static void AssertText(AIContent content, string text, params CitationAnnotation[] citations)
+    {
+        TextContent replayed = Assert.IsType<TextContent>(content);
+        Assert.Equal(text, replayed.Text);
+        Assert.Null(replayed.AdditionalProperties);
+        if (citations.Length == 0)
+        {
+            Assert.Null(replayed.Annotations);
+            return;
+        }
+
+        Assert.Equal(citations.Length, replayed.Annotations?.Count);
+        for (int i = 0; i < citations.Length; i++)
+        {
+            CitationAnnotation actual = Assert.IsType<CitationAnnotation>(replayed.Annotations![i]);
+            Assert.Equal(citations[i].Snippet, actual.Snippet);
+            Assert.Equal(citations[i].Title, actual.Title);
+            Assert.Equal(citations[i].AdditionalProperties!.ToDictionary(), actual.AdditionalProperties!.ToDictionary());
+        }
     }
 }

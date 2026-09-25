@@ -1,4 +1,9 @@
-# DocQA
+# DocQaMs
+
+DocQA rebuilt on the **Microsoft .NET AI libraries** ([Microsoft.Extensions.AI](https://learn.microsoft.com/dotnet/ai/microsoft-extensions-ai)).
+The application talks to the model only through `IChatClient`; Claude is plugged in behind that
+abstraction by the `DocQaMs.Claude` project. See [docs/MIGRATION.md](docs/MIGRATION.md) for the design
+and for what the abstraction does not model.
 
 A local, single-user Blazor app that answers questions about **Illinois Administrative Code
 Title 41, Parts 172 and 174–178** — underground storage tank regulations.
@@ -89,15 +94,15 @@ app declines to claim either way.
 dotnet test
 ```
 
-782 tests, all offline. The runner is **Microsoft Testing Platform** (selected in
+1,019 tests, all offline (plus 7 live tests, skipped by default). The runner is **Microsoft Testing Platform** (selected in
 `global.json`), not VSTest — xunit.v3 4.x drops VSTest on the .NET 10 SDK.
 
 ### Live tests cost real money
 
-Six tests call the real API and are **skipped unless `DOCQA_LIVE=1`**:
+Seven tests call the real API and are **skipped unless `DOCQA_LIVE=1`**:
 
 ```bash
-DOCQA_LIVE=1 dotnet test --filter-namespace DocQaMs.Core.Tests.Live   # about $2.55
+DOCQA_LIVE=1 dotnet test --filter-namespace DocQaMs.Claude.Tests.Live   # about $2.55
 ```
 
 They are guarded: a `$4.00` per-run budget refuses a call that would exceed it, and each
@@ -109,8 +114,12 @@ prototype's question against the real corpus and asserts every quote matched.
 
 ```
 src/DocQaMs.Core      extraction, corpus, answering, quote checking, conversations, cost
+                    (provider-neutral: Microsoft.Extensions.AI abstractions only)
+src/DocQaMs.Claude    the Claude provider: IChatClient pipeline over the official Anthropic
+                    package's AsIChatClient(), token counting, API key, error translation
 src/DocQaMs.Web       Blazor Web App (Interactive Server), design-system CSS in wwwroot/css/ds/
-tests/              xunit.v3; DocQaMs.Web.Tests adds bUnit
+tests/              xunit.v3; DocQaMs.Claude.Tests holds the wire-level and live tests;
+                    DocQaMs.Web.Tests adds bUnit
 admincode/          the six source HTML pages (public ILGA pages; tracked deliberately)
 tests/golden/       byte-for-byte extraction goldens from the Python prototype
 tools/              generate_golden.py, which produced them
@@ -124,7 +133,8 @@ and the model and level sets. A test pins the SHA-256 of each. They are delibera
 
 ## Origin
 
-This is a port of the Python prototype at `D:\code\NotRag\`, which is **frozen as the reference
+DocQaMs is a copy of DocQA (`D:\code\docqa`) migrated from direct use of the Anthropic SDK
+to Microsoft.Extensions.AI. DocQA itself is a port of the Python prototype at `D:\code\NotRag\`, which is **frozen as the reference
 and not kept in sync**. Its measurements are this app's acceptance baseline, and they carry
 over: the live sump question reproduced the prototype's 199,745-token prefix at $2.15 against
 its $2.16, matching 41 of 41 cited spans.

@@ -1,9 +1,11 @@
 <Solution>
   <Folder Name="/src/">
+    <Project Path="src/DocQaMs.Claude/DocQaMs.Claude.csproj" />
     <Project Path="src/DocQaMs.Core/DocQaMs.Core.csproj" />
     <Project Path="src/DocQaMs.Web/DocQaMs.Web.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/DocQaMs.Claude.Tests/DocQaMs.Claude.Tests.csproj" />
     <Project Path="tests/DocQaMs.Core.Tests/DocQaMs.Core.Tests.csproj" />
     <Project Path="tests/DocQaMs.Web.Tests/DocQaMs.Web.Tests.csproj" />
   </Folder>

@@ -1,5 +1,5 @@
 using DocQaMs.Core.Answering;
-using DocQaMs.Core.ApiClient;
+using DocQaMs.Core.Chat;
 using DocQaMs.Core.Configuration;
 using DocQaMs.Core.Conversations;
 using DocQaMs.Core.Corpus;
@@ -18,10 +18,16 @@ namespace DocQaMs.Core;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registers <see cref="DocQaOptions"/> with startup validation, the system clock, the Anthropic
-    /// client provider, the answer service, the quote checker, and the corpus service, whose load starts in
-    /// the background when the host starts.
+    /// Registers <see cref="DocQaOptions"/> with startup validation, the system clock, the answer service,
+    /// the quote checker, the conversation store, and the corpus service, whose load starts in the
+    /// background when the host starts.
     /// </summary>
+    /// <remarks>
+    /// Core talks to the model only through Microsoft.Extensions.AI, so a chat provider must also be
+    /// registered: it supplies the <see cref="IChatClientProvider"/> the answer service uses and the
+    /// <see cref="ITokenCounter"/> the corpus size guard uses. For Claude, that is <c>AddDocQaMsClaude()</c>
+    /// in DocQaMs.Claude.
+    /// </remarks>
     /// <param name="services">The service collection.</param>
     /// <param name="configuration">Configuration containing the <c>DocQaMs</c> section.</param>
     /// <param name="contentRootPath">The folder relative paths in the options resolve against.</param>
@@ -47,24 +53,11 @@ public static class ServiceCollectionExtensions
 
         services.TryAddSingleton(TimeProvider.System);
 
-        // Built on first use, so the key file is read only when a request is about to be made, and a
-        // missing key surfaces as a failure the UI can show instead of stopping the app from starting.
-        services.TryAddSingleton<IAnthropicClientProvider>(provider =>
-        {
-            DocQaOptions options = provider.GetRequiredService<IOptions<DocQaOptions>>().Value;
-            return AnthropicClientProvider.Create(
-                ApiKeyLoader.Load(options.ApiKeyPath),
-                options.RequestTimeouts,
-                [new RetryLoggingHandler(provider.GetRequiredService<ILogger<RetryLoggingHandler>>())]);
-        });
-
-        // The counter resolves the client provider when it counts, not when it is constructed, so the key
-        // file is not read at startup.
-        services.TryAddSingleton<ITokenCounter>(provider =>
-            new ApiTokenCounter(() => provider.GetRequiredService<IAnthropicClientProvider>()));
-        // Like the counter, the answer service resolves the client provider only when it answers.
+        // The answer service resolves the chat client provider only when it answers, so the key file is read
+        // only when a request is about to be made, and a missing key surfaces as a failure the UI can show
+        // instead of stopping the app from starting. The provider package registers IChatClientProvider.
         services.TryAddSingleton<IAnswerService>(provider => new AnswerService(
-            () => provider.GetRequiredService<IAnthropicClientProvider>(),
+            () => provider.GetRequiredService<IChatClientProvider>(),
             provider.GetRequiredService<IOptions<DocQaOptions>>(),
             provider.GetRequiredService<TimeProvider>(),
             provider.GetRequiredService<ILogger<AnswerService>>()));

@@ -1,4 +1,4 @@
-using Anthropic.Models.Messages;
+using Microsoft.Extensions.AI;
 
 namespace DocQaMs.Core.Answering;
 
@@ -17,7 +17,7 @@ public interface IAnswerService
     /// <param name="settings">The model and level to answer at.</param>
     /// <param name="messages">
     /// The conversation so far, ending in the new user message. <c>messages[0]</c> holds the corpus
-    /// document blocks and the first question. The list is not changed.
+    /// documents and the first question. Neither the list nor its messages are changed.
     /// </param>
     /// <param name="cancellationToken">Stop: cancelling it ends the answer and closes the HTTP stream.</param>
     /// <returns>
@@ -34,6 +34,6 @@ public interface IAnswerService
     /// <exception cref="ArgumentException"><paramref name="messages"/> is not a valid conversation.</exception>
     IAsyncEnumerable<AnswerEvent> StreamAsync(
         AnswerSettings settings,
-        IReadOnlyList<MessageParam> messages,
+        IReadOnlyList<ChatMessage> messages,
         CancellationToken cancellationToken = default);
 }

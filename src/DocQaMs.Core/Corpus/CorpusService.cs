@@ -1,6 +1,6 @@
 using System.Reflection;
 using AngleSharp.Html.Parser;
-using Anthropic.Exceptions;
+using DocQaMs.Core.Chat;
 using DocQaMs.Core.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -123,17 +123,19 @@ public sealed class CorpusService : ICorpusSource, IDisposable
         // These messages are written for the user already, and name the file or the options.
         CorpusExtractionException or CorpusTooLargeException => exception.Message,
 
-        // From ApiKeyLoader, whose messages name the key file and never contain the key.
+        // From the provider's API key loader, whose messages name the key file and never contain the key.
         FileNotFoundException or InvalidDataException => exception.Message,
 
-        AnthropicUnauthorizedException =>
+        ChatProviderException { Failure: ChatProviderFailure.Authentication } =>
             "Authentication failed: the API rejected the key in the file DocQaMs:ApiKeyPath names.",
-        AnthropicRateLimitException =>
+        ChatProviderException { Failure: ChatProviderFailure.RateLimited } =>
             "The API rate-limited the corpus token count. Wait a minute, then retry.",
-        AnthropicApiException =>
-            $"The API returned an error while counting the corpus tokens: {exception.Message}",
-        AnthropicIOException or HttpRequestException =>
+        ChatProviderException { Failure: ChatProviderFailure.Connection } or HttpRequestException =>
             "Could not reach the API to count the corpus tokens. Check the network connection, then retry.",
+
+        // Any other error the API reported: a 403, exhausted credit, a server error or an unreadable reply.
+        ChatProviderException =>
+            $"The API returned an error while counting the corpus tokens: {exception.Message}",
         OperationCanceledException =>
             "Counting the corpus tokens timed out. Check the network connection, then retry.",
         IOException or UnauthorizedAccessException =>

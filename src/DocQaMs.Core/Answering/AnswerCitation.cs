@@ -1,5 +1,5 @@
-using System.Text.Json;
-using Anthropic.Models.Messages;
+using DocQaMs.Core.Chat;
+using Microsoft.Extensions.AI;
 
 namespace DocQaMs.Core.Answering;
 
@@ -7,10 +7,10 @@ namespace DocQaMs.Core.Answering;
 /// One <c>char_location</c> citation from an answer: a span of one plain-text document as sent.
 /// </summary>
 /// <remarks>
-/// Read from the citation's JSON rather than through the SDK's typed union: the SDK (12.47.0) does not
-/// recognize a <c>char_location</c> citation whose <c>document_title</c> is null, which the API allows
-/// (found by plan item 1). The offsets are code points, not UTF-16 units; convert them through the
-/// document's code-point index before slicing.
+/// Read from a <see cref="CitationAnnotation"/>: the quote is its <see cref="CitationAnnotation.Snippet"/>,
+/// the title its <see cref="CitationAnnotation.Title"/>, and the document index, offsets and citation type
+/// are under the <see cref="ChatKeys"/> in its <see cref="AIAnnotation.AdditionalProperties"/>. The offsets
+/// are code points, not UTF-16 units; convert them through the document's code-point index before slicing.
 /// </remarks>
 /// <param name="DocumentIndex">Index into the documents in the order they were sent.</param>
 /// <param name="StartCharIndex">Start of the cited span, in code points, inclusive.</param>
@@ -24,66 +24,63 @@ public sealed record AnswerCitation(
     string CitedText,
     string? DocumentTitle)
 {
+    /// <summary>The citation type of a plain-text document's citations, the only kind this app handles.</summary>
+    internal const string CharLocation = "char_location";
+
     /// <summary>
     /// Identifies the cited span. A span cited more than once is one source, with one number.
     /// </summary>
     public (long DocumentIndex, long Start, long End) SpanKey => (DocumentIndex, StartCharIndex, EndCharIndex);
 
-    /// <summary>Reads a citation from a completed text block.</summary>
+    /// <summary>Reads a <c>char_location</c> citation.</summary>
+    /// <param name="annotation">The citation, as the provider's chat client reports it.</param>
+    /// <returns>The citation.</returns>
     /// <exception cref="NotSupportedException">It is not a well-formed <c>char_location</c> citation.</exception>
-    internal static AnswerCitation From(TextCitation citation) => FromJson(citation.Json);
-
-    /// <summary>Reads a citation from a <c>citations_delta</c> stream event.</summary>
-    /// <exception cref="NotSupportedException">It is not a well-formed <c>char_location</c> citation.</exception>
-    internal static AnswerCitation From(Citation citation) => FromJson(citation.Json);
-
-    /// <summary>
-    /// Reads the fields of a <c>char_location</c> citation, without checking its <c>type</c>.
-    /// </summary>
-    /// <returns>The citation, or <see langword="null"/> when its text or an offset is missing.</returns>
-    internal static AnswerCitation? TryFromJson(JsonElement json)
+    internal static AnswerCitation From(CitationAnnotation annotation)
     {
-        if (json.ValueKind != JsonValueKind.Object
-            || !json.TryGetProperty("cited_text", out JsonElement citedText) || citedText.ValueKind != JsonValueKind.String
-            || !TryGetInt64(json, "document_index", out long documentIndex)
-            || !TryGetInt64(json, "start_char_index", out long start)
-            || !TryGetInt64(json, "end_char_index", out long end))
-        {
-            return null;
-        }
-
-        string? title = json.TryGetProperty("document_title", out JsonElement titleElement)
-            && titleElement.ValueKind == JsonValueKind.String
-                ? titleElement.GetString()
-                : null;
-
-        return new AnswerCitation(documentIndex, start, end, citedText.GetString()!, title);
-    }
-
-    private static AnswerCitation FromJson(JsonElement json)
-    {
-        string type = json.ValueKind == JsonValueKind.Object
-            && json.TryGetProperty("type", out JsonElement typeElement)
-            && typeElement.ValueKind == JsonValueKind.String
-                ? typeElement.GetString() ?? "unknown"
-                : "unknown";
+        ArgumentNullException.ThrowIfNull(annotation);
 
         // This app sends only plain-text documents, which are cited by char_location. Any other kind
         // means the request shape has changed.
-        if (type != "char_location")
+        string type = TypeOf(annotation);
+        if (type != CharLocation)
         {
             throw new NotSupportedException($"A \"{type}\" citation is not supported; plain-text documents cite by char_location.");
         }
 
-        return TryFromJson(json)
+        return TryFrom(annotation)
             ?? throw new NotSupportedException("A char_location citation is missing its text or offsets.");
     }
 
-    private static bool TryGetInt64(JsonElement json, string name, out long value)
+    /// <summary>
+    /// Reads the fields of a <c>char_location</c> citation, without checking its type.
+    /// </summary>
+    /// <param name="annotation">The citation.</param>
+    /// <returns>The citation, or <see langword="null"/> when its text or an offset is missing.</returns>
+    internal static AnswerCitation? TryFrom(CitationAnnotation annotation)
     {
-        value = 0;
-        return json.TryGetProperty(name, out JsonElement element)
-            && element.ValueKind == JsonValueKind.Number
-            && element.TryGetInt64(out value);
+        ArgumentNullException.ThrowIfNull(annotation);
+
+        AdditionalPropertiesDictionary? properties = annotation.AdditionalProperties;
+        if (annotation.Snippet is not { } citedText
+            || properties is null
+            || !properties.TryGetValue(ChatKeys.DocumentIndex, out long documentIndex)
+            || !properties.TryGetValue(ChatKeys.StartCharIndex, out long start)
+            || !properties.TryGetValue(ChatKeys.EndCharIndex, out long end))
+        {
+            return null;
+        }
+
+        return new AnswerCitation(documentIndex, start, end, citedText, annotation.Title);
     }
+
+    /// <summary>The citation's <see cref="ChatKeys.CitationType"/>, or <c>unknown</c> when it has none.</summary>
+    /// <param name="annotation">The citation.</param>
+    /// <returns>The type.</returns>
+    internal static string TypeOf(CitationAnnotation annotation) =>
+        annotation.AdditionalProperties is { } properties
+        && properties.TryGetValue(ChatKeys.CitationType, out string? type)
+        && type is not null
+            ? type
+            : "unknown";
 }

@@ -58,8 +58,8 @@ public sealed class DocQaOptions
     public Dictionary<EffortLevel, int> MaxTokens { get; set; } = [];
 
     /// <summary>
-    /// The SDK timeout for each effort level. It covers the whole HTTP call, including reading the
-    /// streamed answer, so it must exceed the time an answer at that level's output limit takes.
+    /// The chat client's timeout for each effort level. It covers the whole HTTP call, including reading
+    /// the streamed answer, so it must exceed the time an answer at that level's output limit takes.
     /// </summary>
     public Dictionary<EffortLevel, TimeSpan> RequestTimeouts { get; set; } = [];
 

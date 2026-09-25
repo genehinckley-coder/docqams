@@ -1,4 +1,5 @@
 using DocQaMs.Core.Answering;
+using DocQaMs.Core.Chat;
 using DocQaMs.Core.Configuration;
 using DocQaMs.Core.Conversations;
 using DocQaMs.Core.Corpus;
@@ -62,21 +63,45 @@ public sealed class ServiceCollectionExtensionsTests
     }
 
     [Fact]
-    public void TheCorpusService_Resolves_WithoutReadingTheKeyFile()
+    public void TheChatProvider_IsLeftToTheProviderPackage()
     {
-        // TestSettings' key file does not exist, so reading it here would throw.
-        using ServiceProvider services = Build(TestSettings.Valid());
+        // Core talks to the model only through Microsoft.Extensions.AI; DocQaMs.Claude registers these.
+        using ServiceProvider services = new ServiceCollection()
+            .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>))
+            .AddDocQaCore(TestSettings.ToConfiguration(TestSettings.Valid()), ContentRoot)
+            .BuildServiceProvider();
 
-        Assert.IsType<CorpusState.Loading>(services.GetRequiredService<CorpusService>().State);
-        Assert.IsType<ApiTokenCounter>(services.GetRequiredService<ITokenCounter>());
+        Assert.Null(services.GetService<IChatClientProvider>());
+        Assert.Null(services.GetService<ITokenCounter>());
     }
 
     [Fact]
-    public async Task TheAnswerService_Resolves_WithoutReadingTheKeyFile_AndReportsItMissingWhenItAnswers()
+    public void TheCorpusService_Resolves_OverTheRegisteredTokenCounter_WithoutCounting()
     {
-        using ServiceProvider services = Build(TestSettings.Valid());
+        var counter = new FakeTokenCounter();
+        using ServiceProvider services = Build(TestSettings.Valid(), counter);
+
+        Assert.IsType<CorpusState.Loading>(services.GetRequiredService<CorpusService>().State);
+        Assert.Same(counter, services.GetRequiredService<ITokenCounter>());
+        Assert.Empty(counter.Calls);
+    }
+
+    [Fact]
+    public async Task TheAnswerService_Resolves_WithoutBuildingTheChatProvider_AndReportsAMissingKeyWhenItAnswers()
+    {
+        // A provider whose key file does not exist, as a provider package registers it: built on first use.
+        string keyPath = Path.Combine(ContentRoot, "key.txt");
+        int built = 0;
+        using ServiceProvider services = Build(
+            TestSettings.Valid(),
+            configure: collection => collection.AddSingleton<IChatClientProvider>(_ =>
+            {
+                built++;
+                throw new FileNotFoundException($"API key file not found: {keyPath}.");
+            }));
 
         IAnswerService answers = Assert.IsType<AnswerService>(services.GetRequiredService<IAnswerService>());
+        Assert.Equal(0, built);
 
         Exception? ex = await Record.ExceptionAsync(async () =>
         {
@@ -88,7 +113,27 @@ public sealed class ServiceCollectionExtensionsTests
 
         AnswerFailedException failure = Assert.IsType<AnswerFailedException>(ex);
         Assert.Equal(AnswerFailureKind.Credentials, failure.Kind);
-        Assert.Contains(Path.Combine(ContentRoot, "key.txt"), failure.Message, StringComparison.Ordinal);
+        Assert.Equal($"Cannot load the API key: API key file not found: {keyPath}.", failure.Message);
+        Assert.Equal(1, built);
+    }
+
+    [Fact]
+    public async Task TheAnswerService_AnswersThroughTheRegisteredChatProvider()
+    {
+        using var client = new FakeChatClient(CannedAnswer.Updates);
+        using ServiceProvider services = Build(
+            TestSettings.Valid(), configure: collection => collection.AddSingleton<IChatClientProvider>(new FakeChatClientProvider(client)));
+        IAnswerService answers = services.GetRequiredService<IAnswerService>();
+
+        List<AnswerEvent> received = [];
+        await foreach (AnswerEvent answerEvent in answers.StreamAsync(
+            AnswerSettings.Default, AnswerHarness.FirstQuestion, TestContext.Current.CancellationToken))
+        {
+            received.Add(answerEvent);
+        }
+
+        Assert.IsType<AnswerEvent.Completed>(received[^1]);
+        Assert.Single(client.Calls);
     }
 
     [Fact]
@@ -123,9 +168,18 @@ public sealed class ServiceCollectionExtensionsTests
         Assert.Single(services.GetServices<IHostedService>(), service => service is CorpusStartupLoader);
     }
 
-    private static ServiceProvider Build(Dictionary<string, string?> settings) =>
-        new ServiceCollection()
+    /// <summary>
+    /// Core's registrations, plus what a provider package would add: a token counter (a fake one unless given),
+    /// and whatever <paramref name="configure"/> registers.
+    /// </summary>
+    private static ServiceProvider Build(
+        Dictionary<string, string?> settings, ITokenCounter? counter = null, Action<IServiceCollection>? configure = null)
+    {
+        IServiceCollection services = new ServiceCollection()
             .AddSingleton(typeof(ILogger<>), typeof(NullLogger<>))
             .AddDocQaCore(TestSettings.ToConfiguration(settings), ContentRoot)
-            .BuildServiceProvider();
+            .AddSingleton(counter ?? new FakeTokenCounter());
+        configure?.Invoke(services);
+        return services.BuildServiceProvider();
+    }
 }

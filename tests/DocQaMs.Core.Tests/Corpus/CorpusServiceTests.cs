@@ -1,5 +1,4 @@
-using System.Net;
-using DocQaMs.Core.ApiClient;
+using DocQaMs.Core.Chat;
 using DocQaMs.Core.Configuration;
 using DocQaMs.Core.Corpus;
 using DocQaMs.Core.Tests.TestSupport;
@@ -206,10 +205,9 @@ public sealed class CorpusServiceTests : IDisposable
     [Fact]
     public async Task AMissingKeyFile_IsReportedByName()
     {
+        // The provider's counter loads the key when it counts; its loader names the file, never the key.
         string keyPath = _folder.Combine("missing-key.txt");
-        var counter = new ApiTokenCounter(
-            () => AnthropicClientProvider.Create(ApiKeyLoader.Load(keyPath), TestSettings.ValidOptions().RequestTimeouts, []));
-        using CorpusService service = Create(counter);
+        using CorpusService service = Create(new FakeTokenCounter(_ => throw new FileNotFoundException($"API key file not found: {keyPath}.")));
 
         await service.ReloadAsync();
 
@@ -220,18 +218,15 @@ public sealed class CorpusServiceTests : IDisposable
     [Fact]
     public async Task ARejectedKey_IsReportedAsAnAuthenticationFailure()
     {
-        var stub = new StubHandler(_ => StubHandler.Json(
-            """{"type":"error","error":{"type":"authentication_error","message":"invalid x-api-key"}}""",
-            HttpStatusCode.Unauthorized));
-        using AnthropicClientProvider provider = AnthropicClientProvider.Create(
-            "sk-ant-test-key", TestSettings.ValidOptions().RequestTimeouts, [stub]);
-        using CorpusService service = Create(new ApiTokenCounter(() => provider));
+        var counter = new FakeTokenCounter(_ => throw new ChatProviderException(
+            ChatProviderFailure.Authentication, "invalid x-api-key", statusCode: 401, errorType: "authentication_error"));
+        using CorpusService service = Create(counter);
 
         await service.ReloadAsync();
 
         var failed = Assert.IsType<CorpusState.Failed>(service.State);
-        Assert.StartsWith("Authentication failed", failed.Reason, StringComparison.Ordinal);
-        Assert.Single(stub.Requests);
+        Assert.Equal("Authentication failed: the API rejected the key in the file DocQaMs:ApiKeyPath names.", failed.Reason);
+        Assert.Single(counter.Calls);
     }
 
     public static TheoryData<string, Exception, string> Failures => new()
@@ -240,7 +235,26 @@ public sealed class CorpusServiceTests : IDisposable
         { "timeout", new TaskCanceledException(), "Counting the corpus tokens timed out" },
         { "access", new UnauthorizedAccessException("Access denied."), "A corpus page or the state file could not be read or written: Access denied." },
         { "key file", new InvalidDataException("API key file is empty: key.txt"), "API key file is empty: key.txt" },
+        { "missing key file", new FileNotFoundException("API key file not found: key.txt."), "API key file not found: key.txt." },
         { "unexpected", new InvalidOperationException("Something odd."), "Loading the corpus failed unexpectedly (InvalidOperationException)" },
+        {
+            "rejected key",
+            Provider(ChatProviderFailure.Authentication, "invalid x-api-key"),
+            "Authentication failed: the API rejected the key in the file DocQaMs:ApiKeyPath names."
+        },
+        {
+            "rate limit",
+            Provider(ChatProviderFailure.RateLimited, "rate limited"),
+            "The API rate-limited the corpus token count. Wait a minute, then retry."
+        },
+        {
+            "provider connection",
+            Provider(ChatProviderFailure.Connection, "connection refused"),
+            "Could not reach the API to count the corpus tokens. Check the network connection, then retry."
+        },
+        { "forbidden", Provider(ChatProviderFailure.Forbidden, "403 permission_error"), "The API returned an error while counting the corpus tokens: 403 permission_error" },
+        { "credit", Provider(ChatProviderFailure.CreditExhausted, "no credit"), "The API returned an error while counting the corpus tokens: no credit" },
+        { "server error", Provider(ChatProviderFailure.ApiError, "500 api_error"), "The API returned an error while counting the corpus tokens: 500 api_error" },
     };
 
     [Theory]
@@ -262,6 +276,8 @@ public sealed class CorpusServiceTests : IDisposable
     [Fact]
     public void TheParserVersion_IsAnAngleSharpVersion() =>
         Assert.Matches(@"^\d+\.\d+\.\d+$", CorpusService.ParserVersion);
+
+    private static ChatProviderException Provider(ChatProviderFailure failure, string message) => new(failure, message);
 
     // The whole corpus counts 1,000; each document on its own counts 1.
     private static long CountOf(CountCall call) => call.Documents.Count > 1 ? 1_000 : 1;

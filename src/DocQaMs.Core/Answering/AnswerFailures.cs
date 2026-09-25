@@ -1,6 +1,6 @@
 using System.Globalization;
-using Anthropic.Exceptions;
-using Anthropic.Models;
+using System.Text;
+using DocQaMs.Core.Chat;
 using DocQaMs.Core.Configuration;
 
 namespace DocQaMs.Core.Answering;
@@ -9,11 +9,11 @@ namespace DocQaMs.Core.Answering;
 /// Maps what can go wrong during an answer to an <see cref="AnswerFailedException"/>, most specific first.
 /// </summary>
 /// <remarks>
-/// Plan item 1 found three failures that are not <c>Anthropic.Exceptions</c> API types: a body that breaks
-/// after the response started (a raw <see cref="IOException"/>), a body that ends without
-/// <c>message_stop</c> (<see cref="AnthropicInvalidDataException"/>), and the SDK's own timeout on the
-/// response headers (a <see cref="TaskCanceledException"/> with the caller's token not cancelled).
-/// Stop is not a failure and never reaches this mapping.
+/// The provider's chat client translates the failures it recognizes into a <see cref="ChatProviderException"/>,
+/// whose <see cref="ChatProviderException.Failure"/> picks the message. Plan item 1 found failures that can
+/// still arrive untranslated: a body that breaks after the response started (a raw
+/// <see cref="IOException"/>), and the client's own timeout (a <see cref="TaskCanceledException"/> with the
+/// caller's token not cancelled). Stop is not a failure and never reaches this mapping.
 /// </remarks>
 internal static class AnswerFailures
 {
@@ -53,35 +53,35 @@ internal static class AnswerFailures
 
         return exception switch
         {
-            AnthropicServiceException service when IsCreditExhausted(service) => new AnswerFailedException(
+            ChatProviderException { Failure: ChatProviderFailure.CreditExhausted } => new AnswerFailedException(
                 AnswerFailureKind.CreditExhausted,
                 "The API account is out of credit. Add credit in the Claude Console, then ask again.",
                 exception),
-            AnthropicUnauthorizedException => new AnswerFailedException(
+            ChatProviderException { Failure: ChatProviderFailure.Authentication } => new AnswerFailedException(
                 AnswerFailureKind.Authentication,
                 "The API rejected the key (401). Check the key file named by DocQaMs:ApiKeyPath.",
                 exception),
-            AnthropicForbiddenException => new AnswerFailedException(
+            ChatProviderException { Failure: ChatProviderFailure.Forbidden } => new AnswerFailedException(
                 AnswerFailureKind.Authentication,
                 "The key is not permitted to make this request (403).",
                 exception),
-            AnthropicRateLimitException => new AnswerFailedException(
+            ChatProviderException { Failure: ChatProviderFailure.RateLimited } => new AnswerFailedException(
                 AnswerFailureKind.RateLimited,
                 "Rate limited or out of quota (429). Wait a minute, then ask again.",
                 exception),
-            AnthropicApiException api => new AnswerFailedException(
+            ChatProviderException { Failure: ChatProviderFailure.ApiError } api => new AnswerFailedException(
                 AnswerFailureKind.ApiError,
-                $"The API returned an error ({(int)api.StatusCode}{ErrorTypeSuffix(api)}). Ask again; if it persists, see the log.",
+                $"The API returned an error{StatusAndErrorType(api)}. Ask again; if it persists, see the log.",
                 exception),
-            AnthropicSseException sse => new AnswerFailedException(
+            ChatProviderException { Failure: ChatProviderFailure.StreamError } stream => new AnswerFailedException(
                 AnswerFailureKind.ApiError,
-                $"The API reported an error partway through the answer{ErrorTypeSuffix(sse, parenthesized: true)}. Ask again.",
+                $"The API reported an error partway through the answer{ErrorTypeSuffix(stream)}. Ask again.",
                 exception),
-            AnthropicInvalidDataException => new AnswerFailedException(
+            ChatProviderException { Failure: ChatProviderFailure.StreamEndedEarly } => new AnswerFailedException(
                 AnswerFailureKind.StreamEndedEarly,
                 "The answer stream ended before the answer was complete. Ask again.",
                 exception),
-            AnthropicIOException or IOException or HttpRequestException => new AnswerFailedException(
+            ChatProviderException { Failure: ChatProviderFailure.Connection } or IOException or HttpRequestException => new AnswerFailedException(
                 AnswerFailureKind.Connection,
                 "Network error: the connection to the API failed. Check the connection, then ask again.",
                 exception),
@@ -97,31 +97,43 @@ internal static class AnswerFailures
     }
 
     /// <summary>
-    /// Exhausted credit arrives as a <c>billing_error</c>, or as a 400 whose message says the credit
-    /// balance is too low. It is named separately because asking again cannot help.
+    /// <c> (529, OverloadedError)</c>: the status code and error type in parentheses, whichever are known;
+    /// empty when neither is.
     /// </summary>
-    private static bool IsCreditExhausted(AnthropicServiceException exception)
+    private static string StatusAndErrorType(ChatProviderException exception)
     {
-        if (exception.ErrorType == ErrorType.BillingError)
+        string? type = ErrorTypeName(exception.ErrorType);
+        return (exception.StatusCode, type) switch
         {
-            return true;
-        }
-
-        string? body = (exception as AnthropicApiException)?.ResponseBody;
-        return exception is AnthropicBadRequestException
-            && body is not null
-            && (body.Contains("billing_error", StringComparison.Ordinal)
-                || body.Contains("credit balance", StringComparison.OrdinalIgnoreCase));
+            ({ } status, { } name) => FormattableString.Invariant($" ({status}, {name})"),
+            ({ } status, null) => FormattableString.Invariant($" ({status})"),
+            (null, { } name) => $" ({name})",
+            _ => "",
+        };
     }
 
-    private static string ErrorTypeSuffix(AnthropicServiceException exception, bool parenthesized = false)
+    /// <summary><c> (OverloadedError)</c>, or empty when the error type is not known.</summary>
+    private static string ErrorTypeSuffix(ChatProviderException exception) =>
+        ErrorTypeName(exception.ErrorType) is { } name ? $" ({name})" : "";
+
+    /// <summary>
+    /// The error type as the app has always shown it, in Pascal case: the API's <c>overloaded_error</c>
+    /// reads <c>OverloadedError</c>. A name already in that form is kept.
+    /// </summary>
+    internal static string? ErrorTypeName(string? errorType)
     {
-        if (exception.ErrorType is not { } type)
+        if (string.IsNullOrWhiteSpace(errorType))
         {
-            return "";
+            return null;
         }
 
-        return parenthesized ? $" ({type})" : $", {type}";
+        var name = new StringBuilder(errorType.Length);
+        foreach (string word in errorType.Split('_', StringSplitOptions.RemoveEmptyEntries))
+        {
+            name.Append(char.ToUpperInvariant(word[0])).Append(word.AsSpan(1));
+        }
+
+        return name.ToString();
     }
 
     private static string Duration(TimeSpan timeout) => timeout >= TimeSpan.FromMinutes(1)

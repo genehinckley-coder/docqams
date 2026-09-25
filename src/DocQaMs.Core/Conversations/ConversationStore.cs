@@ -1,9 +1,9 @@
 using System.Text;
-using Anthropic.Models.Messages;
 using DocQaMs.Core.Answering;
 using DocQaMs.Core.Configuration;
 using DocQaMs.Core.Corpus;
 using DocQaMs.Core.Quotes;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -284,7 +284,7 @@ public sealed class ConversationStore : IConversationStore, IDisposable
 
             // messages[0] is rebuilt from the corpus, never sliced from an earlier conversation, so no earlier
             // first question can carry over and steer the answers.
-            MessageParam userMessage = conversation.Messages.Count == 0
+            ChatMessage userMessage = conversation.Messages.Count == 0
                 ? MessageRequestBuilder.FirstTurn(corpus.RequestDocuments, text)
                 : MessageRequestBuilder.FollowUpTurn(text);
 
@@ -510,7 +510,7 @@ public sealed class ConversationStore : IConversationStore, IDisposable
         QuoteReport quotes = _quotes.BuildReport(result, turn.Corpus);
         CacheReport cache = _baselines.Record(
             turn.Cache.Key, result.Usage, turn.Cache.PredictedCold, _options.Prices[turn.Settings.ModelId]);
-        List<ContentBlockParam> replay = Replayable(turn, result);
+        List<AIContent> replay = Replayable(turn, result);
         bool commit = replay.Count > 0;
 
         List<TurnWarning> warnings = [];
@@ -553,11 +553,11 @@ public sealed class ConversationStore : IConversationStore, IDisposable
     }
 
     /// <summary>The reply as it can be sent back, or nothing when it cannot be.</summary>
-    private List<ContentBlockParam> Replayable(Turn turn, AnswerResult result)
+    private List<AIContent> Replayable(Turn turn, AnswerResult result)
     {
         try
         {
-            return ReplayConverter.ToParams(result.Message.Content);
+            return ReplayConverter.ToReplay(result.Reply);
         }
         catch (NotSupportedException ex)
         {
@@ -744,7 +744,7 @@ public sealed class ConversationStore : IConversationStore, IDisposable
     /// <param name="Replay">The reply to commit, or <see langword="null"/> when nothing is committed.</param>
     /// <param name="Cost">What to add to the conversation's cost.</param>
     /// <param name="RequestTokens">The completed request's size in the context window, when it completed.</param>
-    private sealed record TurnEnd(AnswerRecord Record, List<ContentBlockParam>? Replay, ConversationCost Cost, long? RequestTokens);
+    private sealed record TurnEnd(AnswerRecord Record, List<AIContent>? Replay, ConversationCost Cost, long? RequestTokens);
 
     /// <summary>One conversation's live state. Every member is read and written under <see cref="Gate"/>.</summary>
     private sealed class Conversation(Guid id, DateTimeOffset createdAt, AnswerSettings settings)
@@ -759,7 +759,7 @@ public sealed class ConversationStore : IConversationStore, IDisposable
 
         public CorpusSnapshot? Corpus { get; set; }
 
-        public IReadOnlyList<MessageParam> Messages { get; set; } = [];
+        public IReadOnlyList<ChatMessage> Messages { get; set; } = [];
 
         public IReadOnlyList<AnswerRecord> Answers { get; set; } = [];
 
@@ -818,10 +818,10 @@ public sealed class ConversationStore : IConversationStore, IDisposable
         public required CorpusSnapshot Corpus { get; init; }
 
         /// <summary>The new user message: committed, with the reply, only if the answer completes and can be replayed.</summary>
-        public required MessageParam UserMessage { get; init; }
+        public required ChatMessage UserMessage { get; init; }
 
         /// <summary>The committed messages plus <see cref="UserMessage"/>.</summary>
-        public required IReadOnlyList<MessageParam> Request { get; init; }
+        public required IReadOnlyList<ChatMessage> Request { get; init; }
 
         public required DateTimeOffset AskedAt { get; init; }
 

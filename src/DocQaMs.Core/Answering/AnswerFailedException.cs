@@ -21,7 +21,7 @@ public enum AnswerFailureKind
     /// <summary>The connection to the API failed.</summary>
     Connection,
 
-    /// <summary>The stream ended without <c>message_stop</c>: the answer is incomplete.</summary>
+    /// <summary>The stream ended before the provider signalled the end of the message: the answer is incomplete.</summary>
     StreamEndedEarly,
 
     /// <summary>No complete answer within the level's timeout.</summary>

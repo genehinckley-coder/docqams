@@ -1,5 +1,5 @@
-using Anthropic.Models.Messages;
 using DocQaMs.Core.Answering;
+using Microsoft.Extensions.AI;
 using CorpusSnapshot = DocQaMs.Core.Corpus.Corpus;
 
 namespace DocQaMs.Core.Conversations;
@@ -63,7 +63,7 @@ public sealed record ConversationSnapshot
     public required CorpusSnapshot? Corpus { get; init; }
 
     /// <summary>The committed conversation, alternating user and assistant, as the next request resends it.</summary>
-    public required IReadOnlyList<MessageParam> Messages { get; init; }
+    public required IReadOnlyList<ChatMessage> Messages { get; init; }
 
     /// <summary>Every finished question in order, committed or not.</summary>
     public required IReadOnlyList<AnswerRecord> Answers { get; init; }

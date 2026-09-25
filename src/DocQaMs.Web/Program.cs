@@ -1,3 +1,4 @@
+using DocQaMs.Claude;
 using DocQaMs.Core;
 using DocQaMs.Web;
 using DocQaMs.Web.Components;
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddDocQaCore(builder.Configuration, builder.Environment.ContentRootPath);
+builder.Services.AddDocQaMsClaude();
 
 await using var app = builder.Build();
 

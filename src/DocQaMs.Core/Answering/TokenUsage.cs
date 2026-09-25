@@ -1,5 +1,5 @@
-using System.Text.Json;
-using Anthropic.Models.Messages;
+using DocQaMs.Core.Chat;
+using Microsoft.Extensions.AI;
 
 namespace DocQaMs.Core.Answering;
 
@@ -27,41 +27,37 @@ public sealed record TokenUsage(long Input, long CacheWrite1h, long CacheWrite5m
     public long ContextTokens => Input + CacheWrite + CacheRead;
 
     /// <summary>
-    /// Reads the SDK's usage.
+    /// Reads a provider's usage, in the Microsoft.Extensions.AI convention.
     /// </summary>
     /// <remarks>
-    /// A request carries a 1-hour and a 5-minute breakpoint. Any part of the write the TTL breakdown does
-    /// not account for, all of it when the breakdown is missing, is counted at the 1-hour TTL: the higher
-    /// price, and the one the corpus pays, so the cost errs high rather than low. Plan item 1 measured the
-    /// breakdown as present in practice; this is the defensive path, as in the prototype. The breakdown is
-    /// read from its JSON, so a missing field reads as unknown rather than as zero.
+    /// <see cref="UsageDetails.InputTokenCount"/> counts every input token: uncached, cache reads and cache
+    /// writes. The cache reads are <see cref="UsageDetails.CachedInputTokenCount"/>, and the writes are split
+    /// by TTL under <see cref="ChatKeys.CacheWrite1hTokens"/> and <see cref="ChatKeys.CacheWrite5mTokens"/>,
+    /// so the uncached input is what remains. A missing count reads as zero, and the remainder never goes
+    /// below zero. The provider's chat client counts any part of a write its API does not break down by TTL
+    /// at the 1-hour TTL: the higher price, and the one the corpus pays, so the cost errs high rather than low.
     /// </remarks>
-    internal static TokenUsage From(Usage usage)
+    /// <param name="usage">The usage.</param>
+    /// <returns>The usage in billing buckets.</returns>
+    internal static TokenUsage From(UsageDetails usage)
     {
         ArgumentNullException.ThrowIfNull(usage);
 
-        long written = usage.CacheCreationInputTokens ?? 0;
-        long? write1h = Count(usage.CacheCreation, "ephemeral_1h_input_tokens");
-        long write5m = Count(usage.CacheCreation, "ephemeral_5m_input_tokens") ?? 0;
-        return new TokenUsage(
-            usage.InputTokens,
-            Math.Max(write1h ?? 0, written - write5m),
-            write5m,
-            usage.CacheReadInputTokens ?? 0,
-            usage.OutputTokens);
+        long write1h = Count(usage, ChatKeys.CacheWrite1hTokens);
+        long write5m = Count(usage, ChatKeys.CacheWrite5mTokens);
+        long read = usage.CachedInputTokenCount ?? 0;
+        long input = Math.Max(0, (usage.InputTokenCount ?? 0) - read - write1h - write5m);
+        return new TokenUsage(input, write1h, write5m, read, usage.OutputTokenCount ?? 0);
     }
 
-    private static long? Count(CacheCreation? breakdown, string field) =>
-        breakdown is not null
-        && breakdown.RawData.TryGetValue(field, out JsonElement value)
-        && value.ValueKind == JsonValueKind.Number
-        && value.TryGetInt64(out long count)
-            ? count
-            : null;
+    private static long Count(UsageDetails usage, string key) =>
+        usage.AdditionalCounts is { } counts && counts.TryGetValue(key, out long count) ? count : 0;
 
     /// <summary>
-    /// Reads the input side of the usage in <c>message_start</c>. Its output count is a placeholder, since
-    /// output is reported only when the response ends, so it is set to zero.
+    /// Reads the input side of the usage, as the provider reports it when the response starts. Its output
+    /// count is a placeholder, since output is reported only when the response ends, so it is set to zero.
     /// </summary>
-    internal static TokenUsage InputSide(Usage usage) => From(usage) with { Output = 0 };
+    /// <param name="usage">The usage.</param>
+    /// <returns>The usage in billing buckets, with no output.</returns>
+    internal static TokenUsage InputSide(UsageDetails usage) => From(usage) with { Output = 0 };
 }

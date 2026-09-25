@@ -1,4 +1,4 @@
-using Anthropic.Models.Messages;
+using Microsoft.Extensions.AI;
 
 namespace DocQaMs.Core.Answering;
 
@@ -16,7 +16,7 @@ public abstract record AnswerEvent
     }
 
     /// <summary>
-    /// The input side of the usage, from <c>message_start</c>, as soon as it arrives. It is what a stopped
+    /// The input side of the usage, from the first <see cref="UsageContent"/>, as soon as it arrives. It is what a stopped
     /// turn is known to have cost: output is reported only when the response ends.
     /// </summary>
     /// <param name="Usage">The input, cache write and cache read tokens. Output is zero.</param>
@@ -51,15 +51,19 @@ public abstract record AnswerEvent
         IReadOnlyList<int> SourceNumbers) : AnswerEvent;
 
     /// <summary>The response finished.</summary>
-    /// <param name="Result">The final message and what was learned from it.</param>
+    /// <param name="Result">The final response and what was learned from it.</param>
     public sealed record Completed(AnswerResult Result) : AnswerEvent;
 }
 
 /// <summary>
-/// A finished response: the final message, its sources, usage and cost, and how it ended.
+/// A finished response: the final reply, its sources, usage and cost, and how it ended.
 /// </summary>
 /// <param name="Settings">The model and level it was requested at.</param>
-/// <param name="Message">The final message, with citations and thinking signatures intact.</param>
+/// <param name="Response">
+/// The final response: one assistant message holding one content per content block, in block order, with
+/// citations and thinking signatures intact (see <see cref="Reply"/>); the finish reason, the usage, and the
+/// provider's stop reason and refusal details.
+/// </param>
 /// <param name="Sources">
 /// The distinct cited spans in the order first cited. Marker <c>[n]</c> is <c>Sources[n - 1]</c>.
 /// </param>
@@ -69,7 +73,7 @@ public abstract record AnswerEvent
 /// <param name="StopWarning">Why the answer cannot be taken as complete, or <see langword="null"/> when it ended normally.</param>
 public sealed record AnswerResult(
     AnswerSettings Settings,
-    Message Message,
+    ChatResponse Response,
     IReadOnlyList<AnswerCitation> Sources,
     TokenUsage Usage,
     TurnCost Cost,
@@ -80,6 +84,12 @@ public sealed record AnswerResult(
     public const string NotCachedWarning =
         "NOT CACHED: the response reports no cache write and no cache read, so the corpus breakpoint did " +
         "not take effect and every question pays the full input price.";
+
+    /// <summary>
+    /// The assistant message of <see cref="Response"/>, or an empty assistant message when it has none.
+    /// </summary>
+    public ChatMessage Reply =>
+        Response.Messages.LastOrDefault(message => message.Role == ChatRole.Assistant) ?? new ChatMessage(ChatRole.Assistant, []);
 
     /// <summary><see cref="NotCachedWarning"/> when the response shows no cache activity; otherwise <see langword="null"/>.</summary>
     public string? CacheWarning => Usage.HasCacheActivity ? null : NotCachedWarning;

@@ -1,18 +1,17 @@
-using System.Diagnostics;
-using System.Net;
-using System.Text.Json;
-using Anthropic.Models.Messages;
 using DocQaMs.Core.Answering;
-using DocQaMs.Core.ApiClient;
+using DocQaMs.Core.Chat;
 using DocQaMs.Core.Configuration;
 using DocQaMs.Core.Tests.TestSupport;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Time.Testing;
 
 namespace DocQaMs.Core.Tests.Answering;
 
 /// <summary>
-/// Plan item 4, offline: one streamed turn, from request to <see cref="AnswerEvent.Completed"/>, and every
-/// way it can end early.
+/// Plan item 4, offline and provider-neutral: one streamed turn, from request to <see cref="AnswerEvent.Completed"/>,
+/// and every way it can end early, over a fake chat client that streams updates under the app's contract. What
+/// the Claude provider sends and receives on the wire is tested in DocQaMs.Claude.Tests.
 /// </summary>
 public sealed class AnswerServiceTests
 {
@@ -21,13 +20,12 @@ public sealed class AnswerServiceTests
     [Fact]
     public async Task AnAnswer_StreamsItsEventsInOrder_FromOneRequest()
     {
-        var stub = new StubHandler(_ => Sse.Response(CannedAnswer.Events));
-        using var harness = new AnswerHarness(stub);
+        using var harness = new AnswerHarness(CannedAnswer.Updates);
         List<AnswerEvent> events = [];
 
         await harness.CollectAsync(events, cancellationToken: TestToken);
 
-        Assert.Single(stub.Requests);
+        Assert.Single(harness.Client.Calls);
         Assert.Collection(
             events,
             e => Assert.Equal(new TokenUsage(12, CannedAnswer.Write1h, CannedAnswer.Write5m, 0, 0), Assert.IsType<AnswerEvent.UsageStarted>(e).Usage),
@@ -54,10 +52,28 @@ public sealed class AnswerServiceTests
             source => Assert.Equal(new AnswerCitation(0, 851, 880, CannedAnswer.CitedText1, CannedAnswer.DocumentTitle), source),
             source => Assert.Equal(new AnswerCitation(0, 950, 970, CannedAnswer.CitedText2, CannedAnswer.DocumentTitle), source));
 
-        // The final message keeps what replay needs: the signature and the citations.
-        Assert.True(result.Message.Content[0].TryPickThinking(out ThinkingBlock? thinking));
-        Assert.Equal(CannedAnswer.Signature, thinking.Signature);
-        Assert.Equal(5, ReplayConverter.ToParams(result.Message.Content).Count);
+        // The final response keeps its metadata and the provider's stop reason.
+        Assert.Equal(NeutralUpdates.ResponseId, result.Response.ResponseId);
+        Assert.Equal(NeutralUpdates.ModelId, result.Response.ModelId);
+        Assert.Equal(ChatFinishReason.Stop, result.Response.FinishReason);
+        Assert.Equal("end_turn", result.Response.AdditionalProperties?[ChatKeys.StopReason]);
+        Assert.Equal(NeutralUpdates.ResponseId, result.Reply.MessageId);
+        Assert.Equal(ChatRole.Assistant, result.Reply.Role);
+
+        // The reply is one content per block, in block order, keeping what replay needs: the signature and the
+        // citations, each on its own block.
+        Assert.Equal([0L, 1L, 2L, 3L, 4L, 5L], result.Reply.Contents.Select(BlockIndexOf));
+        TextReasoningContent thinking = Assert.IsType<TextReasoningContent>(result.Reply.Contents[0]);
+        Assert.Equal(CannedAnswer.Thinking, thinking.Text);
+        Assert.Equal(CannedAnswer.Signature, thinking.ProtectedData);
+        TextReasoningContent redacted = Assert.IsType<TextReasoningContent>(result.Reply.Contents[1]);
+        Assert.Equal(CannedAnswer.RedactedData, redacted.ProtectedData);
+        Assert.True(redacted.AdditionalProperties?[ChatKeys.RedactedReasoning] is true);
+        TextContent cited = Assert.IsType<TextContent>(result.Reply.Contents[3]);
+        Assert.Equal("a minimum of 5 gallons", cited.Text);
+        Assert.Equal(2, cited.Annotations?.Count);
+        Assert.Null(Assert.IsType<TextContent>(result.Reply.Contents[2]).Annotations);
+        Assert.Equal(5, ReplayConverter.ToReplay(result.Reply).Count);
     }
 
     [Theory]
@@ -65,35 +81,57 @@ public sealed class AnswerServiceTests
     [InlineData(ModelIds.ClaudeOpus5, EffortLevel.High, "high", 32_000)]
     [InlineData(ModelIds.ClaudeSonnet5, EffortLevel.XHigh, "xhigh", 64_000)]
     [InlineData(ModelIds.ClaudeSonnet5, EffortLevel.Max, "max", 128_000)]
-    public async Task TheRequest_CarriesTheSettingsModelEffortAndOutputLimit(string modelId, EffortLevel effort, string wire, int maxTokens)
+    public async Task TheRequest_CarriesTheSettingsModelEffortAndOutputLimit_ToTheLevelsClient(
+        string modelId, EffortLevel effort, string wire, int maxTokens)
     {
-        var stub = new StubHandler(_ => Sse.Response(CannedAnswer.Events));
-        using var harness = new AnswerHarness(stub);
+        using var harness = new AnswerHarness(CannedAnswer.Updates);
 
-        await harness.CompleteAsync(AnswerSettings.Create(modelId, effort), TestToken);
+        await harness.CompleteAsync(AnswerSettings.Create(modelId, effort), cancellationToken: TestToken);
 
-        using JsonDocument body = JsonDocument.Parse(Assert.Single(stub.Requests).Body!);
-        JsonElement root = body.RootElement;
-        Assert.Equal(modelId, root.GetProperty("model").GetString());
-        Assert.Equal(wire, root.GetProperty("output_config").GetProperty("effort").GetString());
-        Assert.Equal(maxTokens, root.GetProperty("max_tokens").GetInt32());
-        Assert.Equal(CacheAffecting.SystemPrompt, root.GetProperty("system").GetString());
-        Assert.Equal("adaptive", root.GetProperty("thinking").GetProperty("type").GetString());
-        Assert.Equal("summarized", root.GetProperty("thinking").GetProperty("display").GetString());
-        Assert.Equal("5m", root.GetProperty("cache_control").GetProperty("ttl").GetString());
-        Assert.True(root.GetProperty("stream").GetBoolean());
+        // Each level has its own client, because each has its own timeout.
+        Assert.Equal([effort], harness.Provider.Levels);
+        ChatOptions options = Assert.Single(harness.Client.Calls).Options!;
+        Assert.Equal(modelId, options.ModelId);
+        Assert.Equal(maxTokens, options.MaxOutputTokens);
+        Assert.Equal(CacheAffecting.SystemPrompt, options.Instructions);
+        Assert.Equal(wire, options.AdditionalProperties?[ChatKeys.Effort]);
+        Assert.Equal("5m", options.AdditionalProperties?[ChatKeys.ConversationCacheTtl]);
+        Assert.Equal(ReasoningOutput.Summary, options.Reasoning?.Output);
+    }
+
+    [Fact]
+    public async Task TheMessagesSent_AreTheConversation_WithTheCallersMessagesUnchanged()
+    {
+        using var harness = new AnswerHarness(CannedAnswer.Updates);
+        ChatMessage first = MessageRequestBuilder.FirstTurn(SpikeFixtures.Documents, "Q1?");
+        IReadOnlyList<ChatMessage> conversation =
+        [
+            first,
+            MessageRequestBuilder.AssistantTurn([new TextContent("A1.")]),
+            MessageRequestBuilder.FollowUpTurn("Q2?"),
+        ];
+
+        await harness.CompleteAsync(messages: conversation, cancellationToken: TestToken);
+
+        IReadOnlyList<ChatMessage> sent = Assert.Single(harness.Client.Calls).Messages;
+        Assert.Equal(3, sent.Count);
+        Assert.Equal("5m", sent[0].Contents[^1].AdditionalProperties?[ChatKeys.CacheTtl]);
+        Assert.Same(conversation[1], sent[1]);
+        Assert.Same(conversation[2], sent[2]);
+        Assert.Null(first.Contents[^1].AdditionalProperties);
     }
 
     [Fact]
     public async Task Costs_ArePricedAtTheSelectedModelsPrices()
     {
-        List<string> events =
+        var million = new InputTokens(1_000_000, 1_000_000, 1_000_000, 1_000_000);
+        List<ChatResponseUpdate> updates =
         [
-            StreamEvents.Start(input: 1_000_000, write1h: 1_000_000, write5m: 1_000_000, read: 1_000_000),
-            .. StreamEvents.Text(0, "Answer."),
-            .. StreamEvents.End(output: 1_000_000),
+            NeutralUpdates.Start(million),
+            .. NeutralUpdates.Text(0, "Answer."),
+            .. NeutralUpdates.End(output: 1_000_000, tokens: million),
         ];
-        using var harness = new AnswerHarness(new StubHandler(_ => Sse.Response(events)));
+        using var harness = new AnswerHarness(updates);
 
         List<AnswerEvent> opus = [];
         await harness.CollectAsync(opus, AnswerSettings.Create(ModelIds.ClaudeOpus5, EffortLevel.High), cancellationToken: TestToken);
@@ -109,66 +147,66 @@ public sealed class AnswerServiceTests
     }
 
     [Fact]
-    public async Task AWriteWithoutATtlBreakdown_IsCountedAtTheOneHourTtl()
+    public async Task UsageStarted_IsTheFirstUsagesInputSide_AndTheResultTheLastUsage()
     {
-        List<string> events = [StreamEvents.Start(write1h: 2_000, write5m: 1_000, breakdown: false), .. StreamEvents.Text(0, "A."), .. StreamEvents.End()];
-        using var harness = new AnswerHarness(new StubHandler(_ => Sse.Response(events)));
+        // A provider may report an output count on its first usage; it is a placeholder, not what was billed.
+        UsageDetails first = NeutralUpdates.Usage(InputTokens.Default, output: 3);
+        List<ChatResponseUpdate> updates =
+        [
+            new ChatResponseUpdate(ChatRole.Assistant, [new UsageContent(first)]),
+            .. NeutralUpdates.Text(0, "A."),
+            .. NeutralUpdates.End(output: 99),
+        ];
+        using var harness = new AnswerHarness(updates);
         List<AnswerEvent> received = [];
 
         await harness.CollectAsync(received, cancellationToken: TestToken);
 
-        TokenUsage usage = Assert.IsType<AnswerEvent.UsageStarted>(received[0]).Usage;
-        Assert.Equal(3_000, usage.CacheWrite1h);
-        Assert.Equal(0, usage.CacheWrite5m);
-        Assert.Equal(3_000, Assert.IsType<AnswerEvent.Completed>(received[^1]).Result.Usage.CacheWrite1h);
+        Assert.Equal(new TokenUsage(12, 2_080, 20, 0, 0), Assert.IsType<AnswerEvent.UsageStarted>(received[0]).Usage);
+        Assert.Single(received.OfType<AnswerEvent.UsageStarted>());
+        Assert.Equal(new TokenUsage(12, 2_080, 20, 0, 99), Assert.IsType<AnswerEvent.Completed>(received[^1]).Result.Usage);
     }
 
-    [Theory]
-    [InlineData("ephemeral_5m_input_tokens", 3_000, 0)]
-    [InlineData("ephemeral_1h_input_tokens", 2_000, 1_000)]
-    public async Task APartialTtlBreakdown_CountsWhatItDoesNotAccountForAtTheOneHourTtl(string omitted, long expected1h, long expected5m)
+    [Fact]
+    public async Task AResponseWithNoUsage_CompletesAtNoCost_AndIsFlaggedNotCached()
     {
-        List<string> events =
-        [
-            StreamEvents.Start(write1h: 2_000, write5m: 1_000, omitBreakdownField: omitted),
-            .. StreamEvents.Text(0, "A."),
-            .. StreamEvents.End(),
-        ];
-        using var harness = new AnswerHarness(new StubHandler(_ => Sse.Response(events)));
+        List<ChatResponseUpdate> updates = [.. NeutralUpdates.Text(0, "A."), NeutralUpdates.End().First()];
+        using var harness = new AnswerHarness(updates);
         List<AnswerEvent> received = [];
 
         await harness.CollectAsync(received, cancellationToken: TestToken);
 
-        TokenUsage started = Assert.IsType<AnswerEvent.UsageStarted>(received[0]).Usage;
-        TokenUsage final = Assert.IsType<AnswerEvent.Completed>(received[^1]).Result.Usage;
-        Assert.All([started, final], usage =>
-        {
-            Assert.Equal(expected1h, usage.CacheWrite1h);
-            Assert.Equal(expected5m, usage.CacheWrite5m);
-        });
+        Assert.DoesNotContain(received, answerEvent => answerEvent is AnswerEvent.UsageStarted);
+        AnswerResult result = Assert.IsType<AnswerEvent.Completed>(received[^1]).Result;
+        Assert.Equal(new TokenUsage(0, 0, 0, 0, 0), result.Usage);
+        Assert.Equal(TurnCost.Zero, result.Cost);
+        Assert.Equal(AnswerResult.NotCachedWarning, result.CacheWarning);
     }
 
     [Fact]
     public async Task AResponseWithNoCacheActivity_IsFlaggedNotCached()
     {
-        List<string> none = [StreamEvents.Start(write1h: 0, write5m: 0, read: 0), .. StreamEvents.Text(0, "A."), .. StreamEvents.End()];
-        List<string> readOnly = [StreamEvents.Start(write1h: 0, write5m: 0, read: 5_000), .. StreamEvents.Text(0, "A."), .. StreamEvents.End()];
+        var none = new InputTokens(Write1h: 0, Write5m: 0, Read: 0);
+        var readOnly = new InputTokens(Write1h: 0, Write5m: 0, Read: 5_000);
 
-        using var cold = new AnswerHarness(new StubHandler(_ => Sse.Response(none)));
-        using var warm = new AnswerHarness(new StubHandler(_ => Sse.Response(readOnly)));
+        using var cold = new AnswerHarness(Answer(none));
+        using var warm = new AnswerHarness(Answer(readOnly));
 
         Assert.Equal(AnswerResult.NotCachedWarning, (await cold.CompleteAsync(cancellationToken: TestToken)).CacheWarning);
         Assert.Null((await warm.CompleteAsync(cancellationToken: TestToken)).CacheWarning);
+
+        static List<ChatResponseUpdate> Answer(InputTokens tokens) =>
+            [NeutralUpdates.Start(tokens), .. NeutralUpdates.Text(0, "A."), .. NeutralUpdates.End(tokens: tokens)];
     }
 
     [Fact]
     public async Task ASpanCitedTwice_GetsOneNumber_AndTheSameOffsetsInAnotherDocumentAnother()
     {
-        List<string> events = StreamEvents.Answer(
-            StreamEvents.Text(0, "First.", StreamEvents.Citation(0, 10)),
-            StreamEvents.Text(1, " Second.", StreamEvents.Citation(0, 10), StreamEvents.Citation(20, 30), StreamEvents.Citation(20, 30)),
-            StreamEvents.Text(2, " Elsewhere.", StreamEvents.Citation(0, 10, documentIndex: 1)));
-        using var harness = new AnswerHarness(new StubHandler(_ => Sse.Response(events)));
+        List<ChatResponseUpdate> updates = NeutralUpdates.Answer(
+            NeutralUpdates.Text(0, "First.", NeutralUpdates.Citation(0, 10)),
+            NeutralUpdates.Text(1, " Second.", NeutralUpdates.Citation(0, 10), NeutralUpdates.Citation(20, 30), NeutralUpdates.Citation(20, 30)),
+            NeutralUpdates.Text(2, " Elsewhere.", NeutralUpdates.Citation(0, 10, documentIndex: 1)));
+        using var harness = new AnswerHarness(updates);
         List<AnswerEvent> received = [];
 
         await harness.CollectAsync(received, cancellationToken: TestToken);
@@ -183,9 +221,10 @@ public sealed class AnswerServiceTests
     [Fact]
     public async Task ACitationWithNoDocumentTitle_IsStillRead()
     {
-        // The SDK does not recognize such a citation (plan item 1), which the API allows.
-        List<string> events = StreamEvents.Answer(StreamEvents.Text(0, "Untitled.", StreamEvents.Citation(3, 9, "quoted", title: null)));
-        using var harness = new AnswerHarness(new StubHandler(_ => Sse.Response(events)));
+        // The API allows a citation without a title (plan item 1).
+        List<ChatResponseUpdate> updates = NeutralUpdates.Answer(
+            NeutralUpdates.Text(0, "Untitled.", NeutralUpdates.Citation(3, 9, "quoted", title: null)));
+        using var harness = new AnswerHarness(updates);
         List<AnswerEvent> received = [];
 
         await harness.CollectAsync(received, cancellationToken: TestToken);
@@ -196,11 +235,62 @@ public sealed class AnswerServiceTests
     }
 
     [Fact]
+    public async Task ContentWithoutABlockIndex_ContinuesABlockOfItsKind_OrStartsTheNext()
+    {
+        // The provider always tags its contents; without a tag the reader still keeps blocks apart.
+        List<ChatResponseUpdate> updates =
+        [
+            NeutralUpdates.Start(),
+            new ChatResponseUpdate(ChatRole.Assistant, [new TextReasoningContent("Thinking.")]),
+            new ChatResponseUpdate(ChatRole.Assistant, [new TextContent("One ")]),
+            new ChatResponseUpdate(ChatRole.Assistant, [new TextContent("block.")]),
+            .. NeutralUpdates.End(),
+        ];
+        using var harness = new AnswerHarness(updates);
+        List<AnswerEvent> received = [];
+
+        await harness.CollectAsync(received, cancellationToken: TestToken);
+
+        Assert.Equal(
+            [new AnswerEvent.TextDelta(1, "One "), new AnswerEvent.TextDelta(1, "block.")],
+            received.OfType<AnswerEvent.TextDelta>());
+        AnswerResult result = Assert.IsType<AnswerEvent.Completed>(received[^1]).Result;
+        Assert.Equal([0L, 1L], result.Reply.Contents.Select(BlockIndexOf));
+        Assert.Equal("One block.", Assert.IsType<TextContent>(result.Reply.Contents[1]).Text);
+    }
+
+    [Fact]
+    public async Task ACitationOfAnotherKind_FailsTheAnswer_RatherThanBeingKept()
+    {
+        List<ChatResponseUpdate> updates = NeutralUpdates.Answer(
+            NeutralUpdates.Text(0, "Claim.", NeutralUpdates.RawCitation("page_location", "x")));
+        using var harness = new AnswerHarness(updates);
+        List<AnswerEvent> received = [];
+
+        Exception? ex = await Record.ExceptionAsync(() => harness.CollectAsync(received, cancellationToken: TestToken));
+
+        AnswerFailedException failure = AssertFailure(ex, AnswerFailureKind.Unexpected, harness);
+        Assert.Equal("The response contained a citation or block this app does not handle. See the log.", failure.Message);
+        Assert.IsType<NotSupportedException>(failure.InnerException);
+    }
+
+    [Fact]
+    public async Task TwoKindsOfContentInOneBlock_FailTheAnswer()
+    {
+        List<ChatResponseUpdate> updates = NeutralUpdates.Answer(
+            NeutralUpdates.Thinking(0, "Thinking."), NeutralUpdates.Text(0, "Text in the thinking block."));
+        using var harness = new AnswerHarness(updates);
+
+        Exception? ex = await Record.ExceptionAsync(() => harness.CollectAsync([], cancellationToken: TestToken));
+
+        AssertFailure(ex, AnswerFailureKind.Unexpected, harness);
+    }
+
+    [Fact]
     public async Task Stop_EndsTheAnswerAfterUsageStarted_ClosesTheStream_AndSendsNoCompleted()
     {
-        var body = new StallingStream(Sse.Bytes(CannedAnswer.Opening), TimeSpan.FromSeconds(30));
-        var stub = new StubHandler(_ => Sse.Response(body));
-        using var harness = new AnswerHarness(stub);
+        FakeResponse response = new FakeResponse(CannedAnswer.Opening).ThenStall();
+        using var harness = new AnswerHarness(new FakeChatClient(response));
         using var stop = CancellationTokenSource.CreateLinkedTokenSource(TestToken);
         List<AnswerEvent> received = [];
 
@@ -219,30 +309,76 @@ public sealed class AnswerServiceTests
         Assert.IsAssignableFrom<OperationCanceledException>(ex);
         Assert.IsType<AnswerEvent.UsageStarted>(received[0]);
         Assert.DoesNotContain(received, answerEvent => answerEvent is AnswerEvent.Completed);
-        Assert.NotEqual("cap", await body.Ended.WaitAsync(TimeSpan.FromSeconds(10), TestToken));
-        Assert.Single(stub.Requests);
+        ChatCall call = Assert.Single(harness.Client.Calls);
+        await call.Disposed.WaitAsync(TimeSpan.FromSeconds(10), TestToken);
         Assert.DoesNotContain(harness.Logger.Entries, entry => entry.Level >= LogLevel.Error);
+        Assert.Contains(harness.Logger.Entries, entry => entry.Level == LogLevel.Information && entry.Message.StartsWith("Answer stopped", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task Stop_WhileTheStreamIsStalled_CancelsTheRead()
+    {
+        FakeResponse response = new FakeResponse(CannedAnswer.Opening).ThenStall();
+        using var harness = new AnswerHarness(new FakeChatClient(response));
+        using var stop = CancellationTokenSource.CreateLinkedTokenSource(TestToken);
+
+        Task answer = harness.CollectAsync([], cancellationToken: stop.Token);
+        await response.Stalled.WaitAsync(TimeSpan.FromSeconds(10), TestToken);
+        await stop.CancelAsync();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => answer);
+        Assert.Equal("cancelled", await response.StallEnded.WaitAsync(TimeSpan.FromSeconds(10), TestToken));
+    }
+
+    [Fact]
+    public async Task ATransportErrorAfterStop_IsStillAStop()
+    {
+        using var stop = CancellationTokenSource.CreateLinkedTokenSource(TestToken);
+        FakeResponse response = new FakeResponse(CannedAnswer.Opening)
+            .ThenRun(stop.Cancel)
+            .ThenThrow(new IOException("The connection was closed by Stop (simulated)."));
+        using var harness = new AnswerHarness(new FakeChatClient(response));
+
+        Exception? ex = await Record.ExceptionAsync(() => harness.CollectAsync([], cancellationToken: stop.Token));
+
+        OperationCanceledException stopped = Assert.IsAssignableFrom<OperationCanceledException>(ex);
+        Assert.IsType<IOException>(stopped.InnerException);
+        Assert.DoesNotContain(harness.Logger.Entries, entry => entry.Level >= LogLevel.Error);
+    }
+
+    [Fact]
+    public async Task StopAfterTheResponseEnded_StillSendsCompleted()
+    {
+        // A finished answer has been paid for, so it is kept (plan item 6).
+        using var stop = CancellationTokenSource.CreateLinkedTokenSource(TestToken);
+        FakeResponse response = new FakeResponse(CannedAnswer.Updates).ThenRun(stop.Cancel);
+        using var harness = new AnswerHarness(new FakeChatClient(response));
+        List<AnswerEvent> received = [];
+
+        await harness.CollectAsync(received, cancellationToken: stop.Token);
+
+        Assert.True(stop.IsCancellationRequested);
+        Assert.IsType<AnswerEvent.Completed>(received[^1]);
     }
 
     [Fact]
     public async Task StopBeforeTheRequest_SendsNothing()
     {
-        var stub = new StubHandler(_ => Sse.Response(CannedAnswer.Events));
-        using var harness = new AnswerHarness(stub);
+        using var harness = new AnswerHarness(CannedAnswer.Updates);
         using var stop = new CancellationTokenSource();
         await stop.CancelAsync();
 
         Exception? ex = await Record.ExceptionAsync(() => harness.CollectAsync([], cancellationToken: stop.Token));
 
         Assert.IsAssignableFrom<OperationCanceledException>(ex);
-        Assert.Empty(stub.Requests);
+        Assert.Empty(harness.Client.Calls);
     }
 
     [Fact]
     public async Task AbandoningTheEnumeration_ClosesTheStream()
     {
-        var body = new StallingStream(Sse.Bytes(CannedAnswer.Opening), TimeSpan.FromSeconds(30));
-        using var harness = new AnswerHarness(new StubHandler(_ => Sse.Response(body)));
+        FakeResponse response = new FakeResponse(CannedAnswer.Opening).ThenStall();
+        using var harness = new AnswerHarness(new FakeChatClient(response));
 
         await foreach (AnswerEvent answerEvent in harness.Service.StreamAsync(AnswerSettings.Default, AnswerHarness.FirstQuestion, TestToken))
         {
@@ -250,93 +386,111 @@ public sealed class AnswerServiceTests
             break;
         }
 
-        // No read is pending after the break, so the body is checked for disposal, not for a cancelled read.
-        await body.Disposed.WaitAsync(TimeSpan.FromSeconds(10), TestToken);
+        await Assert.Single(harness.Client.Calls).Disposed.WaitAsync(TimeSpan.FromSeconds(10), TestToken);
+        Assert.False(response.Stalled.IsCompleted);
     }
 
     [Fact]
-    public async Task TheLevelsTimeout_EndsAStalledBody_AsATimeoutRatherThanAStop()
+    public async Task ACompletedAnswer_ClosesItsStream()
     {
-        var body = new StallingStream(Sse.Bytes(CannedAnswer.Opening), TimeSpan.FromSeconds(30));
-        var stub = new StubHandler(_ => Sse.Response(body));
-        using var harness = new AnswerHarness(stub, options => options.RequestTimeouts[EffortLevel.High] = TimeSpan.FromMilliseconds(500));
+        using var harness = new AnswerHarness(CannedAnswer.Updates);
+
+        await harness.CompleteAsync(cancellationToken: TestToken);
+
+        Assert.True(Assert.Single(harness.Client.Calls).Disposed.IsCompleted);
+    }
+
+    [Fact]
+    public async Task TheLevelsTimeout_EndsAStalledStream_AsATimeoutRatherThanAStop()
+    {
+        var time = new FakeTimeProvider(StoreHarness.Start);
+        FakeResponse response = new FakeResponse(CannedAnswer.Opening).ThenStall();
+        using var harness = new AnswerHarness(
+            new FakeChatClient(response), options => options.RequestTimeouts[EffortLevel.High] = TimeSpan.FromMilliseconds(500), time);
         List<AnswerEvent> received = [];
-        var watch = Stopwatch.StartNew();
 
-        Exception? ex = await Record.ExceptionAsync(() => harness.CollectAsync(received, cancellationToken: TestToken));
+        Task answer = harness.CollectAsync(received, cancellationToken: TestToken);
+        await response.Stalled.WaitAsync(TimeSpan.FromSeconds(10), TestToken);
+        time.Advance(TimeSpan.FromMilliseconds(500));
+        Exception? ex = await Record.ExceptionAsync(() => answer.WaitAsync(TimeSpan.FromSeconds(10), TestToken));
 
-        watch.Stop();
-        AnswerFailedException failure = Assert.IsType<AnswerFailedException>(ex);
-        Assert.Equal(AnswerFailureKind.TimedOut, failure.Kind);
-        Assert.Contains("0.5 seconds, the limit for High effort", failure.Message, StringComparison.Ordinal);
+        AnswerFailedException failure = AssertFailure(ex, AnswerFailureKind.TimedOut, harness);
+        Assert.Equal(
+            "No complete answer within 0.5 seconds, the limit for High effort, so the request was ended. Ask again, or ask a narrower question.",
+            failure.Message);
         Assert.False(TestToken.IsCancellationRequested);
-        Assert.True(watch.Elapsed < TimeSpan.FromSeconds(10), $"Took {watch.Elapsed} to end.");
         Assert.IsType<AnswerEvent.UsageStarted>(received[0]);
-        Assert.NotEqual("cap", await body.Ended.WaitAsync(TimeSpan.FromSeconds(10), TestToken));
-        Assert.Single(stub.Requests);
-        Assert.Contains(harness.Logger.Entries, entry => entry.Level == LogLevel.Error && entry.Exception == failure.InnerException);
+        Assert.Equal("cancelled", await response.StallEnded.WaitAsync(TimeSpan.FromSeconds(10), TestToken));
+        Assert.Single(harness.Client.Calls);
     }
 
     [Fact]
-    public async Task TheSdksTimeoutOnTheResponseHeaders_IsATimeoutToo()
+    public async Task TheClientsOwnTimeout_IsATimeoutToo()
     {
-        var handler = new SlowHeadersHandler(TimeSpan.FromSeconds(60));
-        using var harness = new AnswerHarness(handler, sdkTimeout: TimeSpan.FromMilliseconds(500));
+        // The client's whole-request timeout equals the level's; it surfaces as a bare cancellation.
+        var time = new FakeTimeProvider(StoreHarness.Start);
+        FakeResponse response = new FakeResponse([])
+            .ThenRun(() => time.Advance(TimeSpan.FromMinutes(19.5)))
+            .ThenThrow(new TaskCanceledException("The request was canceled due to the configured timeout (simulated)."));
+        using var harness = new AnswerHarness(new FakeChatClient(response), time: time);
 
         Exception? ex = await Record.ExceptionAsync(() => harness.CollectAsync([], cancellationToken: TestToken));
 
-        Assert.Equal(AnswerFailureKind.TimedOut, Assert.IsType<AnswerFailedException>(ex).Kind);
-        Assert.False(TestToken.IsCancellationRequested);
-        Assert.Equal(1, handler.Attempts);
+        AnswerFailedException failure = AssertFailure(ex, AnswerFailureKind.TimedOut, harness);
+        Assert.Equal(
+            "No complete answer within 20 minutes, the limit for High effort, so the request was ended. Ask again, or ask a narrower question.",
+            failure.Message);
     }
 
     [Fact]
     public async Task ACancellationNeitherStopNorATimeoutAskedFor_IsNotCalledATimeout()
     {
-        var stub = new StubHandler(_ => throw new TaskCanceledException("Cancelled by a handler (simulated)."));
-        using var harness = new AnswerHarness(stub);
+        var time = new FakeTimeProvider(StoreHarness.Start);
+        FakeResponse response = new FakeResponse([])
+            .ThenRun(() => time.Advance(TimeSpan.FromMinutes(18)))
+            .ThenThrow(new TaskCanceledException("Cancelled by a handler (simulated)."));
+        using var harness = new AnswerHarness(new FakeChatClient(response), time: time);
 
         Exception? ex = await Record.ExceptionAsync(() => harness.CollectAsync([], cancellationToken: TestToken));
 
-        AssertFailure(ex, AnswerFailureKind.Unexpected, harness);
+        AnswerFailedException failure = AssertFailure(ex, AnswerFailureKind.Unexpected, harness);
+        Assert.Equal(
+            "The request was cancelled, though neither Stop nor a timeout asked for it. Ask again; if it persists, see the log.",
+            failure.Message);
     }
 
     [Fact]
     public async Task AFailureToCloseTheStream_DoesNotReplaceACompletedAnswer()
     {
-        using var harness = new AnswerHarness(new StubHandler(_ => Sse.Response(new ThrowingOnDisposeStream(Sse.Bytes(CannedAnswer.Events)))));
+        FakeResponse response = new FakeResponse(CannedAnswer.Updates).ThrowingOnDispose(new IOException("Closing the body failed (simulated)."));
+        using var harness = new AnswerHarness(new FakeChatClient(response));
 
         AnswerResult result = await harness.CompleteAsync(cancellationToken: TestToken);
 
         Assert.Null(result.StopWarning);
         Assert.Equal(2, result.Sources.Count);
         Assert.DoesNotContain(harness.Logger.Entries, entry => entry.Level >= LogLevel.Error);
-
-        // The SDK closes the response inside its final read, after message_stop (found by this test).
         Assert.Contains(harness.Logger.Entries, entry => entry.Level == LogLevel.Warning && entry.Exception is IOException);
     }
 
-    public static TheoryData<int, string, AnswerFailureKind> StatusErrors => new()
+    public static TheoryData<ChatProviderFailure, AnswerFailureKind> ProviderFailures => new()
     {
-        { 401, ErrorBody("authentication_error", "invalid x-api-key"), AnswerFailureKind.Authentication },
-        { 403, ErrorBody("permission_error", "Your API key does not have permission to use the specified resource."), AnswerFailureKind.Authentication },
-        { 429, ErrorBody("rate_limit_error", "Number of request tokens has exceeded your per-minute rate limit"), AnswerFailureKind.RateLimited },
-        {
-            400,
-            ErrorBody("invalid_request_error", "Your credit balance is too low to access the Anthropic API. Please go to Plans & Billing to upgrade or purchase credits."),
-            AnswerFailureKind.CreditExhausted
-        },
-        { 400, ErrorBody("billing_error", "This organization has no credit."), AnswerFailureKind.CreditExhausted },
-        { 400, ErrorBody("invalid_request_error", "messages: roles must alternate between \"user\" and \"assistant\""), AnswerFailureKind.ApiError },
-        { 500, ErrorBody("api_error", "Internal server error"), AnswerFailureKind.ApiError },
+        { ChatProviderFailure.Authentication, AnswerFailureKind.Authentication },
+        { ChatProviderFailure.Forbidden, AnswerFailureKind.Authentication },
+        { ChatProviderFailure.RateLimited, AnswerFailureKind.RateLimited },
+        { ChatProviderFailure.CreditExhausted, AnswerFailureKind.CreditExhausted },
+        { ChatProviderFailure.ApiError, AnswerFailureKind.ApiError },
+        { ChatProviderFailure.StreamError, AnswerFailureKind.ApiError },
+        { ChatProviderFailure.StreamEndedEarly, AnswerFailureKind.StreamEndedEarly },
+        { ChatProviderFailure.Connection, AnswerFailureKind.Connection },
     };
 
     [Theory]
-    [MemberData(nameof(StatusErrors))]
-    public async Task AnApiError_IsMappedToAShortMessage_AndLoggedInFull(int status, string body, AnswerFailureKind kind)
+    [MemberData(nameof(ProviderFailures))]
+    public async Task AProviderFailureBeforeTheStream_IsMappedToAShortMessage_AndLoggedInFull(ChatProviderFailure failure, AnswerFailureKind kind)
     {
-        var stub = new StubHandler(_ => WithoutRetryDelay(StubHandler.Json(body, (HttpStatusCode)status)));
-        using var harness = new AnswerHarness(stub);
+        FakeResponse response = new FakeResponse([]).ThenThrow(Failure(failure));
+        using var harness = new AnswerHarness(new FakeChatClient(response));
         List<AnswerEvent> received = [];
 
         Exception? ex = await Record.ExceptionAsync(() => harness.CollectAsync(received, cancellationToken: TestToken));
@@ -345,51 +499,48 @@ public sealed class AnswerServiceTests
         Assert.Empty(received);
     }
 
-    [Fact]
-    public async Task AnErrorEventPartwayThroughTheStream_IsAnApiError()
+    [Theory]
+    [MemberData(nameof(ProviderFailures))]
+    public async Task AProviderFailurePartwayThroughTheStream_KeepsTheEventsBeforeIt(ChatProviderFailure failure, AnswerFailureKind kind)
     {
-        List<string> events = [StreamEvents.Start(), .. StreamEvents.Thinking(0, "Checking."), StreamEvents.Error()];
-        using var harness = new AnswerHarness(new StubHandler(_ => Sse.Response(events)));
+        FakeResponse response = new FakeResponse([NeutralUpdates.Start(), .. NeutralUpdates.Thinking(0, "Checking.")])
+            .ThenThrow(Failure(failure));
+        using var harness = new AnswerHarness(new FakeChatClient(response));
         List<AnswerEvent> received = [];
 
         Exception? ex = await Record.ExceptionAsync(() => harness.CollectAsync(received, cancellationToken: TestToken));
 
-        AssertFailure(ex, AnswerFailureKind.ApiError, harness);
+        AssertFailure(ex, kind, harness);
         Assert.IsType<AnswerEvent.UsageStarted>(received[0]);
+        Assert.DoesNotContain(received, answerEvent => answerEvent is AnswerEvent.Completed);
     }
 
-    [Fact]
-    public async Task AStreamThatBreaksAfterTheResponseStarted_IsAConnectionError_AndNotRetried()
+    [Theory]
+    [InlineData(typeof(IOException))]
+    [InlineData(typeof(HttpRequestException))]
+    public async Task AnUntranslatedTransportFailure_IsAConnectionError(Type exceptionType)
     {
-        var stub = new StubHandler(_ => Sse.Response(new BreakingStream(Sse.Bytes(CannedAnswer.Opening))));
-        using var harness = new AnswerHarness(stub);
+        var exception = (Exception)Activator.CreateInstance(exceptionType, "The connection was reset (simulated).")!;
+        FakeResponse response = new FakeResponse(CannedAnswer.Opening).ThenThrow(exception);
+        using var harness = new AnswerHarness(new FakeChatClient(response));
         List<AnswerEvent> received = [];
 
         Exception? ex = await Record.ExceptionAsync(() => harness.CollectAsync(received, cancellationToken: TestToken));
 
         AssertFailure(ex, AnswerFailureKind.Connection, harness);
         Assert.IsType<AnswerEvent.UsageStarted>(received[0]);
-        Assert.Single(stub.Requests);
+        Assert.Single(harness.Client.Calls);
     }
 
-    [Fact]
-    public async Task AStreamThatEndsWithoutMessageStop_IsReportedAsEndedEarly()
+    [Theory]
+    [InlineData(typeof(FileNotFoundException), "API key file not found: D:\\keys\\missing.txt.")]
+    [InlineData(typeof(InvalidDataException), "API key file is empty: D:\\keys\\empty.txt")]
+    public async Task AKeyFileTheProviderCannotLoad_IsACredentialsFailure_AndNothingIsSent(Type exceptionType, string message)
     {
-        using var harness = new AnswerHarness(new StubHandler(_ => Sse.Response(CannedAnswer.Opening)));
-        List<AnswerEvent> received = [];
-
-        Exception? ex = await Record.ExceptionAsync(() => harness.CollectAsync(received, cancellationToken: TestToken));
-
-        AssertFailure(ex, AnswerFailureKind.StreamEndedEarly, harness);
-        Assert.DoesNotContain(received, answerEvent => answerEvent is AnswerEvent.Completed);
-    }
-
-    [Fact]
-    public async Task AMissingKeyFile_IsACredentialsFailure_AndNothingIsSent()
-    {
+        var exception = (Exception)Activator.CreateInstance(exceptionType, message)!;
         var logger = new ListLogger<AnswerService>();
         var service = new AnswerService(
-            () => throw new FileNotFoundException("API key file not found: D:\\keys\\missing.txt."),
+            () => throw exception,
             Microsoft.Extensions.Options.Options.Create(TestSettings.ValidOptions()),
             TimeProvider.System,
             logger);
@@ -403,20 +554,31 @@ public sealed class AnswerServiceTests
 
         AnswerFailedException failure = Assert.IsType<AnswerFailedException>(ex);
         Assert.Equal(AnswerFailureKind.Credentials, failure.Kind);
-        Assert.StartsWith("Cannot load the API key: API key file not found", failure.Message, StringComparison.Ordinal);
+        Assert.Equal($"Cannot load the API key: {message}", failure.Message);
+        Assert.Same(exception, failure.InnerException);
         Assert.Contains(logger.Entries, entry => entry.Level == LogLevel.Error && entry.Exception == failure.InnerException);
     }
 
     [Fact]
     public async Task AnInvalidConversation_IsRefusedBeforeAnythingIsSent()
     {
-        var stub = new StubHandler(_ => Sse.Response(CannedAnswer.Events));
-        using var harness = new AnswerHarness(stub);
+        using var harness = new AnswerHarness(CannedAnswer.Updates);
 
         await Assert.ThrowsAsync<ArgumentException>(() => harness.CollectAsync([], messages: [], cancellationToken: TestToken));
 
-        Assert.Empty(stub.Requests);
+        Assert.Empty(harness.Client.Calls);
+        Assert.Empty(harness.Provider.Levels);
     }
+
+    private static ChatProviderException Failure(ChatProviderFailure failure) => new(
+        failure,
+        $"{failure} (simulated).",
+        new InvalidOperationException("The provider SDK's exception (simulated)."),
+        statusCode: failure == ChatProviderFailure.ApiError ? 500 : null,
+        errorType: failure is ChatProviderFailure.ApiError or ChatProviderFailure.StreamError ? "overloaded_error" : null);
+
+    private static long? BlockIndexOf(AIContent content) =>
+        content.AdditionalProperties is { } properties && properties.TryGetValue(ChatKeys.BlockIndex, out long index) ? index : null;
 
     private static void AssertBlock(AnswerEvent answerEvent, int index, int[] numbers)
     {
@@ -425,40 +587,14 @@ public sealed class AnswerServiceTests
         Assert.Equal(numbers, block.SourceNumbers);
     }
 
-    private static void AssertFailure(Exception? ex, AnswerFailureKind kind, AnswerHarness harness)
+    private static AnswerFailedException AssertFailure(Exception? ex, AnswerFailureKind kind, AnswerHarness harness)
     {
         AnswerFailedException failure = Assert.IsType<AnswerFailedException>(ex);
         Assert.Equal(kind, failure.Kind);
         Assert.NotNull(failure.InnerException);
-        Assert.DoesNotContain("kkkk", failure.Message, StringComparison.Ordinal);
 
         var entry = Assert.Single(harness.Logger.Entries, entry => entry.Level == LogLevel.Error);
         Assert.Same(failure.InnerException, entry.Exception);
-        Assert.DoesNotContain("kkkk", entry.Message, StringComparison.Ordinal);
-    }
-
-    private static string ErrorBody(string type, string message) =>
-        JsonSerializer.Serialize(new { type = "error", error = new { type, message } });
-
-    /// <summary>The SDK retries 429 and 5xx twice; a zero retry-after keeps the test fast.</summary>
-    private static HttpResponseMessage WithoutRetryDelay(HttpResponseMessage response)
-    {
-        response.Headers.Add("retry-after-ms", "0");
-        return response;
-    }
-
-    /// <summary>Holds every request for <paramref name="delay"/> before any header is sent.</summary>
-    private sealed class SlowHeadersHandler(TimeSpan delay) : DelegatingHandler
-    {
-        private int _attempts;
-
-        public int Attempts => Volatile.Read(ref _attempts);
-
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            Interlocked.Increment(ref _attempts);
-            await Task.Delay(delay, cancellationToken);
-            return Sse.Response(CannedAnswer.Events);
-        }
+        return failure;
     }
 }

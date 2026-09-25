@@ -1,6 +1,7 @@
 using System.Globalization;
-using Anthropic.Models.Messages;
+using DocQaMs.Core.Chat;
 using DocQaMs.Core.Configuration;
+using Microsoft.Extensions.AI;
 
 namespace DocQaMs.Core.Answering;
 
@@ -26,27 +27,26 @@ public enum StopWarningKind
 public sealed record StopWarning(StopWarningKind Kind, string Message)
 {
     /// <summary>
-    /// The warning for how <paramref name="message"/> ended, or <see langword="null"/> for <c>end_turn</c>.
+    /// The warning for how <paramref name="response"/> ended, or <see langword="null"/> for <c>end_turn</c>.
     /// </summary>
-    /// <param name="message">The final message.</param>
-    /// <param name="stopDetails">The refusal details, when the final message lacks them.</param>
+    /// <param name="response">The final response.</param>
     /// <param name="effort">The level the answer was requested at.</param>
     /// <param name="maxTokens">The <c>max_tokens</c> of every level, for the truncation advice.</param>
+    /// <returns>The warning, or <see langword="null"/> when the answer ended normally.</returns>
     internal static StopWarning? For(
-        Message message,
-        RefusalStopDetails? stopDetails,
+        ChatResponse response,
         EffortLevel effort,
         IReadOnlyDictionary<EffortLevel, int> maxTokens)
     {
-        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(response);
         ArgumentNullException.ThrowIfNull(maxTokens);
 
-        string? stopReason = message.StopReason?.Raw();
+        string? stopReason = StopReasonOf(response);
         return stopReason switch
         {
             "end_turn" => null,
-            "max_tokens" => Truncated(message, effort, maxTokens),
-            "refusal" => Refused(message.StopDetails ?? stopDetails),
+            "max_tokens" => Truncated(Contents(response), effort, maxTokens),
+            "refusal" => Refused(response.AdditionalProperties),
             null => new StopWarning(
                 StopWarningKind.Incomplete,
                 "INCOMPLETE: the response ended with no stop_reason, so the answer may stop partway."),
@@ -57,10 +57,46 @@ public sealed record StopWarning(StopWarningKind Kind, string Message)
         };
     }
 
-    private static StopWarning Truncated(Message message, EffortLevel effort, IReadOnlyDictionary<EffortLevel, int> maxTokens)
+    /// <summary>
+    /// The provider's raw stop reason (<see cref="ChatKeys.StopReason"/>) when it reported one; otherwise the
+    /// stop reason <see cref="ChatResponse.FinishReason"/> stands for, or <see langword="null"/> when there is
+    /// neither.
+    /// </summary>
+    internal static string? StopReasonOf(ChatResponse response)
+    {
+        if (response.AdditionalProperties is { } properties
+            && properties.TryGetValue(ChatKeys.StopReason, out string? raw)
+            && raw is not null)
+        {
+            return raw;
+        }
+
+        if (response.FinishReason is not { } finish)
+        {
+            return null;
+        }
+
+        if (finish == ChatFinishReason.Stop)
+        {
+            return "end_turn";
+        }
+
+        if (finish == ChatFinishReason.Length)
+        {
+            return "max_tokens";
+        }
+
+        return finish == ChatFinishReason.ContentFilter ? "refusal" : finish.Value;
+    }
+
+    /// <summary>Every content of the response's messages, in order.</summary>
+    private static List<AIContent> Contents(ChatResponse response) =>
+        [.. response.Messages.SelectMany(message => message.Contents)];
+
+    private static StopWarning Truncated(IReadOnlyList<AIContent> content, EffortLevel effort, IReadOnlyDictionary<EffortLevel, int> maxTokens)
     {
         int limit = maxTokens[effort];
-        bool stoppedInThinking = StoppedInThinking(message.Content);
+        bool stoppedInThinking = StoppedInThinking(content);
 
         string text =
             $"TRUNCATED: the response reached the {Count(limit)}-token output limit for {effort.ToDisplayName()} " +
@@ -90,30 +126,34 @@ public sealed record StopWarning(StopWarningKind Kind, string Message)
         return new StopWarning(StopWarningKind.Truncated, text + ".");
     }
 
-    private static StopWarning Refused(RefusalStopDetails? details)
+    private static StopWarning Refused(AdditionalPropertiesDictionary? details)
     {
-        string? category = details?.Category?.Raw();
+        string? category = Detail(details, ChatKeys.RefusalCategory);
+        string? explanation = Detail(details, ChatKeys.RefusalExplanation);
         string text = category is null
             ? "REFUSED: the model declined to answer (stop_reason 'refusal')."
             : $"REFUSED: the model declined to answer (stop_reason 'refusal', category '{category}').";
-        if (!string.IsNullOrWhiteSpace(details?.Explanation))
+        if (!string.IsNullOrWhiteSpace(explanation))
         {
-            text += $" Explanation: {details.Explanation}";
+            text += $" Explanation: {explanation}";
         }
 
         return new StopWarning(StopWarningKind.Refused, text + " Any text above is not an answer.");
     }
 
+    private static string? Detail(AdditionalPropertiesDictionary? details, string key) =>
+        details is not null && details.TryGetValue(key, out string? value) ? value : null;
+
     /// <summary>
-    /// Whether generation stopped inside thinking: the last block with any content is a thinking block,
-    /// or there is none at all. Empty text blocks are skipped; they carry nothing.
+    /// Whether generation stopped inside thinking: the last content with anything in it is reasoning, or
+    /// there is none at all. Empty text contents are skipped; they carry nothing.
     /// </summary>
-    private static bool StoppedInThinking(IReadOnlyList<ContentBlock> content)
+    private static bool StoppedInThinking(IReadOnlyList<AIContent> content)
     {
         for (int i = content.Count - 1; i >= 0; i--)
         {
-            ContentBlock block = content[i];
-            if (block.TryPickText(out TextBlock? text))
+            AIContent block = content[i];
+            if (block is TextContent text)
             {
                 if (!string.IsNullOrEmpty(text.Text))
                 {
@@ -123,7 +163,7 @@ public sealed record StopWarning(StopWarningKind Kind, string Message)
                 continue;
             }
 
-            return block.TryPickThinking(out _) || block.TryPickRedactedThinking(out _);
+            return block is TextReasoningContent;
         }
 
         return true;

@@ -8,6 +8,7 @@ using DocQaMs.Web.Components.Conversations;
 using DocQaMs.Web.Components.Pages;
 using DocQaMs.Web.Tests.TestSupport;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Time.Testing;
@@ -529,7 +530,7 @@ public sealed class ConversationPageTests : IDisposable
         Title = TestData.Question,
         SettingsLocked = true,
         Corpus = TestData.Corpus,
-        Messages = [new() { Role = Anthropic.Models.Messages.Role.User, Content = "q" }, new() { Role = Anthropic.Models.Messages.Role.Assistant, Content = "a" }],
+        Messages = [new(ChatRole.User, "q"), new(ChatRole.Assistant, "a")],
         Answers = [TestData.Completed()],
         LastOutcome = TurnOutcome.Completed,
     };

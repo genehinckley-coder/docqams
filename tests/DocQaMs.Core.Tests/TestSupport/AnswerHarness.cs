@@ -1,18 +1,16 @@
-using Anthropic.Models.Messages;
 using DocQaMs.Core.Answering;
-using DocQaMs.Core.ApiClient;
 using DocQaMs.Core.Configuration;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.AI;
 
 namespace DocQaMs.Core.Tests.TestSupport;
 
 /// <summary>
-/// An <see cref="AnswerService"/> wired to a test's innermost HTTP handler, with the real per-level
+/// An <see cref="AnswerService"/> over a <see cref="FakeChatClient"/>, with the real per-level
 /// <c>max_tokens</c> and both models' real prices.
 /// </summary>
 internal sealed class AnswerHarness : IDisposable
 {
-    public AnswerHarness(DelegatingHandler innermost, Action<DocQaOptions>? configure = null, TimeSpan? sdkTimeout = null)
+    public AnswerHarness(FakeChatClient client, Action<DocQaOptions>? configure = null, TimeProvider? time = null)
     {
         Options = TestSettings.ValidOptions();
         Options.MaxTokens[EffortLevel.XHigh] = 64_000;
@@ -27,18 +25,27 @@ internal sealed class AnswerHarness : IDisposable
         };
         configure?.Invoke(Options);
 
-        Provider = AnthropicClientProvider.Create(
-            SinglePass.FakeKey, SinglePass.Timeouts(sdkTimeout ?? TimeSpan.FromMinutes(1)), [innermost]);
-        Service = new AnswerService(() => Provider, Microsoft.Extensions.Options.Options.Create(Options), TimeProvider.System, Logger);
+        Client = client;
+        Provider = new FakeChatClientProvider(client);
+        Service = new AnswerService(
+            () => Provider, Microsoft.Extensions.Options.Options.Create(Options), time ?? TimeProvider.System, Logger);
+    }
+
+    /// <summary>An answer service whose every request is answered with <paramref name="updates"/>.</summary>
+    public AnswerHarness(IEnumerable<ChatResponseUpdate> updates, Action<DocQaOptions>? configure = null, TimeProvider? time = null)
+        : this(new FakeChatClient(updates), configure, time)
+    {
     }
 
     /// <summary>A first question against the item 1 spike fixtures.</summary>
-    public static IReadOnlyList<MessageParam> FirstQuestion { get; } =
+    public static IReadOnlyList<ChatMessage> FirstQuestion { get; } =
         [MessageRequestBuilder.FirstTurn(SpikeFixtures.Documents, "Q?")];
 
     public DocQaOptions Options { get; }
 
-    public AnthropicClientProvider Provider { get; }
+    public FakeChatClient Client { get; }
+
+    public FakeChatClientProvider Provider { get; }
 
     public AnswerService Service { get; }
 
@@ -51,7 +58,7 @@ internal sealed class AnswerHarness : IDisposable
     public async Task CollectAsync(
         List<AnswerEvent> received,
         AnswerSettings? settings = null,
-        IReadOnlyList<MessageParam>? messages = null,
+        IReadOnlyList<ChatMessage>? messages = null,
         Action<AnswerEvent>? onEvent = null,
         CancellationToken cancellationToken = default)
     {
@@ -64,12 +71,13 @@ internal sealed class AnswerHarness : IDisposable
     }
 
     /// <summary>Streams an answer that must complete, and returns its result.</summary>
-    public async Task<AnswerResult> CompleteAsync(AnswerSettings? settings = null, CancellationToken cancellationToken = default)
+    public async Task<AnswerResult> CompleteAsync(
+        AnswerSettings? settings = null, IReadOnlyList<ChatMessage>? messages = null, CancellationToken cancellationToken = default)
     {
         List<AnswerEvent> received = [];
-        await CollectAsync(received, settings, cancellationToken: cancellationToken);
+        await CollectAsync(received, settings, messages, cancellationToken: cancellationToken);
         return Assert.IsType<AnswerEvent.Completed>(received[^1]).Result;
     }
 
-    public void Dispose() => Provider.Dispose();
+    public void Dispose() => Client.Dispose();
 }

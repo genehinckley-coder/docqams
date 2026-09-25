@@ -18,9 +18,9 @@ namespace DocQaMs.Core.Corpus;
 /// corpus no longer matches.
 /// </para>
 /// <para>
-/// The serialization is written field by field in a fixed order, rather than by serializing the SDK's
-/// types, whose property order is not guaranteed. A test checks the blocks against what the SDK actually
-/// sends, so a field added to <see cref="MessageRequestBuilder.DocumentBlocks"/> cannot be left out. The
+/// The serialization is written field by field in a fixed order, rather than by serializing the
+/// provider SDK's types, whose property order is not guaranteed. A test checks the blocks against what
+/// the provider actually sends, so a field added to <see cref="MessageRequestBuilder.DocumentBlocks"/> cannot be left out. The
 /// fingerprint does not equal the prototype's, and does not need to.
 /// </para>
 /// </remarks>

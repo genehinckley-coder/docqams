@@ -19,7 +19,7 @@ public sealed class CorpusBlocksGoldenTests
     {
         DocQaMs.Core.Corpus.Corpus corpus = await RealCorpus.Value;
 
-        // The canonical serialization is what the SDK sends (ApiTokenCounterTests), so this compares the
+        // The canonical serialization is what the provider sends (checked in DocQaMs.Claude.Tests), so this compares the
         // request's blocks, in order and with the breakpoint on the last one only, with the prototype's.
         JsonArray assembled = JsonNode.Parse(CorpusFingerprint.CanonicalJson(corpus.RequestDocuments))!.AsArray();
         for (int i = 0; i < assembled.Count; i++)

@@ -1,9 +1,8 @@
-using System.Text.Json;
-using Anthropic.Models.Messages;
 using DocQaMs.Core.Answering;
 using DocQaMs.Core.Configuration;
 using DocQaMs.Core.Corpus;
 using DocQaMs.Core.Text;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Options;
 using CorpusSnapshot = DocQaMs.Core.Corpus.Corpus;
 
@@ -41,7 +40,7 @@ public sealed class QuoteChecker
         "NOT confirm the quote supports the claim attached to it. Read the cited text before relying on any " +
         "conclusion drawn from it.";
 
-    internal const string CharLocation = "char_location";
+    internal const string CharLocation = AnswerCitation.CharLocation;
 
     private readonly int _minCitationLength;
     private readonly double _thinCoverageFraction;
@@ -121,14 +120,17 @@ public sealed class QuoteChecker
     public QuoteReport BuildReport(AnswerResult result, CorpusSnapshot corpus)
     {
         ArgumentNullException.ThrowIfNull(result);
-        return BuildReport(result.Sources, result.Message.Content, corpus);
+        return BuildReport(result.Sources, result.Reply.Contents.AsReadOnly(), corpus);
     }
 
     /// <summary>
     /// Checks every distinct cited span and measures how much of the answer is sourced.
     /// </summary>
     /// <param name="sources">Distinct citations in source-number order, as numbered in the rendered answer.</param>
-    /// <param name="content">The response's content blocks. Only text blocks are read.</param>
+    /// <param name="content">
+    /// The reply's contents, one per content block. Only <see cref="TextContent"/>s are read, with their
+    /// <see cref="CitationAnnotation"/>s.
+    /// </param>
     /// <param name="corpus">The snapshot the answer's request was built from.</param>
     /// <returns>
     /// The report. A citation in <paramref name="content"/> that is missing from <paramref name="sources"/> is
@@ -136,7 +138,7 @@ public sealed class QuoteChecker
     /// reported as <see cref="MatchStatus.NotCheckable"/>, not thrown.
     /// </returns>
     public QuoteReport BuildReport(
-        IReadOnlyList<AnswerCitation> sources, IReadOnlyList<ContentBlock> content, CorpusSnapshot corpus)
+        IReadOnlyList<AnswerCitation> sources, IReadOnlyList<AIContent> content, CorpusSnapshot corpus)
     {
         ArgumentNullException.ThrowIfNull(sources);
         ArgumentNullException.ThrowIfNull(content);
@@ -152,21 +154,21 @@ public sealed class QuoteChecker
         int answerCharacters = 0;
         int uncitedCharacters = 0;
         List<(string Text, IReadOnlyList<int> Numbers, int Characters)> cited = [];
-        foreach (ContentBlock block in content)
+        foreach (AIContent block in content)
         {
-            if (!block.TryPickText(out TextBlock? text))
+            if (block is not TextContent text)
             {
                 continue;
             }
 
-            IReadOnlyList<TextCitation> citations = text.Citations ?? [];
+            List<CitationAnnotation> citations = [.. (text.Annotations ?? []).OfType<CitationAnnotation>()];
             int characters = VisibleLength(text.Text);
             answerCharacters += characters;
             citationCount += citations.Count;
 
             // Every citation is numbered, and so checked, even in a block too empty to measure.
             List<int> numbers = [];
-            foreach (TextCitation citation in citations)
+            foreach (CitationAnnotation citation in citations)
             {
                 int number = numbering.Number(CitedSpan.Read(citation));
                 if (!numbers.Contains(number))
@@ -381,31 +383,23 @@ public sealed class QuoteChecker
         public static CitedSpan Of(AnswerCitation citation) =>
             new(citation.SpanKey, citation, CharLocation, citation.CitedText, null);
 
-        /// <summary>Reads a citation from a text block, without throwing on one of an unexpected kind.</summary>
-        public static CitedSpan Read(TextCitation citation)
+        /// <summary>Reads a citation from a text content, without throwing on one of an unexpected kind.</summary>
+        public static CitedSpan Read(CitationAnnotation citation)
         {
-            JsonElement json = citation.Json;
-            string type = StringProperty(json, "type") ?? "unknown";
-            if (type == CharLocation && AnswerCitation.TryFromJson(json) is { } location)
+            string type = AnswerCitation.TypeOf(citation);
+            if (type == CharLocation && AnswerCitation.TryFrom(citation) is { } location)
             {
                 return Of(location);
             }
 
             // Plain-text documents are cited by char_location only, so this is not expected; such a citation is
             // keyed on its quote, as the prototype keys one.
-            string citedText = StringProperty(json, "cited_text") ?? "";
+            string citedText = citation.Snippet ?? "";
             string reason = type == CharLocation
                 ? "the char_location citation is missing its quoted text or an offset"
                 : $"a \"{type}\" citation carries no character offsets";
             return new CitedSpan((type, citedText), null, type, citedText, reason);
         }
-
-        private static string? StringProperty(JsonElement json, string name) =>
-            json.ValueKind == JsonValueKind.Object
-            && json.TryGetProperty(name, out JsonElement value)
-            && value.ValueKind == JsonValueKind.String
-                ? value.GetString()
-                : null;
     }
 
     /// <summary>Numbers distinct spans in the order first seen.</summary>

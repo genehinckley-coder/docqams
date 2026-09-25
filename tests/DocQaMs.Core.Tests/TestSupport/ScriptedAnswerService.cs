@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Channels;
-using Anthropic.Models.Messages;
 using DocQaMs.Core.Answering;
+using Microsoft.Extensions.AI;
 
 namespace DocQaMs.Core.Tests.TestSupport;
 
@@ -30,7 +30,7 @@ internal sealed class ScriptedAnswerService : IAnswerService
     public bool IgnoreCancellation { get; set; }
 
     public IAsyncEnumerable<AnswerEvent> StreamAsync(
-        AnswerSettings settings, IReadOnlyList<MessageParam> messages, CancellationToken cancellationToken = default)
+        AnswerSettings settings, IReadOnlyList<ChatMessage> messages, CancellationToken cancellationToken = default)
     {
         var answer = new ScriptedAnswer(settings, [.. messages], IgnoreCancellation, started => _reading.Writer.TryWrite(started));
         lock (_calls)
@@ -55,7 +55,7 @@ internal sealed class ScriptedAnswerService : IAnswerService
 
 /// <summary>One answer in progress: the request it was given, and the events a test sends it.</summary>
 internal sealed class ScriptedAnswer(
-    AnswerSettings settings, IReadOnlyList<MessageParam> messages, bool ignoreCancellation, Action<ScriptedAnswer> onReading)
+    AnswerSettings settings, IReadOnlyList<ChatMessage> messages, bool ignoreCancellation, Action<ScriptedAnswer> onReading)
 {
     private readonly Channel<object> _items = Channel.CreateUnbounded<object>();
     private readonly TaskCompletionSource _closed = new(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -63,7 +63,7 @@ internal sealed class ScriptedAnswer(
     public AnswerSettings Settings => settings;
 
     /// <summary>The request's messages: the committed conversation plus the new question.</summary>
-    public IReadOnlyList<MessageParam> Messages => messages;
+    public IReadOnlyList<ChatMessage> Messages => messages;
 
     /// <summary>The token the store passed; cancelled by Stop.</summary>
     public CancellationToken Token { get; private set; }

@@ -1,10 +1,10 @@
-using System.Text.Json;
-using Anthropic.Models.Messages;
 using DocQaMs.Core.Answering;
+using DocQaMs.Core.Chat;
 using DocQaMs.Core.Configuration;
 using DocQaMs.Core.Conversations;
 using DocQaMs.Core.Corpus;
 using DocQaMs.Core.Quotes;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Configuration;
 using CorpusSnapshot = DocQaMs.Core.Corpus.Corpus;
 
@@ -61,15 +61,19 @@ internal static class TestData
     /// <summary>A completed response. Its message is never shown; the view reads the usage, cost and time.</summary>
     public static AnswerResult Result(AnswerSettings? settings = null, TokenUsage? usage = null)
     {
-        using JsonDocument json = JsonDocument.Parse(
-            """{"id":"msg_test","type":"message","role":"assistant","model":"claude-opus-5","content":[],"stop_reason":"end_turn","stop_sequence":null,"usage":{"input_tokens":12,"output_tokens":5313}}""");
-        Message message = Message.FromRawUnchecked(
-            json.RootElement.EnumerateObject().ToDictionary(property => property.Name, property => property.Value.Clone()));
+        var response = new ChatResponse(new ChatMessage(ChatRole.Assistant, []) { MessageId = "msg_test" })
+        {
+            ResponseId = "msg_test",
+            ModelId = "claude-opus-5",
+            FinishReason = ChatFinishReason.Stop,
+            Usage = new UsageDetails { InputTokenCount = 12, OutputTokenCount = 5_313 },
+            AdditionalProperties = new() { [ChatKeys.StopReason] = "end_turn" },
+        };
 
         settings ??= AnswerSettings.Default;
         usage ??= new TokenUsage(12, Tokens, 20, 0, 5_313);
         return new AnswerResult(
-            settings, message, [Citation()], usage, TurnCost.For(usage, Options().Prices[settings.ModelId]), TimeSpan.FromSeconds(58), null);
+            settings, response, [Citation()], usage, TurnCost.For(usage, Options().Prices[settings.ModelId]), TimeSpan.FromSeconds(58), null);
     }
 
     public static AnswerRecord Completed(
